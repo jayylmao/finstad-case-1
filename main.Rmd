@@ -1,0 +1,78 @@
+---
+title: "main"
+output: html_document
+date: "2026-06-29"
+---
+
+# FINSTAD Financial Database
+
+Group 1
+
+- Aragon, Enrique Miguel Moreno
+- Cardiño, Joaquin Carlo Esteban
+- Carlos, Jay Michael Tenorio
+- Chua, Erin Gabrielle Tan
+
+This is an integrated database containing various explorations and visualizations of data from a Philippine asset, a U.S. asset, and cryptocurrency, against FRED macroeconomic data and the SPDR S&P 500 ETF Trust. The data analyzed is restricted to January 1, 2020 until December 31, 2025.
+
+# Setup
+
+Initialize packages.
+
+```{r}
+pacman::p_load(dplyr, ggplot2, quantmod, tidyverse, tidyquant, lubridate, timetk)
+
+library(dplyr)
+library(ggplot2)
+library(quantmod)
+library(tidyverse)
+library(tidyquant)
+library(lubridate)
+library(timetk)
+```
+
+Get symbols from:
+
+- FRED
+- SPY
+- Cryptocurrency
+- U.S. asset
+- Philippine asset
+
+```{r}
+# date constants for use throughout the project.
+DATE_FROM <- "2020-01-01"
+DATE_TO <- "2025-12-31"
+
+# macroeconomic data is sourced from the Federal Reserve Bank of St. Louis' FRED dataset.
+quantmod::getSymbols("DGS10",
+                     src = "FRED",
+                     from = DATE_FROM,
+                     to = DATE_TO)
+quantmod::getSymbols("CPIAUCSL",
+                     src = "FRED",
+                     from = DATE_FROM,
+                     to = DATE_TO)
+
+# the following symbol data is sourced from yahoo finance.
+quantmod::getSymbols("SPY",                 # SPDR S&P 500 ETF Trust
+                     src = "yahoo",
+                     from = DATE_FROM,
+                     to = DATE_TO)
+quantmod::getSymbols("AMD",                 # U.S. Asset: Advanced Micro Devices, Inc.
+                     src = "yahoo",
+                     from = DATE_FROM,
+                     to = DATE_TO)
+quantmod::getSymbols("PHI",                 # Philippine Asset: PLDT, Inc.
+                     src = "yahoo",
+                     from = DATE_FROM,
+                     to = DATE_TO)
+quantmod::getSymbols("^VIX",                # CBOE Volatility Index
+                     src = "yahoo",
+                     from = DATE_FROM,
+                     to = DATE_TO)
+quantmod::getSymbols("ETH",                 # Cryptocurrency: Ethereum
+                     src = "yahoo",
+                     from = DATE_FROM,
+                     to = DATE_TO)
+```
