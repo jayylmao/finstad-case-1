@@ -71,8 +71,66 @@ quantmod::getSymbols("^VIX",                # CBOE Volatility Index
                      src = "yahoo",
                      from = DATE_FROM,
                      to = DATE_TO)
-quantmod::getSymbols("ETH",                 # Cryptocurrency: Ethereum
+quantmod::getSymbols("ETH-USD",             # Cryptocurrency: Ethereum
                      src = "yahoo",
                      from = DATE_FROM,
                      to = DATE_TO)
+```
+
+# Cleaning
+Convert all XTS objects to tibbles.
+```{r}
+dgs10 <- tibble(
+  date = index(DGS10),
+  dgs10 = as.numeric(DGS10$DGS10),
+)
+cpiaucsl <- tibble(
+  date = index(CPIAUCSL),
+  cpiaucsl = as.numeric(CPIAUCSL$CPIAUCSL),
+)
+spy <- tibble(
+  date = index(SPY),
+  open = as.numeric(SPY$SPY.Open),
+  high = as.numeric(SPY$SPY.High),
+  low = as.numeric(SPY$SPY.Low),
+  close = as.numeric(SPY$SPY.Close),
+  volume = as.numeric(SPY$SPY.Volume),
+  adjusted = as.numeric(SPY$SPY.Adjusted),
+)
+amd <- tibble(
+  date = index(AMD),
+  open = as.numeric(AMD$AMD.Open),
+  high = as.numeric(AMD$AMD.High),
+  low = as.numeric(AMD$AMD.Low),
+  close = as.numeric(AMD$AMD.Close),
+  volume = as.numeric(AMD$AMD.Volume),
+  adjusted = as.numeric(AMD$AMD.Adjusted),
+)
+phi <- tibble(
+  date = index(PHI),
+  open = as.numeric(PHI$PHI.Open),
+  high = as.numeric(PHI$PHI.High),
+  low = as.numeric(PHI$PHI.Low),
+  close = as.numeric(PHI$PHI.Close),
+  volume = as.numeric(PHI$PHI.Volume),
+  adjusted = as.numeric(PHI$PHI.Adjusted),
+)
+vix <- tibble(
+  date = index(VIX),
+  open = as.numeric(VIX$VIX.Open),
+  high = as.numeric(VIX$VIX.High),
+  low = as.numeric(VIX$VIX.Low),
+  close = as.numeric(VIX$VIX.Close),
+  volume = as.numeric(VIX$VIX.Volume),
+  adjusted = as.numeric(VIX$VIX.Adjusted),
+)
+eth <- tibble(
+  date = index(`ETH-USD`),
+  open = as.numeric(`ETH-USD`$`ETH-USD.Open`),
+  high = as.numeric(`ETH-USD`$`ETH-USD.High`),
+  low = as.numeric(`ETH-USD`$`ETH-USD.Low`),
+  close = as.numeric(`ETH-USD`$`ETH-USD.Close`),
+  volume = as.numeric(`ETH-USD`$`ETH-USD.Volume`),
+  adjusted = as.numeric(`ETH-USD`$`ETH-USD.Adjusted`),
+)
 ```
