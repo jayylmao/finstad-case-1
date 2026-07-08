@@ -31,11 +31,10 @@ library(lubridate)
 library(timetk)
 ```
 
-## Comparing the different datasets
+### Comparing the different datasets
 note: we probably need to explicitly write down and explain each set smt like that
 
 We first get symbols from the following sources:
-
 - FRED
 - SPY
 - Cryptocurrency
@@ -80,37 +79,46 @@ quantmod::getSymbols("ETH-USD",             # Cryptocurrency: Ethereum
                      to = DATE_TO)
 ```
 
-First we can look at the macroeconomic data
+Then we can look at the macroeconomic data,
 
 The data is taken from the Federal Reserve Economic Database (FRED) from the Federal Reserve Bank of St. Louis, where we load in the _Market Yield on U.S. Treasury Securities at 10-Year Constant Maturity_ (**DGS10**) and _Consumer Price Index for All Urban Consumers_ (**CPIAUCSL**).
 
 **DGS10** is used as a proxy for the "risk-free rate" in finance, it helps investors gauge inflation expectations, economic growth, and monetary policy shifts. While **CPIAUCSL** is seasonally adjusted to gauge monthly inflation metrics on consumer goods.
 
-These pieces of macroeconomic data would help in
+These pieces of macroeconomic data would help in understanding broader market cycles and how systemic risks affect stock valuations.
 ```{r}
 head(DGS10)
 head(CPIAUCSL)
 ```
 
-We can then take a look at the stock data
+We can then take a look at our chosen financial market data,
+
+U.S. Asset - Advanced Micro Devices, Inc. (AMD)
+Philippine Asset - PLDT, Inc.(PHI)
+Cryptocurrency - Etherium (ETH or ETH-USD)
+Required - State Street SPDR S&P 500 ETF Trust (SPY)
+
+*note: do we explain why we chose these companies lol??
 ```{r}
 ETH <- `ETH-USD`
 
 head(AMD)
 head(PHI)
 head(ETH)
+head(SPY)
 ```
 
-Now we take a look at VIX and SPY data
+Lastly, we take a look at the _Cboe Volatility Index_ (**VIX**), this is not an individual stock but a real time market index created by the Chicago Board Options Exchange (Cboe). This measures the market's expectation of 30-day volatility in the S&P 500 index.
+
+This adds aid on top of macroeconomic data to further gauge systemic risks, VIX is known as the "Fear Gauge" which reflects levels of anxiety, complacency, or uncertainty in the market, when this "Fear Gauge" level rises it implies larger expected swings in stock prices.
 ```{r}
-head(SPY)
 head(VIX)
 ```
 
 # Cleaning
 
 ## 1. Converting XTS to tibbles
-First we convert all XTS objects to tibbles.(expound)
+First we convert all XTS objects to tibbles for easier data manipulation.
 ```{r}
 dgs10_tbl <- tibble(
   date = index(DGS10),
@@ -173,7 +181,7 @@ eth_tbl <- tibble(
 ```
 
 ## 2. Asset Identifier
-We add an asset identifier per asset to smt smt
+We add an asset identifier per asset to see the data better in table structures.
 ```{r}
 amd_tbl <- amd_tbl |> 
   mutate(asset = "AMD")
@@ -193,6 +201,8 @@ vix_tbl <- vix_tbl |>
 
 ## 3. Computing daily returns
 idk if we should compute basic returns here or log returns
+
+Daily returns are computed using the basic return formula
 ```{r}
 amd_tbl <- amd_tbl |> 
   mutate(
