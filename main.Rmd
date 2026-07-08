@@ -34,7 +34,7 @@ library(timetk)
 ## Comparing the different datasets
 note: we probably need to explicitly write down and explain each set smt like that
 
-Get symbols from:
+We first get symbols from the following sources:
 
 - FRED
 - SPY
@@ -80,6 +80,18 @@ quantmod::getSymbols("ETH-USD",             # Cryptocurrency: Ethereum
                      to = DATE_TO)
 ```
 
+First we can look at the macroeconomic data
+
+The data is taken from the Federal Reserve Economic Database (FRED) from the Federal Reserve Bank of St. Louis, where we load in the _Market Yield on U.S. Treasury Securities at 10-Year Constant Maturity_ (**DGS10**) and _Consumer Price Index for All Urban Consumers_ (**CPIAUCSL**).
+
+**DGS10** is used as a proxy for the "risk-free rate" in finance, it helps investors gauge inflation expectations, economic growth, and monetary policy shifts. While **CPIAUCSL** is seasonally adjusted to gauge monthly inflation metrics on consumer goods.
+
+These pieces of macroeconomic data would help in
+```{r}
+head(DGS10)
+head(CPIAUCSL)
+```
+
 We can then take a look at the stock data
 ```{r}
 ETH <- `ETH-USD`
@@ -87,12 +99,12 @@ ETH <- `ETH-USD`
 head(AMD)
 head(PHI)
 head(ETH)
-head(SPY)
 ```
-Then we can look at FRED data
+
+Now we take a look at VIX and SPY data
 ```{r}
-head(DGS10)
-head(CPIAUCSL)
+head(SPY)
+head(VIX)
 ```
 
 # Cleaning
@@ -100,15 +112,15 @@ head(CPIAUCSL)
 ## 1. Converting XTS to tibbles
 First we convert all XTS objects to tibbles.(expound)
 ```{r}
-dgs10 <- tibble(
+dgs10_tbl <- tibble(
   date = index(DGS10),
   dgs10 = as.numeric(DGS10$DGS10),
 )
-cpiaucsl <- tibble(
+cpiaucsl_tbl <- tibble(
   date = index(CPIAUCSL),
   cpiaucsl = as.numeric(CPIAUCSL$CPIAUCSL),
 )
-spy <- tibble(
+spy_tbl <- tibble(
   date = index(SPY),
   open = as.numeric(SPY$SPY.Open),
   high = as.numeric(SPY$SPY.High),
@@ -116,8 +128,9 @@ spy <- tibble(
   close = as.numeric(SPY$SPY.Close),
   volume = as.numeric(SPY$SPY.Volume),
   adjusted = as.numeric(SPY$SPY.Adjusted),
+  adj_close = as.numeric(Ad(SPY)),
 )
-amd <- tibble(
+amd_tbl <- tibble(
   date = index(AMD),
   open = as.numeric(AMD$AMD.Open),
   high = as.numeric(AMD$AMD.High),
@@ -125,8 +138,9 @@ amd <- tibble(
   close = as.numeric(AMD$AMD.Close),
   volume = as.numeric(AMD$AMD.Volume),
   adjusted = as.numeric(AMD$AMD.Adjusted),
+  adj_close = as.numeric(Ad(AMD)),
 )
-phi <- tibble(
+phi_tbl <- tibble(
   date = index(PHI),
   open = as.numeric(PHI$PHI.Open),
   high = as.numeric(PHI$PHI.High),
@@ -134,8 +148,9 @@ phi <- tibble(
   close = as.numeric(PHI$PHI.Close),
   volume = as.numeric(PHI$PHI.Volume),
   adjusted = as.numeric(PHI$PHI.Adjusted),
+  adj_close = as.numeric(Ad(PHI)),
 )
-vix <- tibble(
+vix_tbl <- tibble(
   date = index(VIX),
   open = as.numeric(VIX$VIX.Open),
   high = as.numeric(VIX$VIX.High),
@@ -143,8 +158,9 @@ vix <- tibble(
   close = as.numeric(VIX$VIX.Close),
   volume = as.numeric(VIX$VIX.Volume),
   adjusted = as.numeric(VIX$VIX.Adjusted),
+  adj_close = as.numeric(Ad(VIX)),
 )
-eth <- tibble(
+eth_tbl <- tibble(
   date = index(ETH),
   open = as.numeric(ETH$`ETH-USD.Open`),
   high = as.numeric(ETH$`ETH-USD.High`),
@@ -152,31 +168,160 @@ eth <- tibble(
   close = as.numeric(ETH$`ETH-USD.Close`),
   volume = as.numeric(ETH$`ETH-USD.Volume`),
   adjusted = as.numeric(ETH$`ETH-USD.Adjusted`),
+  adj_close = as.numeric(Ad(ETH)),
 )
 ```
 
-## 2. Adding an asset identifier per asset
+## 2. Asset Identifier
+We add an asset identifier per asset to smt smt
 ```{r}
+amd_tbl <- amd_tbl |> 
+  mutate(asset = "AMD")
+
+eth_tbl <- eth_tbl |> 
+  mutate(asset = "ETH")
+
+phi_tbl <- phi_tbl |> 
+  mutate(asset = "PHI")
+
+spy_tbl <- spy_tbl |> 
+  mutate(asset = "SPY")
+
+vix_tbl <- vix_tbl |> 
+  mutate(asset = "VIX")
 ```
 
 ## 3. Computing daily returns
+idk if we should compute basic returns here or log returns
 ```{r}
+amd_tbl <- amd_tbl |> 
+  mutate(
+    return = adj_close / lag(adj_close) - 1
+  )
+
+eth_tbl <- eth_tbl |> 
+  mutate(
+    return = adj_close / lag(adj_close) - 1
+  )
+
+phi_tbl <- phi_tbl |> 
+  mutate(
+    return = adj_close / lag(adj_close) - 1
+  )
+
+spy_tbl <- spy_tbl |> 
+  mutate(
+    return = adj_close / lag(adj_close) - 1
+  )
+
+vix_tbl <- vix_tbl |> 
+  mutate(
+    return = adj_close / lag(adj_close) - 1
+  )
 ```
 
 ## 4. Removing missing rows
+idk if we should impute or just remove null rows 
 ```{r}
+amd_tbl <- amd_tbl  |> 
+  filter(!is.na(return))
+
+eth_tbl <- eth_tbl  |> 
+  filter(!is.na(return))
+
+phi_tbl <- phi_tbl |> 
+  filter(!is.na(return))
+
+spy_tbl <- spy_tbl  |> 
+  filter(!is.na(return))
+
+vix_tbl <- vix_tbl  |> 
+  filter(!is.na(return))
 ```
 
 ## 5. Examine the data
 ```{r}
+glimpse(amd_tbl)
+glimpse(eth_tbl)
+glimpse(phi_tbl)
+glimpse(spy_tbl)
+glimpse(vix_tbl)
+```
+
+Summary Tables
+```{r}
+summary(amd_tbl)
+summary(eth_tbl)
+summary(phi_tbl)
+summary(spy_tbl)
+summary(vix_tbl)
 ```
 
 ## 6. Preparing Macroeconomic variables
 ```{r}
+treasury_tbl <- tibble(
+  date = index(DGS10),
+  treasury_10y = as.numeric(DGS10$DGS10)
+)
+```
+
+```{r}
+cpi_tbl <- tibble(
+  date = index(CPIAUCSL),
+  cpi = as.numeric(CPIAUCSL$CPIAUCSL)
+)
+```
+
+```{r}
+head(treasury_tbl)
+head(cpi_tbl)
 ```
 
 ## 7. Create an Observation Summary Table and saving it
+We first count the observations
 ```{r}
+nrow(amd_tbl)
+nrow(eth_tbl)
+nrow(phi_tbl)
+nrow(spy_tbl)
+nrow(vix_tbl)
+nrow(treasury_tbl)
+nrow(cpi_tbl)
+```
+
+Creating the observation summary table
+```{r}
+obs_summary <- tibble(
+  Dataset = c("AMD",
+              "Ethereum",
+              "PLDT",
+              "SPY",
+              "VIX",
+              "Treasury",
+              "CPI"),
+  Observations = c(
+    nrow(amd_tbl),
+    nrow(eth_tbl),
+    nrow(phi_tbl),
+    nrow(spy_tbl),
+    nrow(vix_tbl),
+    nrow(treasury_tbl),
+    nrow(cpi_tbl)
+  )
+)
+
+obs_summary
+```
+
+Saving the clean tables
+```{r}
+amd_clean <- amd_tbl
+eth_clean <- eth_tbl
+phi_clean <- phi_tbl
+spy_clean <- spy_tbl
+vix_clean <- vix_tbl
+treasury_clean <- treasury_tbl
+cpi_clean <- cpi_tbl
 ```
 
 # SQL Investigation
