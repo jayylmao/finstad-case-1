@@ -382,18 +382,12 @@ library(tidyverse)
 library(tidyquant)
 library(lubridate)
 library(timetk)</code></pre>
-<div id="comparing-the-different-datasets" class="section level2">
-<h2>Comparing the different datasets</h2>
+<div id="comparing-the-different-datasets" class="section level3">
+<h3>Comparing the different datasets</h3>
 <p>note: we probably need to explicitly write down and explain each set
 smt like that</p>
-<p>We first get symbols from the following sources:</p>
-<ul>
-<li>FRED</li>
-<li>SPY</li>
-<li>Cryptocurrency</li>
-<li>U.S. asset</li>
-<li>Philippine asset</li>
-</ul>
+<p>We first get symbols from the following sources: - FRED - SPY -
+Cryptocurrency - U.S. asset - Philippine asset</p>
 <pre class="r"><code># date constants for use throughout the project.
 DATE_FROM &lt;- &quot;2020-01-01&quot;
 DATE_TO &lt;- &quot;2025-12-31&quot;
@@ -435,7 +429,7 @@ quantmod::getSymbols(&quot;SPY&quot;,                 # SPDR S&amp;P 500 ETF Tru
                      from = DATE_FROM,
                      to = DATE_TO)</code></pre>
 <pre><code>## [1] &quot;ETH-USD&quot;</code></pre>
-<p>First we can look at the macroeconomic data</p>
+<p>Then we can look at the macroeconomic data,</p>
 <p>The data is taken from the Federal Reserve Economic Database (FRED)
 from the Federal Reserve Bank of St. Louis, where we load in the
 <em>Market Yield on U.S. Treasury Securities at 10-Year Constant
@@ -446,7 +440,9 @@ finance, it helps investors gauge inflation expectations, economic
 growth, and monetary policy shifts. While <strong>CPIAUCSL</strong> is
 seasonally adjusted to gauge monthly inflation metrics on consumer
 goods.</p>
-<p>These pieces of macroeconomic data would help in</p>
+<p>These pieces of macroeconomic data would help in understanding
+broader market cycles and how systemic risks affect stock
+valuations.</p>
 <pre class="r"><code>head(DGS10)</code></pre>
 <pre><code>##            DGS10
 ## 2020-01-01    NA
@@ -463,7 +459,11 @@ goods.</p>
 ## 2020-04-01  256.032
 ## 2020-05-01  255.802
 ## 2020-06-01  257.042</code></pre>
-<p>We can then take a look at the stock data</p>
+<p>We can then take a look at our chosen financial market data,</p>
+<p>U.S. Asset - Advanced Micro Devices, Inc. (AMD) Philippine Asset -
+PLDT, Inc.(PHI) Cryptocurrency - Etherium (ETH or ETH-USD) Required -
+State Street SPDR S&amp;P 500 ETF Trust (SPY)</p>
+<p>*note: do we explain why we chose these companies lol??</p>
 <pre class="r"><code>ETH &lt;- `ETH-USD`
 
 head(AMD)</code></pre>
@@ -497,15 +497,24 @@ head(AMD)</code></pre>
 ## 2020-01-04         135.0694
 ## 2020-01-05         136.2768
 ## 2020-01-06         144.3042</code></pre>
-<p>Now we take a look at VIX and SPY data</p>
 <pre class="r"><code>head(SPY)</code></pre>
 <pre><code>##            SPY.Open SPY.High SPY.Low SPY.Close SPY.Volume SPY.Adjusted
 ## 2020-01-02   323.54   324.89  322.53    324.87   59151200     296.1253
-## 2020-01-03   321.16   323.64  321.10    322.41   77709700     293.8829
-## 2020-01-06   320.49   323.73  320.36    323.64   55653900     295.0040
-## 2020-01-07   323.02   323.54  322.24    322.73   40496400     294.1746
+## 2020-01-03   321.16   323.64  321.10    322.41   77709700     293.8830
+## 2020-01-06   320.49   323.73  320.36    323.64   55653900     295.0042
+## 2020-01-07   323.02   323.54  322.24    322.73   40496400     294.1747
 ## 2020-01-08   322.94   325.78  322.67    324.45   68296000     295.7425
-## 2020-01-09   326.16   326.73  325.52    326.65   48473300     297.7477</code></pre>
+## 2020-01-09   326.16   326.73  325.52    326.65   48473300     297.7478</code></pre>
+<p>Lastly, we take a look at the <em>Cboe Volatility Index</em>
+(<strong>VIX</strong>), this is not an individual stock but a real time
+market index created by the Chicago Board Options Exchange (Cboe). This
+measures the market’s expectation of 30-day volatility in the S&amp;P
+500 index.</p>
+<p>This adds aid on top of macroeconomic data to further gauge systemic
+risks, VIX is known as the “Fear Gauge” which reflects levels of
+anxiety, complacency, or uncertainty in the market, when this “Fear
+Gauge” level rises it implies larger expected swings in stock
+prices.</p>
 <pre class="r"><code>head(VIX)</code></pre>
 <pre><code>##            VIX.Open VIX.High VIX.Low VIX.Close VIX.Volume VIX.Adjusted
 ## 2020-01-02    13.46    13.72   12.42     12.47          0        12.47
@@ -518,9 +527,10 @@ head(AMD)</code></pre>
 </div>
 <div id="cleaning" class="section level1">
 <h1>Cleaning</h1>
-<div id="converting-xts-to-tibbles" class="section level2">
-<h2>1. Converting XTS to tibbles</h2>
-<p>First we convert all XTS objects to tibbles.(expound)</p>
+<div id="converting-xts-to-tibbles" class="section level3">
+<h3>1. Converting XTS to tibbles</h3>
+<p>First we convert all XTS objects to tibbles for easier data
+manipulation.</p>
 <pre class="r"><code>dgs10_tbl &lt;- tibble(
   date = index(DGS10),
   dgs10 = as.numeric(DGS10$DGS10),
@@ -580,9 +590,10 @@ eth_tbl &lt;- tibble(
   adj_close = as.numeric(Ad(ETH)),
 )</code></pre>
 </div>
-<div id="asset-identifier" class="section level2">
-<h2>2. Asset Identifier</h2>
-<p>We add an asset identifier per asset to smt smt</p>
+<div id="asset-identifier" class="section level3">
+<h3>2. Asset Identifier</h3>
+<p>We add an asset identifier per asset to see the data better in table
+structures.</p>
 <pre class="r"><code>amd_tbl &lt;- amd_tbl |&gt; 
   mutate(asset = &quot;AMD&quot;)
 
@@ -598,9 +609,10 @@ spy_tbl &lt;- spy_tbl |&gt;
 vix_tbl &lt;- vix_tbl |&gt; 
   mutate(asset = &quot;VIX&quot;)</code></pre>
 </div>
-<div id="computing-daily-returns" class="section level2">
-<h2>3. Computing daily returns</h2>
+<div id="computing-daily-returns" class="section level3">
+<h3>3. Computing daily returns</h3>
 <p>idk if we should compute basic returns here or log returns</p>
+<p>Daily returns are computed using the basic return formula</p>
 <pre class="r"><code>amd_tbl &lt;- amd_tbl |&gt; 
   mutate(
     return = adj_close / lag(adj_close) - 1
@@ -626,8 +638,8 @@ vix_tbl &lt;- vix_tbl |&gt;
     return = adj_close / lag(adj_close) - 1
   )</code></pre>
 </div>
-<div id="removing-missing-rows" class="section level2">
-<h2>4. Removing missing rows</h2>
+<div id="removing-missing-rows" class="section level3">
+<h3>4. Removing missing rows</h3>
 <p>idk if we should impute or just remove null rows</p>
 <pre class="r"><code>amd_tbl &lt;- amd_tbl  |&gt; 
   filter(!is.na(return))
@@ -644,8 +656,8 @@ spy_tbl &lt;- spy_tbl  |&gt;
 vix_tbl &lt;- vix_tbl  |&gt; 
   filter(!is.na(return))</code></pre>
 </div>
-<div id="examine-the-data" class="section level2">
-<h2>5. Examine the data</h2>
+<div id="examine-the-data" class="section level3">
+<h3>5. Examine the data</h3>
 <pre class="r"><code>glimpse(amd_tbl)</code></pre>
 <pre><code>## Rows: 1,506
 ## Columns: 10
@@ -684,7 +696,7 @@ vix_tbl &lt;- vix_tbl  |&gt;
 ## $ adjusted  &lt;dbl&gt; 13.00212, 12.92992, 13.35655, 13.46156, 13.75691, 13.79629, …
 ## $ adj_close &lt;dbl&gt; 13.00212, 12.92992, 13.35655, 13.46156, 13.75691, 13.79629, …
 ## $ asset     &lt;chr&gt; &quot;PHI&quot;, &quot;PHI&quot;, &quot;PHI&quot;, &quot;PHI&quot;, &quot;PHI&quot;, &quot;PHI&quot;, &quot;PHI&quot;, &quot;PHI&quot;, &quot;PHI…
-## $ return    &lt;dbl&gt; 0.0040545992, -0.0055526339, 0.0329949675, 0.0078623509, 0.0…</code></pre>
+## $ return    &lt;dbl&gt; 0.004054673, -0.005552634, 0.032994967, 0.007862422, 0.02194…</code></pre>
 <pre class="r"><code>glimpse(spy_tbl)</code></pre>
 <pre><code>## Rows: 1,506
 ## Columns: 10
@@ -694,10 +706,10 @@ vix_tbl &lt;- vix_tbl  |&gt;
 ## $ low       &lt;dbl&gt; 321.10, 320.36, 322.24, 322.67, 325.52, 325.20, 325.92, 326.…
 ## $ close     &lt;dbl&gt; 322.41, 323.64, 322.73, 324.45, 326.65, 325.71, 327.95, 327.…
 ## $ volume    &lt;dbl&gt; 77709700, 55653900, 40496400, 68296000, 48473300, 53029300, …
-## $ adjusted  &lt;dbl&gt; 293.8829, 295.0040, 294.1746, 295.7425, 297.7477, 296.8910, …
-## $ adj_close &lt;dbl&gt; 293.8829, 295.0040, 294.1746, 295.7425, 297.7477, 296.8910, …
+## $ adjusted  &lt;dbl&gt; 293.8830, 295.0042, 294.1747, 295.7425, 297.7478, 296.8911, …
+## $ adj_close &lt;dbl&gt; 293.8830, 295.0042, 294.1747, 295.7425, 297.7478, 296.8911, …
 ## $ asset     &lt;chr&gt; &quot;SPY&quot;, &quot;SPY&quot;, &quot;SPY&quot;, &quot;SPY&quot;, &quot;SPY&quot;, &quot;SPY&quot;, &quot;SPY&quot;, &quot;SPY&quot;, &quot;SPY…
-## $ return    &lt;dbl&gt; -0.0075723708, 0.0038147630, -0.0028115099, 0.0053296255, 0.…</code></pre>
+## $ return    &lt;dbl&gt; -0.0075722677, 0.0038151780, -0.0028117153, 0.0053293127, 0.…</code></pre>
 <pre class="r"><code>glimpse(vix_tbl)</code></pre>
 <pre><code>## Rows: 1,506
 ## Columns: 10
@@ -776,7 +788,7 @@ vix_tbl &lt;- vix_tbl  |&gt;
 ##  N.unique :   1   1st Qu.:-0.0097052  
 ##  N.blank  :   0   Median : 0.0000000  
 ##  Min.nchar:   3   Mean   : 0.0005148  
-##  Max.nchar:   3   3rd Qu.: 0.0101547  
+##  Max.nchar:   3   3rd Qu.: 0.0101548  
 ##                   Max.   : 0.1673875</code></pre>
 <pre class="r"><code>summary(spy_tbl)</code></pre>
 <pre><code>##       date                 open            high            low       
@@ -794,12 +806,12 @@ vix_tbl &lt;- vix_tbl  |&gt;
 ##  3rd Qu.:534.5   3rd Qu.: 91523975   3rd Qu.:520.9   3rd Qu.:520.9  
 ##  Max.   :690.4   Max.   :392220700   Max.   :686.7   Max.   :686.7  
 ##        asset          return          
-##  Length   :1506   Min.   :-0.1094236  
-##  N.unique :   1   1st Qu.:-0.0047779  
+##  Length   :1506   Min.   :-0.1094237  
+##  N.unique :   1   1st Qu.:-0.0047780  
 ##  N.blank  :   0   Median : 0.0009785  
 ##  Min.nchar:   3   Mean   : 0.0006411  
-##  Max.nchar:   3   3rd Qu.: 0.0068559  
-##                   Max.   : 0.1050194</code></pre>
+##  Max.nchar:   3   3rd Qu.: 0.0068554  
+##                   Max.   : 0.1050196</code></pre>
 <pre class="r"><code>summary(vix_tbl)</code></pre>
 <pre><code>##       date                 open            high            low       
 ##  Min.   :2020-01-03   Min.   :11.53   Min.   :12.23   Min.   :10.62  
@@ -823,8 +835,8 @@ vix_tbl &lt;- vix_tbl  |&gt;
 ##  3rd Qu.: 0.035272  
 ##  Max.   : 0.740391</code></pre>
 </div>
-<div id="preparing-macroeconomic-variables" class="section level2">
-<h2>6. Preparing Macroeconomic variables</h2>
+<div id="preparing-macroeconomic-variables" class="section level3">
+<h3>6. Preparing Macroeconomic variables</h3>
 <pre class="r"><code>treasury_tbl &lt;- tibble(
   date = index(DGS10),
   treasury_10y = as.numeric(DGS10$DGS10)
@@ -854,8 +866,8 @@ vix_tbl &lt;- vix_tbl  |&gt;
 ## 5 2020-05-01  256.
 ## 6 2020-06-01  257.</code></pre>
 </div>
-<div id="create-an-observation-summary-table-and-saving-it" class="section level2">
-<h2>7. Create an Observation Summary Table and saving it</h2>
+<div id="create-an-observation-summary-table-and-saving-it" class="section level3">
+<h3>7. Create an Observation Summary Table and saving it</h3>
 <p>We first count the observations</p>
 <pre class="r"><code>nrow(amd_tbl)</code></pre>
 <pre><code>## [1] 1506</code></pre>
@@ -922,22 +934,22 @@ from the specs</p>
 dataset ? idk if thats correct wording</p>
 <div id="renaming-variables" class="section level2">
 <h2>1. Renaming variables</h2>
+<div id="from-this-number-till-the-compare-joins-number-we-need-to-enumerate-why-we-used-a-certain-join-on-what-data-and-how-many" class="section level3">
+<h3>2. from this number till the “Compare joins” number we need to
+enumerate why we used a certain join on what data and how many</h3>
 </div>
-<div id="from-this-number-till-the-compare-joins-number-we-need-to-enumerate-why-we-used-a-certain-join-on-what-data-and-how-many" class="section level2">
-<h2>2. from this number till the “Compare joins” number we need to
-enumerate why we used a certain join on what data and how many</h2>
+<div id="compare-joins" class="section level3">
+<h3><num0>. Compare joins</h3>
 </div>
-<div id="compare-joins" class="section level2">
-<h2><num0>. Compare joins</h2>
+<div id="building-the-unified-database" class="section level3">
+<h3><num1>. Building the Unified Database</h3>
 </div>
-<div id="building-the-unified-database" class="section level2">
-<h2><num1>. Building the Unified Database</h2>
+<div id="observation-tracking" class="section level3">
+<h3><num2>. Observation Tracking</h3>
 </div>
-<div id="observation-tracking" class="section level2">
-<h2><num2>. Observation Tracking</h2>
+<div id="dropping-null-rows" class="section level3">
+<h3><num3>. Dropping Null Rows</h3>
 </div>
-<div id="dropping-null-rows" class="section level2">
-<h2><num3>. Dropping Null Rows</h2>
 </div>
 </div>
 <div id="descriptive-statistics" class="section level1">
@@ -947,38 +959,38 @@ maximum, range, skewness and kurtosis.” – from the specs</p>
 <p>From the previous section, a unified database named
 <code>&lt;db name&gt;</code> was created, we can first examine the
 variables</p>
-<div id="selecting-return-variables" class="section level2">
-<h2>1. Selecting return variables</h2>
+<div id="selecting-return-variables" class="section level3">
+<h3>1. Selecting return variables</h3>
 <p>ok im assuming since our end goal is an investment strategy, we are
 to analyze the returns + voilatility?? idk</p>
 </div>
-<div id="computing-median-and-mean" class="section level2">
-<h2>2. Computing median and mean</h2>
+<div id="computing-median-and-mean" class="section level3">
+<h3>2. Computing median and mean</h3>
 </div>
-<div id="computing-dispersion-risk" class="section level2">
-<h2>3. Computing Dispersion (Risk)</h2>
+<div id="computing-dispersion-risk" class="section level3">
+<h3>3. Computing Dispersion (Risk)</h3>
 <p>variance, std dev, range, interquartile range, coefficient of
 variation</p>
 </div>
-<div id="viewing-data-shape" class="section level2">
-<h2>4. Viewing data shape</h2>
+<div id="viewing-data-shape" class="section level3">
+<h3>4. Viewing data shape</h3>
 <p>skewness and kurtosis</p>
 </div>
-<div id="computing-data-position" class="section level2">
-<h2>5. Computing data position ?</h2>
+<div id="computing-data-position" class="section level3">
+<h3>5. Computing data position ?</h3>
 <p>min, max, quartiles, percentiles</p>
 </div>
-<div id="dealing-with-missing-values" class="section level2">
-<h2>6. Dealing with Missing Values</h2>
+<div id="dealing-with-missing-values" class="section level3">
+<h3>6. Dealing with Missing Values</h3>
 </div>
-<div id="correlation-matrix" class="section level2">
-<h2>7. Correlation Matrix</h2>
+<div id="correlation-matrix" class="section level3">
+<h3>7. Correlation Matrix</h3>
 </div>
-<div id="covariance-matrix" class="section level2">
-<h2>8. Covariance Matrix</h2>
+<div id="covariance-matrix" class="section level3">
+<h3>8. Covariance Matrix</h3>
 </div>
-<div id="final-descriptive-statistics-table" class="section level2">
-<h2>9. Final Descriptive Statistics Table</h2>
+<div id="final-descriptive-statistics-table" class="section level3">
+<h3>9. Final Descriptive Statistics Table</h3>
 <pre class="r"><code>library(psych)</code></pre>
 <pre><code>## 
 ## Attaching package: &#39;psych&#39;</code></pre>
