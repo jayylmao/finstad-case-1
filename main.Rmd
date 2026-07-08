@@ -1,5 +1,5 @@
 ---
-title: "main"
+title: "FINSTAD Financial Database"
 output: html_document
 date: "2026-06-29"
 ---
@@ -30,6 +30,9 @@ library(tidyquant)
 library(lubridate)
 library(timetk)
 ```
+
+## Comparing the different datasets
+note: we probably need to explicitly write down and explain each set smt like that
 
 Get symbols from:
 
@@ -77,8 +80,25 @@ quantmod::getSymbols("ETH-USD",             # Cryptocurrency: Ethereum
                      to = DATE_TO)
 ```
 
+We can then take a look at the stock data
+```{r}
+ETH <- `ETH-USD`
+
+head(AMD)
+head(PHI)
+head(ETH)
+head(SPY)
+```
+Then we can look at FRED data
+```{r}
+head(DGS10)
+head(CPIAUCSL)
+```
+
 # Cleaning
-Convert all XTS objects to tibbles.
+
+## 1. Converting XTS to tibbles
+First we convert all XTS objects to tibbles.(expound)
 ```{r}
 dgs10 <- tibble(
   date = index(DGS10),
@@ -125,12 +145,131 @@ vix <- tibble(
   adjusted = as.numeric(VIX$VIX.Adjusted),
 )
 eth <- tibble(
-  date = index(`ETH-USD`),
-  open = as.numeric(`ETH-USD`$`ETH-USD.Open`),
-  high = as.numeric(`ETH-USD`$`ETH-USD.High`),
-  low = as.numeric(`ETH-USD`$`ETH-USD.Low`),
-  close = as.numeric(`ETH-USD`$`ETH-USD.Close`),
-  volume = as.numeric(`ETH-USD`$`ETH-USD.Volume`),
-  adjusted = as.numeric(`ETH-USD`$`ETH-USD.Adjusted`),
+  date = index(ETH),
+  open = as.numeric(ETH$`ETH-USD.Open`),
+  high = as.numeric(ETH$`ETH-USD.High`),
+  low = as.numeric(ETH$`ETH-USD.Low`),
+  close = as.numeric(ETH$`ETH-USD.Close`),
+  volume = as.numeric(ETH$`ETH-USD.Volume`),
+  adjusted = as.numeric(ETH$`ETH-USD.Adjusted`),
 )
 ```
+
+## 2. Adding an asset identifier per asset
+```{r}
+```
+
+## 3. Computing daily returns
+```{r}
+```
+
+## 4. Removing missing rows
+```{r}
+```
+
+## 5. Examine the data
+```{r}
+```
+
+## 6. Preparing Macroeconomic variables
+```{r}
+```
+
+## 7. Create an Observation Summary Table and saving it
+```{r}
+```
+
+# SQL Investigation
+"Investigate at least 10 meaningful financial questions using select(), filter(), mutate(), arrange(), group_by() and summarise(). Each query must include Objective, Code, Output and Interpretation." -- from the specs
+
+After cleaning all the data, we collate the rows into 1 unified dataset ? idk if thats correct wording
+
+## 1. Renaming variables
+```{r}
+```
+
+## 2. from this number till the "Compare joins" number we need to enumerate why we used a certain join on what data and how many
+
+## <num0>. Compare joins
+```{r}
+```
+
+## <num1>. Building the Unified Database
+```{r}
+```
+
+## <num2>. Observation Tracking
+```{r}
+```
+
+## <num3>. Dropping Null Rows
+```{r}
+```
+
+# Descriptive Statistics
+"Compute mean, median, variance, standard deviation, minimum, maximum, range, skewness and kurtosis." -- from the specs
+
+From the previous section, a unified database named `<db name>` was created, we can first examine the variables
+```{r}
+```
+
+## 1. Selecting return variables
+ok im assuming since our end goal is an investment strategy, we are to analyze the returns + voilatility?? idk
+```{r}
+```
+
+## 2. Computing median and mean
+```{r}
+```
+
+## 3. Computing Dispersion (Risk)
+variance, std dev, range, interquartile range, coefficient of variation
+```{r}
+```
+
+## 4. Viewing data shape
+skewness and kurtosis
+```{r}
+```
+
+## 5. Computing data position ?
+min, max, quartiles, percentiles
+```{r}
+```
+
+## 6. Dealing with Missing Values
+```{r}
+```
+
+## 7. Correlation Matrix
+```{r}
+```
+
+## 8. Covariance Matrix 
+```{r}
+```
+
+## 9. Final Descriptive Statistics Table
+```{r}
+library(psych)
+```
+
+# Visualization
+"Produce at least eight professional figures with interpretations." -- from the specs
+
+```{r}
+```
+
+(for these sections below im not sure if this should be in the paper or in the RMD file itself, or we place it here then elaborate further in the paper)
+# Exploratory Financial Analysis
+"Compare returns, volatility, inflationary periods, high-VIX periods and interest-rate environments." -- from the specs
+```{r}
+```
+
+# Investment Recommendation
+"Recommend allocation of USD 1,000,000 among the selected U.S. asset, Philippine asset, cryptocurrency and cash." -- from the specs
+```{r}
+```
+
+# References
+- booyah
