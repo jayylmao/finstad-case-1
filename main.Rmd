@@ -371,6 +371,7 @@ head(spy_sql)
 
 ### 2. from this number till the "Compare joins" number we need to enumerate why we used a certain join on what data and how many
 ```{r}
+
 ```
 
 ### <num0>. Compare joins
@@ -379,6 +380,28 @@ head(spy_sql)
 
 ### <num1>. Building the Unified Database
 ```{r}
+unified_db <- spy_sql |> 
+  left_join(amd_sql,
+            by = "date") |> 
+  left_join(phi_sql,
+            by = "date") |>
+  left_join(eth_sql,
+            by = "date") |> 
+  left_join(vix_clean |> 
+              select(date, 
+                     vix = adj_close,
+                     vix_return = return),
+            by = "date") |> 
+  left_join(treasury_clean,
+            by = "date") |> 
+  left_join(cpi_clean,
+            by = "date") |> 
+  arrange(date) |> 
+  tidyr::fill(treasury_10y, 
+              cpi, 
+              .direction = "down")
+
+glimpse(unified_db)
 ```
 
 ### <num2>. Observation Tracking
