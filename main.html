@@ -12,7 +12,7 @@
 
 <meta name="date" content="2026-06-29" />
 
-<title>main</title>
+<title>FINSTAD Financial Database</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -349,7 +349,7 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">main</h1>
+<h1 class="title toc-ignore">FINSTAD Financial Database</h1>
 <h4 class="date">2026-06-29</h4>
 
 </div>
@@ -382,7 +382,11 @@ library(tidyverse)
 library(tidyquant)
 library(lubridate)
 library(timetk)</code></pre>
-<p>Get symbols from:</p>
+<div id="comparing-the-different-datasets" class="section level2">
+<h2>Comparing the different datasets</h2>
+<p>note: we probably need to explicitly write down and explain each set
+smt like that</p>
+<p>We first get symbols from the following sources:</p>
 <ul>
 <li>FRED</li>
 <li>SPY</li>
@@ -394,24 +398,615 @@ library(timetk)</code></pre>
 DATE_FROM &lt;- &quot;2020-01-01&quot;
 DATE_TO &lt;- &quot;2025-12-31&quot;
 
+# macroeconomic data is sourced from the Federal Reserve Bank of St. Louis&#39; FRED dataset.
 quantmod::getSymbols(&quot;DGS10&quot;,
                      src = &quot;FRED&quot;,
                      from = DATE_FROM,
                      to = DATE_TO)</code></pre>
-<pre><code>## getSymbols.FRED: requests without an API key are not guaranteed to succeed.
-## Register for a free key at https://fredaccount.stlouisfed.org/apikeys and set it with
-## setDefaults(getSymbols.FRED, api.key = &quot;your key&quot;).</code></pre>
 <pre><code>## [1] &quot;DGS10&quot;</code></pre>
-<pre class="r"><code>quantmod::getSymbols(&quot;SPY&quot;, 
+<pre class="r"><code>quantmod::getSymbols(&quot;CPIAUCSL&quot;,
+                     src = &quot;FRED&quot;,
+                     from = DATE_FROM,
+                     to = DATE_TO)</code></pre>
+<pre><code>## [1] &quot;CPIAUCSL&quot;</code></pre>
+<pre class="r"><code># the following symbol data is sourced from yahoo finance.
+quantmod::getSymbols(&quot;SPY&quot;,                 # SPDR S&amp;P 500 ETF Trust
                      src = &quot;yahoo&quot;,
                      from = DATE_FROM,
                      to = DATE_TO)</code></pre>
 <pre><code>## [1] &quot;SPY&quot;</code></pre>
-<pre class="r"><code>quantmod::getSymbols(&quot;AMD&quot;, 
+<pre class="r"><code>quantmod::getSymbols(&quot;AMD&quot;,                 # U.S. Asset: Advanced Micro Devices, Inc.
                      src = &quot;yahoo&quot;,
                      from = DATE_FROM,
                      to = DATE_TO)</code></pre>
 <pre><code>## [1] &quot;AMD&quot;</code></pre>
+<pre class="r"><code>quantmod::getSymbols(&quot;PHI&quot;,                 # Philippine Asset: PLDT, Inc.
+                     src = &quot;yahoo&quot;,
+                     from = DATE_FROM,
+                     to = DATE_TO)</code></pre>
+<pre><code>## [1] &quot;PHI&quot;</code></pre>
+<pre class="r"><code>quantmod::getSymbols(&quot;^VIX&quot;,                # CBOE Volatility Index
+                     src = &quot;yahoo&quot;,
+                     from = DATE_FROM,
+                     to = DATE_TO)</code></pre>
+<pre><code>## [1] &quot;VIX&quot;</code></pre>
+<pre class="r"><code>quantmod::getSymbols(&quot;ETH-USD&quot;,             # Cryptocurrency: Ethereum
+                     src = &quot;yahoo&quot;,
+                     from = DATE_FROM,
+                     to = DATE_TO)</code></pre>
+<pre><code>## [1] &quot;ETH-USD&quot;</code></pre>
+<p>First we can look at the macroeconomic data</p>
+<p>The data is taken from the Federal Reserve Economic Database (FRED)
+from the Federal Reserve Bank of St. Louis, where we load in the
+<em>Market Yield on U.S. Treasury Securities at 10-Year Constant
+Maturity</em> (<strong>DGS10</strong>) and <em>Consumer Price Index for
+All Urban Consumers</em> (<strong>CPIAUCSL</strong>).</p>
+<p><strong>DGS10</strong> is used as a proxy for the “risk-free rate” in
+finance, it helps investors gauge inflation expectations, economic
+growth, and monetary policy shifts. While <strong>CPIAUCSL</strong> is
+seasonally adjusted to gauge monthly inflation metrics on consumer
+goods.</p>
+<p>These pieces of macroeconomic data would help in</p>
+<pre class="r"><code>head(DGS10)</code></pre>
+<pre><code>##            DGS10
+## 2020-01-01    NA
+## 2020-01-02  1.88
+## 2020-01-03  1.80
+## 2020-01-06  1.81
+## 2020-01-07  1.83
+## 2020-01-08  1.87</code></pre>
+<pre class="r"><code>head(CPIAUCSL)</code></pre>
+<pre><code>##            CPIAUCSL
+## 2020-01-01  259.127
+## 2020-02-01  259.250
+## 2020-03-01  258.076
+## 2020-04-01  256.032
+## 2020-05-01  255.802
+## 2020-06-01  257.042</code></pre>
+<p>We can then take a look at the stock data</p>
+<pre class="r"><code>ETH &lt;- `ETH-USD`
+
+head(AMD)</code></pre>
+<pre><code>##            AMD.Open AMD.High AMD.Low AMD.Close AMD.Volume AMD.Adjusted
+## 2020-01-02    46.86    49.25   46.63     49.10   80331100        49.10
+## 2020-01-03    48.03    49.39   47.54     48.60   73127400        48.60
+## 2020-01-06    48.02    48.86   47.86     48.39   47934900        48.39
+## 2020-01-07    49.35    49.39   48.04     48.25   58061400        48.25
+## 2020-01-08    47.85    48.30   47.14     47.83   53767000        47.83
+## 2020-01-09    48.94    49.96   48.39     48.97   76512800        48.97</code></pre>
+<pre class="r"><code>head(PHI)</code></pre>
+<pre><code>##            PHI.Open PHI.High PHI.Low PHI.Close PHI.Volume PHI.Adjusted
+## 2020-01-02    19.75    19.80   19.59     19.73      67000     12.94961
+## 2020-01-03    19.66    19.82   19.50     19.81      37200     13.00212
+## 2020-01-06    19.76    19.95   19.63     19.70      68300     12.92992
+## 2020-01-07    19.99    20.54   19.99     20.35     139200     13.35655
+## 2020-01-08    20.16    20.59   20.16     20.51     119300     13.46156
+## 2020-01-09    20.50    20.99   20.50     20.96     114700     13.75691</code></pre>
+<pre class="r"><code>head(ETH)</code></pre>
+<pre><code>##            ETH-USD.Open ETH-USD.High ETH-USD.Low ETH-USD.Close ETH-USD.Volume
+## 2020-01-01     129.6307     132.8354    129.1983      130.8020     7935230330
+## 2020-01-02     130.8200     130.8200    126.9549      127.4102     8032709256
+## 2020-01-03     127.4113     134.5540    126.4900      134.1717    10476845358
+## 2020-01-04     134.1685     136.0527    133.0406      135.0694     7430904515
+## 2020-01-05     135.0721     139.4102    135.0456      136.2768     7526675353
+## 2020-01-06     136.3055     144.3282    136.0796      144.3042     9093747121
+##            ETH-USD.Adjusted
+## 2020-01-01         130.8020
+## 2020-01-02         127.4102
+## 2020-01-03         134.1717
+## 2020-01-04         135.0694
+## 2020-01-05         136.2768
+## 2020-01-06         144.3042</code></pre>
+<p>Now we take a look at VIX and SPY data</p>
+<pre class="r"><code>head(SPY)</code></pre>
+<pre><code>##            SPY.Open SPY.High SPY.Low SPY.Close SPY.Volume SPY.Adjusted
+## 2020-01-02   323.54   324.89  322.53    324.87   59151200     296.1253
+## 2020-01-03   321.16   323.64  321.10    322.41   77709700     293.8829
+## 2020-01-06   320.49   323.73  320.36    323.64   55653900     295.0040
+## 2020-01-07   323.02   323.54  322.24    322.73   40496400     294.1746
+## 2020-01-08   322.94   325.78  322.67    324.45   68296000     295.7425
+## 2020-01-09   326.16   326.73  325.52    326.65   48473300     297.7477</code></pre>
+<pre class="r"><code>head(VIX)</code></pre>
+<pre><code>##            VIX.Open VIX.High VIX.Low VIX.Close VIX.Volume VIX.Adjusted
+## 2020-01-02    13.46    13.72   12.42     12.47          0        12.47
+## 2020-01-03    15.01    16.20   13.13     14.02          0        14.02
+## 2020-01-06    15.45    16.39   13.54     13.85          0        13.85
+## 2020-01-07    13.84    14.46   13.39     13.79          0        13.79
+## 2020-01-08    15.16    15.24   12.83     13.45          0        13.45
+## 2020-01-09    12.95    13.24   12.53     12.54          0        12.54</code></pre>
+</div>
+</div>
+<div id="cleaning" class="section level1">
+<h1>Cleaning</h1>
+<div id="converting-xts-to-tibbles" class="section level2">
+<h2>1. Converting XTS to tibbles</h2>
+<p>First we convert all XTS objects to tibbles.(expound)</p>
+<pre class="r"><code>dgs10_tbl &lt;- tibble(
+  date = index(DGS10),
+  dgs10 = as.numeric(DGS10$DGS10),
+)
+cpiaucsl_tbl &lt;- tibble(
+  date = index(CPIAUCSL),
+  cpiaucsl = as.numeric(CPIAUCSL$CPIAUCSL),
+)
+spy_tbl &lt;- tibble(
+  date = index(SPY),
+  open = as.numeric(SPY$SPY.Open),
+  high = as.numeric(SPY$SPY.High),
+  low = as.numeric(SPY$SPY.Low),
+  close = as.numeric(SPY$SPY.Close),
+  volume = as.numeric(SPY$SPY.Volume),
+  adjusted = as.numeric(SPY$SPY.Adjusted),
+  adj_close = as.numeric(Ad(SPY)),
+)
+amd_tbl &lt;- tibble(
+  date = index(AMD),
+  open = as.numeric(AMD$AMD.Open),
+  high = as.numeric(AMD$AMD.High),
+  low = as.numeric(AMD$AMD.Low),
+  close = as.numeric(AMD$AMD.Close),
+  volume = as.numeric(AMD$AMD.Volume),
+  adjusted = as.numeric(AMD$AMD.Adjusted),
+  adj_close = as.numeric(Ad(AMD)),
+)
+phi_tbl &lt;- tibble(
+  date = index(PHI),
+  open = as.numeric(PHI$PHI.Open),
+  high = as.numeric(PHI$PHI.High),
+  low = as.numeric(PHI$PHI.Low),
+  close = as.numeric(PHI$PHI.Close),
+  volume = as.numeric(PHI$PHI.Volume),
+  adjusted = as.numeric(PHI$PHI.Adjusted),
+  adj_close = as.numeric(Ad(PHI)),
+)
+vix_tbl &lt;- tibble(
+  date = index(VIX),
+  open = as.numeric(VIX$VIX.Open),
+  high = as.numeric(VIX$VIX.High),
+  low = as.numeric(VIX$VIX.Low),
+  close = as.numeric(VIX$VIX.Close),
+  volume = as.numeric(VIX$VIX.Volume),
+  adjusted = as.numeric(VIX$VIX.Adjusted),
+  adj_close = as.numeric(Ad(VIX)),
+)
+eth_tbl &lt;- tibble(
+  date = index(ETH),
+  open = as.numeric(ETH$`ETH-USD.Open`),
+  high = as.numeric(ETH$`ETH-USD.High`),
+  low = as.numeric(ETH$`ETH-USD.Low`),
+  close = as.numeric(ETH$`ETH-USD.Close`),
+  volume = as.numeric(ETH$`ETH-USD.Volume`),
+  adjusted = as.numeric(ETH$`ETH-USD.Adjusted`),
+  adj_close = as.numeric(Ad(ETH)),
+)</code></pre>
+</div>
+<div id="asset-identifier" class="section level2">
+<h2>2. Asset Identifier</h2>
+<p>We add an asset identifier per asset to smt smt</p>
+<pre class="r"><code>amd_tbl &lt;- amd_tbl |&gt; 
+  mutate(asset = &quot;AMD&quot;)
+
+eth_tbl &lt;- eth_tbl |&gt; 
+  mutate(asset = &quot;ETH&quot;)
+
+phi_tbl &lt;- phi_tbl |&gt; 
+  mutate(asset = &quot;PHI&quot;)
+
+spy_tbl &lt;- spy_tbl |&gt; 
+  mutate(asset = &quot;SPY&quot;)
+
+vix_tbl &lt;- vix_tbl |&gt; 
+  mutate(asset = &quot;VIX&quot;)</code></pre>
+</div>
+<div id="computing-daily-returns" class="section level2">
+<h2>3. Computing daily returns</h2>
+<p>idk if we should compute basic returns here or log returns</p>
+<pre class="r"><code>amd_tbl &lt;- amd_tbl |&gt; 
+  mutate(
+    return = adj_close / lag(adj_close) - 1
+  )
+
+eth_tbl &lt;- eth_tbl |&gt; 
+  mutate(
+    return = adj_close / lag(adj_close) - 1
+  )
+
+phi_tbl &lt;- phi_tbl |&gt; 
+  mutate(
+    return = adj_close / lag(adj_close) - 1
+  )
+
+spy_tbl &lt;- spy_tbl |&gt; 
+  mutate(
+    return = adj_close / lag(adj_close) - 1
+  )
+
+vix_tbl &lt;- vix_tbl |&gt; 
+  mutate(
+    return = adj_close / lag(adj_close) - 1
+  )</code></pre>
+</div>
+<div id="removing-missing-rows" class="section level2">
+<h2>4. Removing missing rows</h2>
+<p>idk if we should impute or just remove null rows</p>
+<pre class="r"><code>amd_tbl &lt;- amd_tbl  |&gt; 
+  filter(!is.na(return))
+
+eth_tbl &lt;- eth_tbl  |&gt; 
+  filter(!is.na(return))
+
+phi_tbl &lt;- phi_tbl |&gt; 
+  filter(!is.na(return))
+
+spy_tbl &lt;- spy_tbl  |&gt; 
+  filter(!is.na(return))
+
+vix_tbl &lt;- vix_tbl  |&gt; 
+  filter(!is.na(return))</code></pre>
+</div>
+<div id="examine-the-data" class="section level2">
+<h2>5. Examine the data</h2>
+<pre class="r"><code>glimpse(amd_tbl)</code></pre>
+<pre><code>## Rows: 1,506
+## Columns: 10
+## $ date      &lt;date&gt; 2020-01-03, 2020-01-06, 2020-01-07, 2020-01-08, 2020-01-09,…
+## $ open      &lt;dbl&gt; 48.03, 48.02, 49.35, 47.85, 48.94, 49.26, 48.66, 48.64, 48.2…
+## $ high      &lt;dbl&gt; 49.39, 48.86, 49.39, 48.30, 49.96, 49.29, 48.86, 49.04, 49.0…
+## $ low       &lt;dbl&gt; 47.54, 47.86, 48.04, 47.14, 48.39, 48.00, 48.24, 47.91, 48.1…
+## $ close     &lt;dbl&gt; 48.60, 48.39, 48.25, 47.83, 48.97, 48.17, 48.75, 48.21, 48.5…
+## $ volume    &lt;dbl&gt; 73127400, 47934900, 58061400, 53767000, 76512800, 44133700, …
+## $ adjusted  &lt;dbl&gt; 48.60, 48.39, 48.25, 47.83, 48.97, 48.17, 48.75, 48.21, 48.5…
+## $ adj_close &lt;dbl&gt; 48.60, 48.39, 48.25, 47.83, 48.97, 48.17, 48.75, 48.21, 48.5…
+## $ asset     &lt;chr&gt; &quot;AMD&quot;, &quot;AMD&quot;, &quot;AMD&quot;, &quot;AMD&quot;, &quot;AMD&quot;, &quot;AMD&quot;, &quot;AMD&quot;, &quot;AMD&quot;, &quot;AMD…
+## $ return    &lt;dbl&gt; -0.010183300, -0.004320969, -0.002893147, -0.008704625, 0.02…</code></pre>
+<pre class="r"><code>glimpse(eth_tbl)</code></pre>
+<pre><code>## Rows: 2,191
+## Columns: 10
+## $ date      &lt;date&gt; 2020-01-02, 2020-01-03, 2020-01-04, 2020-01-05, 2020-01-06,…
+## $ open      &lt;dbl&gt; 130.8200, 127.4113, 134.1685, 135.0721, 136.3055, 144.3120, …
+## $ high      &lt;dbl&gt; 130.8200, 134.5540, 136.0527, 139.4102, 144.3282, 145.0018, …
+## $ low       &lt;dbl&gt; 126.9549, 126.4900, 133.0406, 135.0456, 136.0796, 140.4889, …
+## $ close     &lt;dbl&gt; 127.4102, 134.1717, 135.0694, 136.2768, 144.3042, 143.5440, …
+## $ volume    &lt;dbl&gt; 8032709256, 10476845358, 7430904515, 7526675353, 9093747121,…
+## $ adjusted  &lt;dbl&gt; 127.4102, 134.1717, 135.0694, 136.2768, 144.3042, 143.5440, …
+## $ adj_close &lt;dbl&gt; 127.4102, 134.1717, 135.0694, 136.2768, 144.3042, 143.5440, …
+## $ asset     &lt;chr&gt; &quot;ETH&quot;, &quot;ETH&quot;, &quot;ETH&quot;, &quot;ETH&quot;, &quot;ETH&quot;, &quot;ETH&quot;, &quot;ETH&quot;, &quot;ETH&quot;, &quot;ETH…
+## $ return    &lt;dbl&gt; -0.0259309702, 0.0530689782, 0.0066903770, 0.0089392047, 0.0…</code></pre>
+<pre class="r"><code>glimpse(phi_tbl)</code></pre>
+<pre><code>## Rows: 1,506
+## Columns: 10
+## $ date      &lt;date&gt; 2020-01-03, 2020-01-06, 2020-01-07, 2020-01-08, 2020-01-09,…
+## $ open      &lt;dbl&gt; 19.66, 19.76, 19.99, 20.16, 20.50, 21.20, 20.95, 21.29, 21.6…
+## $ high      &lt;dbl&gt; 19.82, 19.95, 20.54, 20.59, 20.99, 21.38, 21.52, 21.58, 21.6…
+## $ low       &lt;dbl&gt; 19.50, 19.63, 19.99, 20.16, 20.50, 20.92, 20.82, 21.29, 21.0…
+## $ close     &lt;dbl&gt; 19.81, 19.70, 20.35, 20.51, 20.96, 21.02, 21.29, 21.50, 21.1…
+## $ volume    &lt;dbl&gt; 37200, 68300, 139200, 119300, 114700, 105200, 132800, 141600…
+## $ adjusted  &lt;dbl&gt; 13.00212, 12.92992, 13.35655, 13.46156, 13.75691, 13.79629, …
+## $ adj_close &lt;dbl&gt; 13.00212, 12.92992, 13.35655, 13.46156, 13.75691, 13.79629, …
+## $ asset     &lt;chr&gt; &quot;PHI&quot;, &quot;PHI&quot;, &quot;PHI&quot;, &quot;PHI&quot;, &quot;PHI&quot;, &quot;PHI&quot;, &quot;PHI&quot;, &quot;PHI&quot;, &quot;PHI…
+## $ return    &lt;dbl&gt; 0.0040545992, -0.0055526339, 0.0329949675, 0.0078623509, 0.0…</code></pre>
+<pre class="r"><code>glimpse(spy_tbl)</code></pre>
+<pre><code>## Rows: 1,506
+## Columns: 10
+## $ date      &lt;date&gt; 2020-01-03, 2020-01-06, 2020-01-07, 2020-01-08, 2020-01-09,…
+## $ open      &lt;dbl&gt; 321.16, 320.49, 323.02, 322.94, 326.16, 327.29, 326.39, 327.…
+## $ high      &lt;dbl&gt; 323.64, 323.73, 323.54, 325.78, 326.73, 327.46, 327.96, 328.…
+## $ low       &lt;dbl&gt; 321.10, 320.36, 322.24, 322.67, 325.52, 325.20, 325.92, 326.…
+## $ close     &lt;dbl&gt; 322.41, 323.64, 322.73, 324.45, 326.65, 325.71, 327.95, 327.…
+## $ volume    &lt;dbl&gt; 77709700, 55653900, 40496400, 68296000, 48473300, 53029300, …
+## $ adjusted  &lt;dbl&gt; 293.8829, 295.0040, 294.1746, 295.7425, 297.7477, 296.8910, …
+## $ adj_close &lt;dbl&gt; 293.8829, 295.0040, 294.1746, 295.7425, 297.7477, 296.8910, …
+## $ asset     &lt;chr&gt; &quot;SPY&quot;, &quot;SPY&quot;, &quot;SPY&quot;, &quot;SPY&quot;, &quot;SPY&quot;, &quot;SPY&quot;, &quot;SPY&quot;, &quot;SPY&quot;, &quot;SPY…
+## $ return    &lt;dbl&gt; -0.0075723708, 0.0038147630, -0.0028115099, 0.0053296255, 0.…</code></pre>
+<pre class="r"><code>glimpse(vix_tbl)</code></pre>
+<pre><code>## Rows: 1,506
+## Columns: 10
+## $ date      &lt;date&gt; 2020-01-03, 2020-01-06, 2020-01-07, 2020-01-08, 2020-01-09,…
+## $ open      &lt;dbl&gt; 15.01, 15.45, 13.84, 15.16, 12.95, 12.42, 12.84, 12.72, 12.7…
+## $ high      &lt;dbl&gt; 16.20, 16.39, 14.46, 15.24, 13.24, 12.87, 13.09, 13.82, 12.8…
+## $ low       &lt;dbl&gt; 13.13, 13.54, 13.39, 12.83, 12.53, 12.09, 12.32, 12.05, 11.9…
+## $ close     &lt;dbl&gt; 14.02, 13.85, 13.79, 13.45, 12.54, 12.56, 12.32, 12.39, 12.4…
+## $ volume    &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+## $ adjusted  &lt;dbl&gt; 14.02, 13.85, 13.79, 13.45, 12.54, 12.56, 12.32, 12.39, 12.4…
+## $ adj_close &lt;dbl&gt; 14.02, 13.85, 13.79, 13.45, 12.54, 12.56, 12.32, 12.39, 12.4…
+## $ asset     &lt;chr&gt; &quot;VIX&quot;, &quot;VIX&quot;, &quot;VIX&quot;, &quot;VIX&quot;, &quot;VIX&quot;, &quot;VIX&quot;, &quot;VIX&quot;, &quot;VIX&quot;, &quot;VIX…
+## $ return    &lt;dbl&gt; 0.124298329, -0.012125540, -0.004332160, -0.024655559, -0.06…</code></pre>
+<p>Summary Tables</p>
+<pre class="r"><code>summary(amd_tbl)</code></pre>
+<pre><code>##       date                 open             high             low        
+##  Min.   :2020-01-03   Min.   : 39.08   Min.   : 41.70   Min.   : 36.75  
+##  1st Qu.:2021-07-01   1st Qu.: 82.04   1st Qu.: 83.52   1st Qu.: 80.50  
+##  Median :2022-12-28   Median :103.44   Median :105.92   Median :101.70  
+##  Mean   :2022-12-30   Mean   :111.78   Mean   :113.96   Mean   :109.47  
+##  3rd Qu.:2024-06-30   3rd Qu.:139.50   3rd Qu.:141.98   3rd Qu.:137.25  
+##  Max.   :2025-12-30   Max.   :264.19   Max.   :267.08   Max.   :257.40  
+##      close            volume             adjusted        adj_close     
+##  Min.   : 38.71   Min.   :  7956800   Min.   : 38.71   Min.   : 38.71  
+##  1st Qu.: 82.00   1st Qu.: 40789700   1st Qu.: 82.00   1st Qu.: 82.00  
+##  Median :103.71   Median : 53667800   Median :103.71   Median :103.71  
+##  Mean   :111.72   Mean   : 61215548   Mean   :111.72   Mean   :111.72  
+##  3rd Qu.:138.88   3rd Qu.: 75291550   3rd Qu.:138.88   3rd Qu.:138.88  
+##  Max.   :264.33   Max.   :248859600   Max.   :264.33   Max.   :264.33  
+##        asset          return          
+##  Length   :1506   Min.   :-1.464e-01  
+##  N.unique :   1   1st Qu.:-1.707e-02  
+##  N.blank  :   0   Median : 2.257e-05  
+##  Min.nchar:   3   Mean   : 1.552e-03  
+##  Max.nchar:   3   3rd Qu.: 2.000e-02  
+##                   Max.   : 2.382e-01</code></pre>
+<pre class="r"><code>summary(eth_tbl)</code></pre>
+<pre><code>##       date                 open             high           low         
+##  Min.   :2020-01-02   Min.   : 110.4   Min.   : 116   Min.   :  95.18  
+##  1st Qu.:2021-07-02   1st Qu.:1465.4   1st Qu.:1542   1st Qu.:1416.00  
+##  Median :2023-01-01   Median :2075.9   Median :2131   Median :2011.50  
+##  Mean   :2023-01-01   Mean   :2162.7   Mean   :2221   Mean   :2100.11  
+##  3rd Qu.:2024-07-01   3rd Qu.:3072.0   3rd Qu.:3161   3rd Qu.:2987.67  
+##  Max.   :2025-12-31   Max.   :4831.1   Max.   :4954   Max.   :4718.04  
+##      close            volume             adjusted        adj_close     
+##  Min.   : 110.6   Min.   :2.082e+09   Min.   : 110.6   Min.   : 110.6  
+##  1st Qu.:1470.7   1st Qu.:1.039e+10   1st Qu.:1470.7   1st Qu.:1470.7  
+##  Median :2077.5   Median :1.582e+10   Median :2077.5   Median :2077.5  
+##  Mean   :2163.8   Mean   :1.866e+10   Mean   :2163.8   Mean   :2163.8  
+##  3rd Qu.:3072.0   3rd Qu.:2.301e+10   3rd Qu.:3072.0   3rd Qu.:3072.0  
+##  Max.   :4831.3   Max.   :9.774e+10   Max.   :4831.3   Max.   :4831.3  
+##        asset          return         
+##  Length   :2191   Min.   :-0.423472  
+##  N.unique :   1   1st Qu.:-0.017816  
+##  N.blank  :   0   Median : 0.001038  
+##  Min.nchar:   3   Mean   : 0.002352  
+##  Max.nchar:   3   3rd Qu.: 0.021607  
+##                   Max.   : 0.259475</code></pre>
+<pre class="r"><code>summary(phi_tbl)</code></pre>
+<pre><code>##       date                 open            high            low       
+##  Min.   :2020-01-03   Min.   :16.27   Min.   :17.53   Min.   :15.91  
+##  1st Qu.:2021-07-01   1st Qu.:22.63   1st Qu.:22.87   1st Qu.:22.46  
+##  Median :2022-12-28   Median :24.58   Median :24.84   Median :24.32  
+##  Mean   :2022-12-30   Mean   :25.80   Mean   :26.06   Mean   :25.50  
+##  3rd Qu.:2024-06-30   3rd Qu.:28.08   3rd Qu.:28.37   3rd Qu.:27.72  
+##  Max.   :2025-12-30   Max.   :38.43   Max.   :39.00   Max.   :37.96  
+##      close           volume           adjusted       adj_close    
+##  Min.   :16.00   Min.   :   6700   Min.   :10.93   Min.   :10.93  
+##  1st Qu.:22.66   1st Qu.:  34125   1st Qu.:18.96   1st Qu.:18.96  
+##  Median :24.63   Median :  55500   Median :20.47   Median :20.47  
+##  Mean   :25.80   Mean   :  75510   Mean   :20.87   Mean   :20.87  
+##  3rd Qu.:28.01   3rd Qu.:  89600   3rd Qu.:22.52   3rd Qu.:22.52  
+##  Max.   :38.61   Max.   :2062700   Max.   :29.60   Max.   :29.60  
+##        asset          return          
+##  Length   :1506   Min.   :-0.2368519  
+##  N.unique :   1   1st Qu.:-0.0097052  
+##  N.blank  :   0   Median : 0.0000000  
+##  Min.nchar:   3   Mean   : 0.0005148  
+##  Max.nchar:   3   3rd Qu.: 0.0101547  
+##                   Max.   : 0.1673875</code></pre>
+<pre class="r"><code>summary(spy_tbl)</code></pre>
+<pre><code>##       date                 open            high            low       
+##  Min.   :2020-01-03   Min.   :228.2   Min.   :229.7   Min.   :218.3  
+##  1st Qu.:2021-07-01   1st Qu.:389.9   1st Qu.:392.4   1st Qu.:387.1  
+##  Median :2022-12-28   Median :436.9   Median :439.8   Median :434.5  
+##  Mean   :2022-12-30   Mean   :457.1   Mean   :459.8   Mean   :454.2  
+##  3rd Qu.:2024-06-30   3rd Qu.:533.5   3rd Qu.:536.8   3rd Qu.:530.5  
+##  Max.   :2025-12-30   Max.   :690.6   Max.   :691.7   Max.   :689.3  
+##      close           volume             adjusted       adj_close    
+##  Min.   :222.9   Min.   : 26048700   Min.   :204.4   Min.   :204.4  
+##  1st Qu.:389.8   1st Qu.: 57012875   1st Qu.:367.6   1st Qu.:367.6  
+##  Median :437.1   Median : 72227400   Median :414.1   Median :414.1  
+##  Mean   :457.2   Mean   : 80146318   Mean   :438.5   Mean   :438.5  
+##  3rd Qu.:534.5   3rd Qu.: 91523975   3rd Qu.:520.9   3rd Qu.:520.9  
+##  Max.   :690.4   Max.   :392220700   Max.   :686.7   Max.   :686.7  
+##        asset          return          
+##  Length   :1506   Min.   :-0.1094236  
+##  N.unique :   1   1st Qu.:-0.0047779  
+##  N.blank  :   0   Median : 0.0009785  
+##  Min.nchar:   3   Mean   : 0.0006411  
+##  Max.nchar:   3   3rd Qu.: 0.0068559  
+##                   Max.   : 0.1050194</code></pre>
+<pre class="r"><code>summary(vix_tbl)</code></pre>
+<pre><code>##       date                 open            high            low       
+##  Min.   :2020-01-03   Min.   :11.53   Min.   :12.23   Min.   :10.62  
+##  1st Qu.:2021-07-01   1st Qu.:16.12   1st Qu.:16.83   1st Qu.:15.37  
+##  Median :2022-12-28   Median :19.37   Median :20.44   Median :18.32  
+##  Mean   :2022-12-30   Mean   :21.24   Mean   :22.48   Mean   :20.05  
+##  3rd Qu.:2024-06-30   3rd Qu.:24.25   3rd Qu.:25.84   3rd Qu.:22.84  
+##  Max.   :2025-12-30   Max.   :82.69   Max.   :85.47   Max.   :70.37  
+##      close           volume     adjusted       adj_close           asset     
+##  Min.   :11.86   Min.   :0   Min.   :11.86   Min.   :11.86   Length   :1506  
+##  1st Qu.:15.96   1st Qu.:0   1st Qu.:15.96   1st Qu.:15.96   N.unique :   1  
+##  Median :19.08   Median :0   Median :19.08   Median :19.08   N.blank  :   0  
+##  Mean   :21.02   Mean   :0   Mean   :21.02   Mean   :21.02   Min.nchar:   3  
+##  3rd Qu.:24.11   3rd Qu.:0   3rd Qu.:24.11   3rd Qu.:24.11   Max.nchar:   3  
+##  Max.   :82.69   Max.   :0   Max.   :82.69   Max.   :82.69                   
+##      return         
+##  Min.   :-0.357539  
+##  1st Qu.:-0.041978  
+##  Median :-0.007910  
+##  Mean   : 0.003357  
+##  3rd Qu.: 0.035272  
+##  Max.   : 0.740391</code></pre>
+</div>
+<div id="preparing-macroeconomic-variables" class="section level2">
+<h2>6. Preparing Macroeconomic variables</h2>
+<pre class="r"><code>treasury_tbl &lt;- tibble(
+  date = index(DGS10),
+  treasury_10y = as.numeric(DGS10$DGS10)
+)</code></pre>
+<pre class="r"><code>cpi_tbl &lt;- tibble(
+  date = index(CPIAUCSL),
+  cpi = as.numeric(CPIAUCSL$CPIAUCSL)
+)</code></pre>
+<pre class="r"><code>head(treasury_tbl)</code></pre>
+<pre><code>## # A tibble: 6 × 2
+##   date       treasury_10y
+##   &lt;date&gt;            &lt;dbl&gt;
+## 1 2020-01-01        NA   
+## 2 2020-01-02         1.88
+## 3 2020-01-03         1.8 
+## 4 2020-01-06         1.81
+## 5 2020-01-07         1.83
+## 6 2020-01-08         1.87</code></pre>
+<pre class="r"><code>head(cpi_tbl)</code></pre>
+<pre><code>## # A tibble: 6 × 2
+##   date         cpi
+##   &lt;date&gt;     &lt;dbl&gt;
+## 1 2020-01-01  259.
+## 2 2020-02-01  259.
+## 3 2020-03-01  258.
+## 4 2020-04-01  256.
+## 5 2020-05-01  256.
+## 6 2020-06-01  257.</code></pre>
+</div>
+<div id="create-an-observation-summary-table-and-saving-it" class="section level2">
+<h2>7. Create an Observation Summary Table and saving it</h2>
+<p>We first count the observations</p>
+<pre class="r"><code>nrow(amd_tbl)</code></pre>
+<pre><code>## [1] 1506</code></pre>
+<pre class="r"><code>nrow(eth_tbl)</code></pre>
+<pre><code>## [1] 2191</code></pre>
+<pre class="r"><code>nrow(phi_tbl)</code></pre>
+<pre><code>## [1] 1506</code></pre>
+<pre class="r"><code>nrow(spy_tbl)</code></pre>
+<pre><code>## [1] 1506</code></pre>
+<pre class="r"><code>nrow(vix_tbl)</code></pre>
+<pre><code>## [1] 1506</code></pre>
+<pre class="r"><code>nrow(treasury_tbl)</code></pre>
+<pre><code>## [1] 1566</code></pre>
+<pre class="r"><code>nrow(cpi_tbl)</code></pre>
+<pre><code>## [1] 72</code></pre>
+<p>Creating the observation summary table</p>
+<pre class="r"><code>obs_summary &lt;- tibble(
+  Dataset = c(&quot;AMD&quot;,
+              &quot;Ethereum&quot;,
+              &quot;PLDT&quot;,
+              &quot;SPY&quot;,
+              &quot;VIX&quot;,
+              &quot;Treasury&quot;,
+              &quot;CPI&quot;),
+  Observations = c(
+    nrow(amd_tbl),
+    nrow(eth_tbl),
+    nrow(phi_tbl),
+    nrow(spy_tbl),
+    nrow(vix_tbl),
+    nrow(treasury_tbl),
+    nrow(cpi_tbl)
+  )
+)
+
+obs_summary</code></pre>
+<pre><code>## # A tibble: 7 × 2
+##   Dataset  Observations
+##   &lt;chr&gt;           &lt;int&gt;
+## 1 AMD              1506
+## 2 Ethereum         2191
+## 3 PLDT             1506
+## 4 SPY              1506
+## 5 VIX              1506
+## 6 Treasury         1566
+## 7 CPI                72</code></pre>
+<p>Saving the clean tables</p>
+<pre class="r"><code>amd_clean &lt;- amd_tbl
+eth_clean &lt;- eth_tbl
+phi_clean &lt;- phi_tbl
+spy_clean &lt;- spy_tbl
+vix_clean &lt;- vix_tbl
+treasury_clean &lt;- treasury_tbl
+cpi_clean &lt;- cpi_tbl</code></pre>
+</div>
+</div>
+<div id="sql-investigation" class="section level1">
+<h1>SQL Investigation</h1>
+<p>“Investigate at least 10 meaningful financial questions using
+select(), filter(), mutate(), arrange(), group_by() and summarise().
+Each query must include Objective, Code, Output and Interpretation.” –
+from the specs</p>
+<p>After cleaning all the data, we collate the rows into 1 unified
+dataset ? idk if thats correct wording</p>
+<div id="renaming-variables" class="section level2">
+<h2>1. Renaming variables</h2>
+</div>
+<div id="from-this-number-till-the-compare-joins-number-we-need-to-enumerate-why-we-used-a-certain-join-on-what-data-and-how-many" class="section level2">
+<h2>2. from this number till the “Compare joins” number we need to
+enumerate why we used a certain join on what data and how many</h2>
+</div>
+<div id="compare-joins" class="section level2">
+<h2><num0>. Compare joins</h2>
+</div>
+<div id="building-the-unified-database" class="section level2">
+<h2><num1>. Building the Unified Database</h2>
+</div>
+<div id="observation-tracking" class="section level2">
+<h2><num2>. Observation Tracking</h2>
+</div>
+<div id="dropping-null-rows" class="section level2">
+<h2><num3>. Dropping Null Rows</h2>
+</div>
+</div>
+<div id="descriptive-statistics" class="section level1">
+<h1>Descriptive Statistics</h1>
+<p>“Compute mean, median, variance, standard deviation, minimum,
+maximum, range, skewness and kurtosis.” – from the specs</p>
+<p>From the previous section, a unified database named
+<code>&lt;db name&gt;</code> was created, we can first examine the
+variables</p>
+<div id="selecting-return-variables" class="section level2">
+<h2>1. Selecting return variables</h2>
+<p>ok im assuming since our end goal is an investment strategy, we are
+to analyze the returns + voilatility?? idk</p>
+</div>
+<div id="computing-median-and-mean" class="section level2">
+<h2>2. Computing median and mean</h2>
+</div>
+<div id="computing-dispersion-risk" class="section level2">
+<h2>3. Computing Dispersion (Risk)</h2>
+<p>variance, std dev, range, interquartile range, coefficient of
+variation</p>
+</div>
+<div id="viewing-data-shape" class="section level2">
+<h2>4. Viewing data shape</h2>
+<p>skewness and kurtosis</p>
+</div>
+<div id="computing-data-position" class="section level2">
+<h2>5. Computing data position ?</h2>
+<p>min, max, quartiles, percentiles</p>
+</div>
+<div id="dealing-with-missing-values" class="section level2">
+<h2>6. Dealing with Missing Values</h2>
+</div>
+<div id="correlation-matrix" class="section level2">
+<h2>7. Correlation Matrix</h2>
+</div>
+<div id="covariance-matrix" class="section level2">
+<h2>8. Covariance Matrix</h2>
+</div>
+<div id="final-descriptive-statistics-table" class="section level2">
+<h2>9. Final Descriptive Statistics Table</h2>
+<pre class="r"><code>library(psych)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;psych&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:ggplot2&#39;:
+## 
+##     %+%, alpha</code></pre>
+</div>
+</div>
+<div id="visualization" class="section level1">
+<h1>Visualization</h1>
+<p>“Produce at least eight professional figures with interpretations.” –
+from the specs</p>
+<p>(for these sections below im not sure if this should be in the paper
+or in the RMD file itself, or we place it here then elaborate further in
+the paper) # Exploratory Financial Analysis “Compare returns,
+volatility, inflationary periods, high-VIX periods and interest-rate
+environments.” – from the specs</p>
+</div>
+<div id="investment-recommendation" class="section level1">
+<h1>Investment Recommendation</h1>
+<p>“Recommend allocation of USD 1,000,000 among the selected U.S. asset,
+Philippine asset, cryptocurrency and cash.” – from the specs</p>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<ul>
+<li>booyah</li>
+</ul>
 </div>
 
 
