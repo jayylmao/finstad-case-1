@@ -337,13 +337,41 @@ cpi_clean <- cpi_tbl
 # SQL Investigation
 "Investigate at least 10 meaningful financial questions using select(), filter(), mutate(), arrange(), group_by() and summarise(). Each query must include Objective, Code, Output and Interpretation." -- from the specs
 
-After cleaning all the data, we collate the rows into 1 unified dataset ? idk if thats correct wording
+After cleaning all the data, we collate the rows into 1 unified dataset.
 
 ## 1. Renaming variables
 ```{r}
+amd_sql <- amd_clean  |> 
+  select(date,
+         amd_price = adj_close,
+         amd_return = return)
+
+eth_sql <- eth_clean  |> 
+  select(date,
+         eth_price = adj_close,
+         eth_return = return)
+
+phi_sql <- phi_clean  |> 
+  select(date,
+         phi_price = adj_close,
+         phi_return = return)
+
+spy_sql <- spy_clean  |> 
+  select(date,
+         spy_price = adj_close,
+         spy_return = return)
+```
+
+```{r}
+head(amd_sql)
+head(eth_sql)
+head(phi_sql)
+head(spy_sql)
 ```
 
 ### 2. from this number till the "Compare joins" number we need to enumerate why we used a certain join on what data and how many
+```{r}
+```
 
 ### <num0>. Compare joins
 ```{r}
