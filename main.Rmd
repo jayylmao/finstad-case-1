@@ -395,17 +395,28 @@ unified_db <- spy_sql |>
   left_join(treasury_clean,
             by = "date") |> 
   left_join(cpi_clean,
-            by = "date") |> 
-  arrange(date) |> 
-  tidyr::fill(treasury_10y, 
-              cpi, 
-              .direction = "down")
+            by = "date")
+  #arrange(date) |> 
+  #tidyr::fill(treasury_10y, 
+  #            cpi, 
+  #            .direction = "down")
 
 glimpse(unified_db)
+head(unified_db)
+view(unified_db)
 ```
 
 ### <num2>. Observation Tracking
 ```{r}
+```
+
+Checking null rows
+```{r}
+colSums(
+  is.na(
+    unified_db
+  )
+)
 ```
 
 ### <num3>. Dropping Null Rows
@@ -417,49 +428,432 @@ glimpse(unified_db)
 
 From the previous section, a unified database named `<db name>` was created, we can first examine the variables
 ```{r}
+
 ```
 
 ### 1. Selecting return variables
 ok im assuming since our end goal is an investment strategy, we are to analyze the returns + voilatility?? idk
 ```{r}
+returns_tbl <- unified_db  |> 
+
+  select(date,
+         amd_return,
+         eth_return,
+         phi_return,
+         spy_return)
+
+head(returns_tbl)
+dim(returns_tbl)
+
 ```
 
 ### 2. Computing median and mean
 ```{r}
+#Mean Return
+cat("AMD Mean: ")
+mean(returns_tbl$amd_return,
+     na.rm = TRUE)
+
+#Median Return
+cat("AMD Median: ")
+median(returns_tbl$amd_return,
+       na.rm = TRUE)
+
+#Trimmed Mean
+cat("AMD Trimmed Mean: ")
+mean(returns_tbl$amd_return,
+     trim = 0.05,
+     na.rm = TRUE)
+
+cat("ETH Mean: ")
+mean(returns_tbl$eth_return,
+     na.rm = TRUE)
+
+cat("ETH Median: ")
+median(returns_tbl$eth_return,
+       na.rm = TRUE)
+
+cat("ETH Trimmed Mean: ")
+mean(returns_tbl$eth_return,
+     trim = 0.05,
+     na.rm = TRUE)
+
+cat("PHI Mean: ")
+mean(returns_tbl$phi_return,
+     na.rm = TRUE)
+
+cat("PHI Median: ")
+median(returns_tbl$phi_return,
+       na.rm = TRUE)
+
+cat("PHI Trimmed Mean: ")
+mean(returns_tbl$phi_return,
+     trim = 0.05,
+     na.rm = TRUE)
+
+cat("SPY Mean: ")
+mean(returns_tbl$spy_return,
+     na.rm = TRUE)
+
+cat("SPY Median: ")
+median(returns_tbl$spy_return,
+       na.rm = TRUE)
+
+cat("SPY Trimmed Mean: ")
+mean(returns_tbl$spy_return,
+     trim = 0.05,
+     na.rm = TRUE)
+
 ```
 
 ### 3. Computing Dispersion (Risk)
 variance, std dev, range, interquartile range, coefficient of variation
 ```{r}
+#Variance
+cat("AMD Variance: ")
+var(returns_tbl$amd_return,
+    na.rm = TRUE)
+
+#Standard Deviation
+cat("AMD Standard Deviation: ")
+sd(returns_tbl$amd_return,
+   na.rm = TRUE)
+
+#Range
+cat("AMD Range: ")
+range(returns_tbl$amd_return,
+      na.rm = TRUE)
+
+#Interquartile Range
+cat("AMD IQR: ")
+IQR(returns_tbl$amd_return,
+    na.rm = TRUE)
+
+#Coefficient of Variation
+cat("AMD Coeff. of Variation: ")
+sd(returns_tbl$amd_return,
+   na.rm = TRUE) /
+mean(returns_tbl$amd_return,
+     na.rm = TRUE)
+
+cat("ETH Variance: ")
+var(returns_tbl$eth_return,
+    na.rm = TRUE)
+
+cat("ETH Standard Deviation: ")
+sd(returns_tbl$eth_return,
+   na.rm = TRUE)
+
+cat("ETH Range: ")
+range(returns_tbl$eth_return,
+      na.rm = TRUE)
+
+cat("ETH IQR: ")
+IQR(returns_tbl$eth_return,
+    na.rm = TRUE)
+
+cat("ETH Coeff. of Variation: ")
+sd(returns_tbl$eth_return,
+   na.rm = TRUE) /
+mean(returns_tbl$eth_return,
+     na.rm = TRUE)
+
+cat("PHI Variance: ")
+var(returns_tbl$phi_return,
+    na.rm = TRUE)
+
+cat("PHI Standard Deviation: ")
+sd(returns_tbl$phi_return,
+   na.rm = TRUE)
+
+cat("PHI Range: ")
+range(returns_tbl$phi_return,
+      na.rm = TRUE)
+
+cat("PHI IQR: ")
+IQR(returns_tbl$phi_return,
+    na.rm = TRUE)
+
+cat("PHI Coeff. of Variation: ")
+sd(returns_tbl$phi_return,
+   na.rm = TRUE) /
+mean(returns_tbl$phi_return,
+     na.rm = TRUE)
+
+cat("SPY Variance: ")
+var(returns_tbl$spy_return,
+    na.rm = TRUE)
+
+cat("SPY Standard Deviation: ")
+sd(returns_tbl$spy_return,
+   na.rm = TRUE)
+
+cat("SPY Range: ")
+range(returns_tbl$spy_return,
+      na.rm = TRUE)
+
+cat("SPY IQR: ")
+IQR(returns_tbl$spy_return,
+    na.rm = TRUE)
+
+cat("SPY Coeff. of Variation: ")
+sd(returns_tbl$spy_return,
+   na.rm = TRUE) /
+mean(returns_tbl$spy_return,
+     na.rm = TRUE)
+
 ```
 
 ### 4. Viewing data shape
 skewness and kurtosis
 ```{r}
+library(moments)
+#Skewness
+cat("AMD Skewness: ")
+skewness(returns_tbl$amd_return,
+         na.rm = TRUE)
+#Kurtosis
+cat("AMD Kurtosis: ")
+kurtosis(returns_tbl$amd_return,
+         na.rm = TRUE)
+
+cat("ETH Skewness: ")
+skewness(returns_tbl$eth_return,
+         na.rm = TRUE)
+
+cat("ETH Kurtosis: ")
+kurtosis(returns_tbl$eth_return,
+         na.rm = TRUE)
+
+cat("PHI Skewness: ")
+skewness(returns_tbl$phi_return,
+         na.rm = TRUE)
+
+cat("PHI Kurtosis: ")
+kurtosis(returns_tbl$phi_return,
+         na.rm = TRUE)
+
+cat("SPY Skewness: ")
+skewness(returns_tbl$spy_return,
+         na.rm = TRUE)
+
+cat("SPY Kurtosis: ")
+kurtosis(returns_tbl$spy_return,
+         na.rm = TRUE)
 ```
 
 ### 5. Computing data position ?
 min, max, quartiles, percentiles
 ```{r}
+#Minimum
+cat("AMD Minimum: ")
+min(returns_tbl$amd_return,
+    na.rm = TRUE)
+
+#Maximum
+cat("AMD Maximum: ")
+max(returns_tbl$amd_return,
+    na.rm = TRUE)
+
+#Quartiles
+cat("AMD Quartiles: ")
+quantile(returns_tbl$amd_return,
+         probs = c(.25,.50,.75),
+         na.rm = TRUE)
+
+#Percentiles
+cat("AMD Percentiles: ")
+quantile(returns_tbl$amd_return,
+         probs = c(.01,.05,.95,.99),
+         na.rm = TRUE)
+
+cat("ETH Minimum: ")
+min(returns_tbl$eth_return,
+    na.rm = TRUE)
+
+cat("ETH Maximum: ")
+max(returns_tbl$eth_return,
+    na.rm = TRUE)
+
+cat("ETH Quartiles: ")
+quantile(returns_tbl$eth_return,
+         probs = c(.25,.50,.75),
+         na.rm = TRUE)
+
+cat("ETH Percentiles: ")
+quantile(returns_tbl$eth_return,
+         probs = c(.01,.05,.95,.99),
+         na.rm = TRUE)
+
+cat("PHI Minimum: ")
+min(returns_tbl$phi_return,
+    na.rm = TRUE)
+
+cat("PHI Maximum: ")
+max(returns_tbl$phi_return,
+    na.rm = TRUE)
+
+cat("PHI Quartiles: ")
+quantile(returns_tbl$phi_return,
+         probs = c(.25,.50,.75),
+         na.rm = TRUE)
+
+cat("PHI Percentiles: ")
+quantile(returns_tbl$phi_return,
+         probs = c(.01,.05,.95,.99),
+         na.rm = TRUE)
+
+cat("SPY Minimum: ")
+min(returns_tbl$spy_return,
+    na.rm = TRUE)
+
+cat("SPY Maximum: ")
+max(returns_tbl$spy_return,
+    na.rm = TRUE)
+
+cat("SPY Quartiles: ")
+quantile(returns_tbl$spy_return,
+         probs = c(.25,.50,.75),
+         na.rm = TRUE)
+
+cat("SPY Percentiles: ")
+quantile(returns_tbl$spy_return,
+         probs = c(.01,.05,.95,.99),
+         na.rm = TRUE)
 ```
 
 ### 6. Dealing with Missing Values
 ```{r}
+colSums(is.na(returns_tbl))
 ```
 
 ### 7. Correlation Matrix
 ```{r}
+correlation_matrix <- returns_tbl  |> 
+  select(-date)  |> 
+  cor(use = "complete.obs")
+correlation_matrix
 ```
 
 ### 8. Covariance Matrix 
 ```{r}
+covariance_matrix <- returns_tbl |> 
+  select(-date)  |> 
+  cov(use = "complete.obs")
+covariance_matrix
 ```
 
 ### 9. Final Descriptive Statistics Table
 ```{r}
 library(psych)
+
+desc_stats <- psych::describe(
+  returns_tbl  |> 
+    select(-date)
+)
+round(desc_stats,4)
 ```
 
+```{r}
+descriptive_table <- tibble(
+
+  Statistic = c(
+    "Mean",
+    "Median",
+    "Trimmed Mean",
+    "Standard Deviation",
+    "Variance",
+    "Minimum",
+    "Q1",
+    "Q3",
+    "Maximum",
+    "Range",
+    "Interquartile Range",
+    "Coefficient of Variation",
+    "Skewness",
+    "Kurtosis",
+    "Observations"
+  ),
+
+  AMD = c(
+    mean(returns_tbl$amd_return, na.rm = TRUE),
+    median(returns_tbl$amd_return, na.rm = TRUE),
+    mean(returns_tbl$amd_return, trim = 0.05, na.rm = TRUE),
+    sd(returns_tbl$amd_return, na.rm = TRUE),
+    var(returns_tbl$amd_return, na.rm = TRUE),
+    min(returns_tbl$amd_return, na.rm = TRUE),
+    quantile(returns_tbl$amd_return, 0.25, na.rm = TRUE),
+    quantile(returns_tbl$amd_return, 0.75, na.rm = TRUE),
+    max(returns_tbl$amd_return, na.rm = TRUE),
+    diff(range(returns_tbl$amd_return, na.rm = TRUE)),
+    IQR(returns_tbl$amd_return, na.rm = TRUE),
+    sd(returns_tbl$amd_return, na.rm = TRUE) /
+      mean(returns_tbl$amd_return, na.rm = TRUE),
+    skewness(returns_tbl$amd_return, na.rm = TRUE),
+    kurtosis(returns_tbl$amd_return, na.rm = TRUE),
+    sum(!is.na(returns_tbl$amd_return))
+  ),
+  
+  ETH = c(
+    mean(returns_tbl$eth_return, na.rm = TRUE),
+    median(returns_tbl$eth_return, na.rm = TRUE),
+    mean(returns_tbl$eth_return, trim = 0.05, na.rm = TRUE),
+    sd(returns_tbl$eth_return, na.rm = TRUE),
+    var(returns_tbl$eth_return, na.rm = TRUE),
+    min(returns_tbl$eth_return, na.rm = TRUE),
+    quantile(returns_tbl$eth_return, 0.25, na.rm = TRUE),
+    quantile(returns_tbl$eth_return, 0.75, na.rm = TRUE),
+    max(returns_tbl$eth_return, na.rm = TRUE),
+    diff(range(returns_tbl$eth_return, na.rm = TRUE)),
+    IQR(returns_tbl$eth_return, na.rm = TRUE),
+    sd(returns_tbl$eth_return, na.rm = TRUE) /
+      mean(returns_tbl$eth_return, na.rm = TRUE),
+    skewness(returns_tbl$eth_return, na.rm = TRUE),
+    kurtosis(returns_tbl$eth_return, na.rm = TRUE),
+    sum(!is.na(returns_tbl$eth_return))
+  ),
+  
+  PHI = c(
+    mean(returns_tbl$phi_return, na.rm = TRUE),
+    median(returns_tbl$phi_return, na.rm = TRUE),
+    mean(returns_tbl$phi_return, trim = 0.05, na.rm = TRUE),
+    sd(returns_tbl$phi_return, na.rm = TRUE),
+    var(returns_tbl$phi_return, na.rm = TRUE),
+    min(returns_tbl$phi_return, na.rm = TRUE),
+    quantile(returns_tbl$phi_return, 0.25, na.rm = TRUE),
+    quantile(returns_tbl$phi_return, 0.75, na.rm = TRUE),
+    max(returns_tbl$phi_return, na.rm = TRUE),
+    diff(range(returns_tbl$phi_return, na.rm = TRUE)),
+    IQR(returns_tbl$phi_return, na.rm = TRUE),
+    sd(returns_tbl$phi_return, na.rm = TRUE) /
+      mean(returns_tbl$phi_return, na.rm = TRUE),
+    skewness(returns_tbl$phi_return, na.rm = TRUE),
+    kurtosis(returns_tbl$phi_return, na.rm = TRUE),
+    sum(!is.na(returns_tbl$phi_return))
+  ),
+  
+  SPY = c(
+    mean(returns_tbl$phi_return, na.rm = TRUE),
+    median(returns_tbl$phi_return, na.rm = TRUE),
+    mean(returns_tbl$phi_return, trim = 0.05, na.rm = TRUE),
+    sd(returns_tbl$phi_return, na.rm = TRUE),
+    var(returns_tbl$phi_return, na.rm = TRUE),
+    min(returns_tbl$phi_return, na.rm = TRUE),
+    quantile(returns_tbl$phi_return, 0.25, na.rm = TRUE),
+    quantile(returns_tbl$phi_return, 0.75, na.rm = TRUE),
+    max(returns_tbl$phi_return, na.rm = TRUE),
+    diff(range(returns_tbl$phi_return, na.rm = TRUE)),
+    IQR(returns_tbl$phi_return, na.rm = TRUE),
+    sd(returns_tbl$phi_return, na.rm = TRUE) /
+      mean(returns_tbl$phi_return, na.rm = TRUE),
+    skewness(returns_tbl$phi_return, na.rm = TRUE),
+    kurtosis(returns_tbl$phi_return, na.rm = TRUE),
+    sum(!is.na(returns_tbl$phi_return))
+  )
+)
+
+descriptive_table
+```
 # Visualization
 "Produce at least eight professional figures with interpretations." -- from the specs
 
