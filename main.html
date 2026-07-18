@@ -392,7 +392,7 @@ Cryptocurrency - U.S. asset - Philippine asset</p>
 DATE_FROM &lt;- &quot;2020-01-01&quot;
 DATE_TO &lt;- &quot;2025-12-31&quot;
 
-# macroeconomic data is sourced from the Federal Reserve Bank of St. Louis&#39; FRED dataset.
+# macroeconomic data is sourced from the Federal Reserve Bank of St. Louis FRED dataset.
 quantmod::getSymbols(&quot;DGS10&quot;,
                      src = &quot;FRED&quot;,
                      from = DATE_FROM,
@@ -403,6 +403,11 @@ quantmod::getSymbols(&quot;DGS10&quot;,
                      from = DATE_FROM,
                      to = DATE_TO)</code></pre>
 <pre><code>## [1] &quot;CPIAUCSL&quot;</code></pre>
+<pre class="r"><code>quantmod::getSymbols(&quot;FEDFUNDS&quot;,
+                     src = &quot;FRED&quot;,
+                     from = DATE_FROM,
+                     to = DATE_TO)</code></pre>
+<pre><code>## [1] &quot;FEDFUNDS&quot;</code></pre>
 <pre class="r"><code># the following symbol data is sourced from yahoo finance.
 quantmod::getSymbols(&quot;SPY&quot;,                 # SPDR S&amp;P 500 ETF Trust
                      src = &quot;yahoo&quot;,
@@ -423,6 +428,9 @@ quantmod::getSymbols(&quot;SPY&quot;,                 # SPDR S&amp;P 500 ETF Tru
                      src = &quot;yahoo&quot;,
                      from = DATE_FROM,
                      to = DATE_TO)</code></pre>
+<pre><code>## Warning: ^VIX contains missing values. Some functions will not work if objects
+## contain missing values in the middle of the series. Consider using na.omit(),
+## na.approx(), na.fill(), etc to remove or replace them.</code></pre>
 <pre><code>## [1] &quot;VIX&quot;</code></pre>
 <pre class="r"><code>quantmod::getSymbols(&quot;ETH-USD&quot;,             # Cryptocurrency: Ethereum
                      src = &quot;yahoo&quot;,
@@ -433,13 +441,16 @@ quantmod::getSymbols(&quot;SPY&quot;,                 # SPDR S&amp;P 500 ETF Tru
 <p>The data is taken from the Federal Reserve Economic Database (FRED)
 from the Federal Reserve Bank of St. Louis, where we load in the
 <em>Market Yield on U.S. Treasury Securities at 10-Year Constant
-Maturity</em> (<strong>DGS10</strong>) and <em>Consumer Price Index for
-All Urban Consumers</em> (<strong>CPIAUCSL</strong>).</p>
+Maturity</em> (<strong>DGS10</strong>), <em>Consumer Price Index for All
+Urban Consumers</em> (<strong>CPIAUCSL</strong>), and the <em>Federal
+Funds Effective Rate</em> (<strong>FEDFUNDS</strong>).</p>
 <p><strong>DGS10</strong> is used as a proxy for the “risk-free rate” in
 finance, it helps investors gauge inflation expectations, economic
-growth, and monetary policy shifts. While <strong>CPIAUCSL</strong> is
+growth, and monetary policy shifts. <strong>CPIAUCSL</strong> is
 seasonally adjusted to gauge monthly inflation metrics on consumer
-goods.</p>
+goods. <strong>FEDFUNDS</strong> is the monthly average interest rate at
+which banks lend reserves to each other overnight, and reflects the
+stance of U.S. monetary policy (tightening vs. easing cycles).</p>
 <p>These pieces of macroeconomic data would help in understanding
 broader market cycles and how systemic risks affect stock
 valuations.</p>
@@ -459,6 +470,14 @@ valuations.</p>
 ## 2020-04-01  256.032
 ## 2020-05-01  255.802
 ## 2020-06-01  257.042</code></pre>
+<pre class="r"><code>head(FEDFUNDS)</code></pre>
+<pre><code>##            FEDFUNDS
+## 2020-01-01     1.55
+## 2020-02-01     1.58
+## 2020-03-01     0.65
+## 2020-04-01     0.05
+## 2020-05-01     0.05
+## 2020-06-01     0.08</code></pre>
 <p>We can then take a look at our chosen financial market data,</p>
 <p>U.S. Asset - Advanced Micro Devices, Inc. (AMD) Philippine Asset -
 PLDT, Inc.(PHI) Cryptocurrency - Etherium (ETH or ETH-USD) Required -
@@ -479,7 +498,7 @@ head(AMD)</code></pre>
 ## 2020-01-02    19.75    19.80   19.59     19.73      67000     12.94961
 ## 2020-01-03    19.66    19.82   19.50     19.81      37200     13.00212
 ## 2020-01-06    19.76    19.95   19.63     19.70      68300     12.92992
-## 2020-01-07    19.99    20.54   19.99     20.35     139200     13.35655
+## 2020-01-07    19.99    20.54   19.99     20.35     139200     13.35654
 ## 2020-01-08    20.16    20.59   20.16     20.51     119300     13.46156
 ## 2020-01-09    20.50    20.99   20.50     20.96     114700     13.75691</code></pre>
 <pre class="r"><code>head(ETH)</code></pre>
@@ -499,11 +518,11 @@ head(AMD)</code></pre>
 ## 2020-01-06         144.3042</code></pre>
 <pre class="r"><code>head(SPY)</code></pre>
 <pre><code>##            SPY.Open SPY.High SPY.Low SPY.Close SPY.Volume SPY.Adjusted
-## 2020-01-02   323.54   324.89  322.53    324.87   59151200     296.1253
-## 2020-01-03   321.16   323.64  321.10    322.41   77709700     293.8830
+## 2020-01-02   323.54   324.89  322.53    324.87   59151200     296.1252
+## 2020-01-03   321.16   323.64  321.10    322.41   77709700     293.8829
 ## 2020-01-06   320.49   323.73  320.36    323.64   55653900     295.0042
 ## 2020-01-07   323.02   323.54  322.24    322.73   40496400     294.1747
-## 2020-01-08   322.94   325.78  322.67    324.45   68296000     295.7425
+## 2020-01-08   322.94   325.78  322.67    324.45   68296000     295.7424
 ## 2020-01-09   326.16   326.73  325.52    326.65   48473300     297.7478</code></pre>
 <p>Lastly, we take a look at the <em>Cboe Volatility Index</em>
 (<strong>VIX</strong>), this is not an individual stock but a real time
@@ -693,10 +712,10 @@ vix_tbl &lt;- vix_tbl  |&gt;
 ## $ low       &lt;dbl&gt; 19.50, 19.63, 19.99, 20.16, 20.50, 20.92, 20.82, 21.29, 21.0…
 ## $ close     &lt;dbl&gt; 19.81, 19.70, 20.35, 20.51, 20.96, 21.02, 21.29, 21.50, 21.1…
 ## $ volume    &lt;dbl&gt; 37200, 68300, 139200, 119300, 114700, 105200, 132800, 141600…
-## $ adjusted  &lt;dbl&gt; 13.00212, 12.92992, 13.35655, 13.46156, 13.75691, 13.79629, …
-## $ adj_close &lt;dbl&gt; 13.00212, 12.92992, 13.35655, 13.46156, 13.75691, 13.79629, …
+## $ adjusted  &lt;dbl&gt; 13.00212, 12.92992, 13.35654, 13.46156, 13.75691, 13.79630, …
+## $ adj_close &lt;dbl&gt; 13.00212, 12.92992, 13.35654, 13.46156, 13.75691, 13.79630, …
 ## $ asset     &lt;chr&gt; &quot;PHI&quot;, &quot;PHI&quot;, &quot;PHI&quot;, &quot;PHI&quot;, &quot;PHI&quot;, &quot;PHI&quot;, &quot;PHI&quot;, &quot;PHI&quot;, &quot;PHI…
-## $ return    &lt;dbl&gt; 0.004054673, -0.005552634, 0.032994967, 0.007862422, 0.02194…</code></pre>
+## $ return    &lt;dbl&gt; 0.0040546732, -0.0055525605, 0.0329948175, 0.0078624943, 0.0…</code></pre>
 <pre class="r"><code>glimpse(spy_tbl)</code></pre>
 <pre><code>## Rows: 1,506
 ## Columns: 10
@@ -706,12 +725,12 @@ vix_tbl &lt;- vix_tbl  |&gt;
 ## $ low       &lt;dbl&gt; 321.10, 320.36, 322.24, 322.67, 325.52, 325.20, 325.92, 326.…
 ## $ close     &lt;dbl&gt; 322.41, 323.64, 322.73, 324.45, 326.65, 325.71, 327.95, 327.…
 ## $ volume    &lt;dbl&gt; 77709700, 55653900, 40496400, 68296000, 48473300, 53029300, …
-## $ adjusted  &lt;dbl&gt; 293.8830, 295.0042, 294.1747, 295.7425, 297.7478, 296.8911, …
-## $ adj_close &lt;dbl&gt; 293.8830, 295.0042, 294.1747, 295.7425, 297.7478, 296.8911, …
+## $ adjusted  &lt;dbl&gt; 293.8829, 295.0042, 294.1747, 295.7424, 297.7478, 296.8910, …
+## $ adj_close &lt;dbl&gt; 293.8829, 295.0042, 294.1747, 295.7424, 297.7478, 296.8910, …
 ## $ asset     &lt;chr&gt; &quot;SPY&quot;, &quot;SPY&quot;, &quot;SPY&quot;, &quot;SPY&quot;, &quot;SPY&quot;, &quot;SPY&quot;, &quot;SPY&quot;, &quot;SPY&quot;, &quot;SPY…
-## $ return    &lt;dbl&gt; -0.0075722677, 0.0038151780, -0.0028117153, 0.0053293127, 0.…</code></pre>
+## $ return    &lt;dbl&gt; -0.0075721662, 0.0038151784, -0.0028118191, 0.0053293138, 0.…</code></pre>
 <pre class="r"><code>glimpse(vix_tbl)</code></pre>
-<pre><code>## Rows: 1,506
+<pre><code>## Rows: 1,449
 ## Columns: 10
 ## $ date      &lt;date&gt; 2020-01-03, 2020-01-06, 2020-01-07, 2020-01-08, 2020-01-09,…
 ## $ open      &lt;dbl&gt; 15.01, 15.45, 13.84, 15.16, 12.95, 12.42, 12.84, 12.72, 12.7…
@@ -784,12 +803,12 @@ vix_tbl &lt;- vix_tbl  |&gt;
 ##  3rd Qu.:28.01   3rd Qu.:  89600   3rd Qu.:22.52   3rd Qu.:22.52  
 ##  Max.   :38.61   Max.   :2062700   Max.   :29.60   Max.   :29.60  
 ##        asset          return          
-##  Length   :1506   Min.   :-0.2368519  
-##  N.unique :   1   1st Qu.:-0.0097052  
+##  Length   :1506   Min.   :-0.2368520  
+##  N.unique :   1   1st Qu.:-0.0097051  
 ##  N.blank  :   0   Median : 0.0000000  
 ##  Min.nchar:   3   Mean   : 0.0005148  
 ##  Max.nchar:   3   3rd Qu.: 0.0101548  
-##                   Max.   : 0.1673875</code></pre>
+##                   Max.   : 0.1673876</code></pre>
 <pre class="r"><code>summary(spy_tbl)</code></pre>
 <pre><code>##       date                 open            high            low       
 ##  Min.   :2020-01-03   Min.   :228.2   Min.   :229.7   Min.   :218.3  
@@ -806,33 +825,33 @@ vix_tbl &lt;- vix_tbl  |&gt;
 ##  3rd Qu.:534.5   3rd Qu.: 91523975   3rd Qu.:520.9   3rd Qu.:520.9  
 ##  Max.   :690.4   Max.   :392220700   Max.   :686.7   Max.   :686.7  
 ##        asset          return          
-##  Length   :1506   Min.   :-0.1094237  
-##  N.unique :   1   1st Qu.:-0.0047780  
+##  Length   :1506   Min.   :-0.1094238  
+##  N.unique :   1   1st Qu.:-0.0047779  
 ##  N.blank  :   0   Median : 0.0009785  
 ##  Min.nchar:   3   Mean   : 0.0006411  
-##  Max.nchar:   3   3rd Qu.: 0.0068554  
-##                   Max.   : 0.1050196</code></pre>
+##  Max.nchar:   3   3rd Qu.: 0.0068557  
+##                   Max.   : 0.1050193</code></pre>
 <pre class="r"><code>summary(vix_tbl)</code></pre>
 <pre><code>##       date                 open            high            low       
 ##  Min.   :2020-01-03   Min.   :11.53   Min.   :12.23   Min.   :10.62  
-##  1st Qu.:2021-07-01   1st Qu.:16.12   1st Qu.:16.83   1st Qu.:15.37  
-##  Median :2022-12-28   Median :19.37   Median :20.44   Median :18.32  
-##  Mean   :2022-12-30   Mean   :21.24   Mean   :22.48   Mean   :20.05  
-##  3rd Qu.:2024-06-30   3rd Qu.:24.25   3rd Qu.:25.84   3rd Qu.:22.84  
+##  1st Qu.:2021-06-30   1st Qu.:16.18   1st Qu.:16.86   1st Qu.:15.44  
+##  Median :2022-12-22   Median :19.38   Median :20.45   Median :18.36  
+##  Mean   :2022-12-28   Mean   :21.30   Mean   :22.54   Mean   :20.09  
+##  3rd Qu.:2024-06-28   3rd Qu.:24.27   3rd Qu.:25.85   3rd Qu.:22.86  
 ##  Max.   :2025-12-30   Max.   :82.69   Max.   :85.47   Max.   :70.37  
 ##      close           volume     adjusted       adj_close           asset     
-##  Min.   :11.86   Min.   :0   Min.   :11.86   Min.   :11.86   Length   :1506  
-##  1st Qu.:15.96   1st Qu.:0   1st Qu.:15.96   1st Qu.:15.96   N.unique :   1  
+##  Min.   :11.86   Min.   :0   Min.   :11.86   Min.   :11.86   Length   :1449  
+##  1st Qu.:15.98   1st Qu.:0   1st Qu.:15.98   1st Qu.:15.98   N.unique :   1  
 ##  Median :19.08   Median :0   Median :19.08   Median :19.08   N.blank  :   0  
-##  Mean   :21.02   Mean   :0   Mean   :21.02   Mean   :21.02   Min.nchar:   3  
-##  3rd Qu.:24.11   3rd Qu.:0   3rd Qu.:24.11   3rd Qu.:24.11   Max.nchar:   3  
+##  Mean   :21.06   Mean   :0   Mean   :21.06   Mean   :21.06   Min.nchar:   3  
+##  3rd Qu.:24.17   3rd Qu.:0   3rd Qu.:24.17   3rd Qu.:24.17   Max.nchar:   3  
 ##  Max.   :82.69   Max.   :0   Max.   :82.69   Max.   :82.69                   
 ##      return         
 ##  Min.   :-0.357539  
-##  1st Qu.:-0.041978  
-##  Median :-0.007910  
-##  Mean   : 0.003357  
-##  3rd Qu.: 0.035272  
+##  1st Qu.:-0.042924  
+##  Median :-0.009009  
+##  Mean   : 0.001402  
+##  3rd Qu.: 0.032847  
 ##  Max.   : 0.740391</code></pre>
 </div>
 <div id="preparing-macroeconomic-variables" class="section level3">
@@ -844,6 +863,10 @@ vix_tbl &lt;- vix_tbl  |&gt;
 <pre class="r"><code>cpi_tbl &lt;- tibble(
   date = index(CPIAUCSL),
   cpi = as.numeric(CPIAUCSL$CPIAUCSL)
+)</code></pre>
+<pre class="r"><code>fedfunds_tbl &lt;- tibble(
+  date = index(FEDFUNDS),
+  fedfunds = as.numeric(FEDFUNDS$FEDFUNDS)
 )</code></pre>
 <pre class="r"><code>head(treasury_tbl)</code></pre>
 <pre><code>## # A tibble: 6 × 2
@@ -865,6 +888,16 @@ vix_tbl &lt;- vix_tbl  |&gt;
 ## 4 2020-04-01  256.
 ## 5 2020-05-01  256.
 ## 6 2020-06-01  257.</code></pre>
+<pre class="r"><code>head(fedfunds_tbl)</code></pre>
+<pre><code>## # A tibble: 6 × 2
+##   date       fedfunds
+##   &lt;date&gt;        &lt;dbl&gt;
+## 1 2020-01-01     1.55
+## 2 2020-02-01     1.58
+## 3 2020-03-01     0.65
+## 4 2020-04-01     0.05
+## 5 2020-05-01     0.05
+## 6 2020-06-01     0.08</code></pre>
 </div>
 <div id="create-an-observation-summary-table-and-saving-it" class="section level3">
 <h3>7. Create an Observation Summary Table and saving it</h3>
@@ -878,10 +911,12 @@ vix_tbl &lt;- vix_tbl  |&gt;
 <pre class="r"><code>nrow(spy_tbl)</code></pre>
 <pre><code>## [1] 1506</code></pre>
 <pre class="r"><code>nrow(vix_tbl)</code></pre>
-<pre><code>## [1] 1506</code></pre>
+<pre><code>## [1] 1449</code></pre>
 <pre class="r"><code>nrow(treasury_tbl)</code></pre>
 <pre><code>## [1] 1566</code></pre>
 <pre class="r"><code>nrow(cpi_tbl)</code></pre>
+<pre><code>## [1] 72</code></pre>
+<pre class="r"><code>nrow(fedfunds_tbl)</code></pre>
 <pre><code>## [1] 72</code></pre>
 <p>Creating the observation summary table</p>
 <pre class="r"><code>obs_summary &lt;- tibble(
@@ -891,7 +926,8 @@ vix_tbl &lt;- vix_tbl  |&gt;
               &quot;SPY&quot;,
               &quot;VIX&quot;,
               &quot;Treasury&quot;,
-              &quot;CPI&quot;),
+              &quot;CPI&quot;,
+              &quot;Fed Funds Rate&quot;),
   Observations = c(
     nrow(amd_tbl),
     nrow(eth_tbl),
@@ -899,21 +935,23 @@ vix_tbl &lt;- vix_tbl  |&gt;
     nrow(spy_tbl),
     nrow(vix_tbl),
     nrow(treasury_tbl),
-    nrow(cpi_tbl)
+    nrow(cpi_tbl),
+    nrow(fedfunds_tbl)
   )
 )
 
 obs_summary</code></pre>
-<pre><code>## # A tibble: 7 × 2
-##   Dataset  Observations
-##   &lt;chr&gt;           &lt;int&gt;
-## 1 AMD              1506
-## 2 Ethereum         2191
-## 3 PLDT             1506
-## 4 SPY              1506
-## 5 VIX              1506
-## 6 Treasury         1566
-## 7 CPI                72</code></pre>
+<pre><code>## # A tibble: 8 × 2
+##   Dataset        Observations
+##   &lt;chr&gt;                 &lt;int&gt;
+## 1 AMD                    1506
+## 2 Ethereum               2191
+## 3 PLDT                   1506
+## 4 SPY                    1506
+## 5 VIX                    1449
+## 6 Treasury               1566
+## 7 CPI                      72
+## 8 Fed Funds Rate           72</code></pre>
 <p>Saving the clean tables</p>
 <pre class="r"><code>amd_clean &lt;- amd_tbl
 eth_clean &lt;- eth_tbl
@@ -921,73 +959,1172 @@ phi_clean &lt;- phi_tbl
 spy_clean &lt;- spy_tbl
 vix_clean &lt;- vix_tbl
 treasury_clean &lt;- treasury_tbl
-cpi_clean &lt;- cpi_tbl</code></pre>
+cpi_clean &lt;- cpi_tbl
+fedfunds_clean &lt;- fedfunds_tbl</code></pre>
+</div>
+</div>
+<div id="database-integration" class="section level1">
+<h1>Database Integration</h1>
+<p>“Explain the SQL join strategy used… Justify the selected join
+strategy and explain any reduction in observations.”</p>
+<p>After cleaning all the data, we collate the rows into 1 unified
+dataset.</p>
+<div id="renaming-variables" class="section level2">
+<h2>1. Renaming variables</h2>
+<pre class="r"><code>amd_sql &lt;- amd_clean  |&gt; 
+  select(date,
+         amd_price = adj_close,
+         amd_return = return)
+
+eth_sql &lt;- eth_clean  |&gt; 
+  select(date,
+         eth_price = adj_close,
+         eth_return = return)
+
+phi_sql &lt;- phi_clean  |&gt; 
+  select(date,
+         phi_price = adj_close,
+         phi_return = return)
+
+spy_sql &lt;- spy_clean  |&gt; 
+  select(date,
+         spy_price = adj_close,
+         spy_return = return)
+
+vix_sql &lt;- vix_clean |&gt; 
+  select(date,
+         vix = adj_close,
+         vix_return = return)</code></pre>
+<pre class="r"><code>head(amd_sql)</code></pre>
+<pre><code>## # A tibble: 6 × 3
+##   date       amd_price amd_return
+##   &lt;date&gt;         &lt;dbl&gt;      &lt;dbl&gt;
+## 1 2020-01-03      48.6   -0.0102 
+## 2 2020-01-06      48.4   -0.00432
+## 3 2020-01-07      48.2   -0.00289
+## 4 2020-01-08      47.8   -0.00870
+## 5 2020-01-09      49.0    0.0238 
+## 6 2020-01-10      48.2   -0.0163</code></pre>
+<pre class="r"><code>head(eth_sql)</code></pre>
+<pre><code>## # A tibble: 6 × 3
+##   date       eth_price eth_return
+##   &lt;date&gt;         &lt;dbl&gt;      &lt;dbl&gt;
+## 1 2020-01-02      127.   -0.0259 
+## 2 2020-01-03      134.    0.0531 
+## 3 2020-01-04      135.    0.00669
+## 4 2020-01-05      136.    0.00894
+## 5 2020-01-06      144.    0.0589 
+## 6 2020-01-07      144.   -0.00527</code></pre>
+<pre class="r"><code>head(phi_sql)</code></pre>
+<pre><code>## # A tibble: 6 × 3
+##   date       phi_price phi_return
+##   &lt;date&gt;         &lt;dbl&gt;      &lt;dbl&gt;
+## 1 2020-01-03      13.0    0.00405
+## 2 2020-01-06      12.9   -0.00555
+## 3 2020-01-07      13.4    0.0330 
+## 4 2020-01-08      13.5    0.00786
+## 5 2020-01-09      13.8    0.0219 
+## 6 2020-01-10      13.8    0.00286</code></pre>
+<pre class="r"><code>head(spy_sql)</code></pre>
+<pre><code>## # A tibble: 6 × 3
+##   date       spy_price spy_return
+##   &lt;date&gt;         &lt;dbl&gt;      &lt;dbl&gt;
+## 1 2020-01-03      294.   -0.00757
+## 2 2020-01-06      295.    0.00382
+## 3 2020-01-07      294.   -0.00281
+## 4 2020-01-08      296.    0.00533
+## 5 2020-01-09      298.    0.00678
+## 6 2020-01-10      297.   -0.00288</code></pre>
+<pre class="r"><code>head(vix_sql)</code></pre>
+<pre><code>## # A tibble: 6 × 3
+##   date         vix vix_return
+##   &lt;date&gt;     &lt;dbl&gt;      &lt;dbl&gt;
+## 1 2020-01-03  14.0    0.124  
+## 2 2020-01-06  13.9   -0.0121 
+## 3 2020-01-07  13.8   -0.00433
+## 4 2020-01-08  13.4   -0.0247 
+## 5 2020-01-09  12.5   -0.0677 
+## 6 2020-01-10  12.6    0.00159</code></pre>
+</div>
+<div id="the-trading-calendar-problem" class="section level2">
+<h2>2. The Trading Calendar Problem</h2>
+<p>Our four core assets do not trade on the same schedule:</p>
+<ul>
+<li><strong>SPY</strong> and <strong>AMD</strong> follow the NYSE/NASDAQ
+calendar (U.S. weekdays, minus U.S. market holidays).</li>
+<li><strong>PHI</strong> (PLDT ADR) also trades on a U.S. exchange
+(NYSE), so it largely follows the same calendar as SPY/AMD, but can
+still diverge on days one market is closed and the other isnt
+(e.g. differing holiday schedules).</li>
+<li><strong>ETH</strong> trades every single calendar day, including
+weekends and all holidays, since crypto markets never close.</li>
+<li><strong>VIX</strong> follows the CBOE/NYSE calendar, similar to
+SPY.</li>
+</ul>
+<p>This means a naive join on <code>date</code> will not line up
+perfectly, ETH alone contributes roughly 30% more calendar dates per
+year than the equity assets. This mismatch is exactly why the join
+strategy matters, and why we need to demonstrate multiple join types
+before picking one.</p>
+</div>
+<div id="demonstrating-join-types" class="section level2">
+<h2>3. Demonstrating Join Types</h2>
+<p>Using <code>spy_sql</code> (equity calendar) and <code>eth_sql</code>
+(7-day calendar) as the clearest illustration of the mismatch:</p>
+<pre class="r"><code>cat(&quot;SPY rows: &quot;, nrow(spy_sql), &quot;\n&quot;)</code></pre>
+<pre><code>## SPY rows:  1506</code></pre>
+<pre class="r"><code>cat(&quot;ETH rows: &quot;, nrow(eth_sql), &quot;\n&quot;)</code></pre>
+<pre><code>## ETH rows:  2191</code></pre>
+<p><strong><code>inner_join()</code></strong> , keeps only dates present
+in <em>both</em> datasets. This throws away every weekend/holiday ETH
+observation that SPY doesnt have.</p>
+<pre class="r"><code>demo_inner &lt;- spy_sql |&gt; 
+  inner_join(eth_sql, by = &quot;date&quot;)
+
+cat(&quot;inner_join rows: &quot;, nrow(demo_inner), &quot;\n&quot;)</code></pre>
+<pre><code>## inner_join rows:  1506</code></pre>
+<p><strong><code>full_join()</code></strong> , keeps every date present
+in <em>either</em> dataset, filling the missing side with
+<code>NA</code>. This preserves ETHs weekend rows but introduces
+<code>NA</code> for SPY/AMD/PHI on those same days, since equities
+simply didnt trade.</p>
+<pre class="r"><code>demo_full &lt;- spy_sql |&gt; 
+  full_join(eth_sql, by = &quot;date&quot;)
+
+cat(&quot;full_join rows: &quot;, nrow(demo_full), &quot;\n&quot;)</code></pre>
+<pre><code>## full_join rows:  2191</code></pre>
+<pre class="r"><code>cat(&quot;Rows where SPY is NA (i.e. weekend/holiday-only ETH dates): &quot;,
+    sum(is.na(demo_full$spy_price)), &quot;\n&quot;)</code></pre>
+<pre><code>## Rows where SPY is NA (i.e. weekend/holiday-only ETH dates):  685</code></pre>
+<p><strong><code>anti_join()</code></strong> , shows <em>only</em> the
+rows that dont have a match, which is useful for auditing exactly which
+dates get dropped or orphaned by a join. Here, it shows every date ETH
+traded that SPY didnt:</p>
+<pre class="r"><code>demo_anti &lt;- eth_sql |&gt; 
+  anti_join(spy_sql, by = &quot;date&quot;)
+
+cat(&quot;Dates ETH traded but SPY did not: &quot;, nrow(demo_anti), &quot;\n&quot;)</code></pre>
+<pre><code>## Dates ETH traded but SPY did not:  685</code></pre>
+<pre class="r"><code>head(demo_anti)</code></pre>
+<pre><code>## # A tibble: 6 × 3
+##   date       eth_price eth_return
+##   &lt;date&gt;         &lt;dbl&gt;      &lt;dbl&gt;
+## 1 2020-01-02      127.   -0.0259 
+## 2 2020-01-04      135.    0.00669
+## 3 2020-01-05      136.    0.00894
+## 4 2020-01-11      143.   -0.00720
+## 5 2020-01-12      146.    0.0206 
+## 6 2020-01-18      175.    0.0269</code></pre>
+<p><strong><code>left_join()</code></strong> , anchors on the left-hand
+tables dates and pulls in matches from the right, discarding right-only
+rows. Anchoring on <code>spy_sql</code> keeps every SPY trading day and
+attaches ETH’s price on that date where available:</p>
+<pre class="r"><code>demo_left &lt;- spy_sql |&gt; 
+  left_join(eth_sql, by = &quot;date&quot;)
+
+cat(&quot;left_join rows: &quot;, nrow(demo_left), &quot;\n&quot;)</code></pre>
+<pre><code>## left_join rows:  1506</code></pre>
+<pre class="r"><code>cat(&quot;Rows where ETH is NA: &quot;, sum(is.na(demo_left$eth_price)), &quot;\n&quot;)</code></pre>
+<pre><code>## Rows where ETH is NA:  0</code></pre>
+</div>
+<div id="choosing-the-final-join-strategy" class="section level2">
+<h2>4. Choosing the Final Join Strategy</h2>
+<p>Our final database is meant to answer an
+<strong>equity/benchmark-driven investment question</strong> , comparing
+AMD, PHI, and ETH against SPY as the reference benchmark, alongside
+macro conditions. Given that framing:</p>
+<ul>
+<li><code>inner_join()</code> is too aggressive , it would silently drop
+every day where even one asset didnt trade, shrinking the dataset
+unnecessarily and losing information about days SPY <em>did</em>
+move.</li>
+<li><code>full_join()</code> keeps the most data, but introduces
+weekend/holiday rows where SPY, AMD, PHI, and VIX are all structurally
+<code>NA</code> (they simply have no observation those days) , this isnt
+“missing” data to be filled, its a non-event, so those extra rows have
+no analytical value for an equity-anchored study.</li>
+<li><code>anti_join()</code> is a diagnostic tool, not a
+database-building join , we use it above to confirm exactly how many
+ETH-only dates exist, but it doesnt belong in the final chain.</li>
+<li><strong><code>left_join()</code> anchored on
+<code>spy_sql</code></strong> is our final choice: it preserves every
+SPY trading day (our benchmark and reference calendar), attaches
+whichever other series have data on that date, and cleanly produces
+<code>NA</code> only where a genuine data gap exists (e.g. ETH trading
+on a day AMD didnt, or a macro series not yet updated) rather than
+manufacturing rows that dont correspond to any equity trading
+activity.</li>
+</ul>
+</div>
+<div id="building-the-unified-database" class="section level2">
+<h2>5. Building the Unified Database</h2>
+<pre class="r"><code>unified_db &lt;- spy_sql |&gt; 
+  left_join(amd_sql,
+            by = &quot;date&quot;) |&gt; 
+  left_join(phi_sql,
+            by = &quot;date&quot;) |&gt;
+  left_join(eth_sql,
+            by = &quot;date&quot;) |&gt; 
+  left_join(vix_sql,
+            by = &quot;date&quot;) |&gt; 
+  left_join(treasury_clean,
+            by = &quot;date&quot;) |&gt; 
+  left_join(cpi_clean,
+            by = &quot;date&quot;) |&gt; 
+  left_join(fedfunds_clean,
+            by = &quot;date&quot;) |&gt; 
+  arrange(date) |&gt;
+  tidyr::fill(treasury_10y,
+              cpi,
+              fedfunds,
+              .direction = &quot;down&quot;)
+
+glimpse(unified_db)</code></pre>
+<pre><code>## Rows: 1,506
+## Columns: 14
+## $ date         &lt;date&gt; 2020-01-03, 2020-01-06, 2020-01-07, 2020-01-08, 2020-01-…
+## $ spy_price    &lt;dbl&gt; 293.8829, 295.0042, 294.1747, 295.7424, 297.7478, 296.891…
+## $ spy_return   &lt;dbl&gt; -0.0075721662, 0.0038151784, -0.0028118191, 0.0053293138,…
+## $ amd_price    &lt;dbl&gt; 48.60, 48.39, 48.25, 47.83, 48.97, 48.17, 48.75, 48.21, 4…
+## $ amd_return   &lt;dbl&gt; -0.010183300, -0.004320969, -0.002893147, -0.008704625, 0…
+## $ phi_price    &lt;dbl&gt; 13.00212, 12.92992, 13.35654, 13.46156, 13.75691, 13.7963…
+## $ phi_return   &lt;dbl&gt; 0.0040546732, -0.0055525605, 0.0329948175, 0.0078624943, …
+## $ eth_price    &lt;dbl&gt; 134.1717, 144.3042, 143.5440, 141.2581, 138.9792, 143.963…
+## $ eth_return   &lt;dbl&gt; 0.0530689782, 0.0589049310, -0.0052677788, -0.0159244433,…
+## $ vix          &lt;dbl&gt; 14.02, 13.85, 13.79, 13.45, 12.54, 12.56, 12.32, 12.39, 1…
+## $ vix_return   &lt;dbl&gt; 0.124298329, -0.012125540, -0.004332160, -0.024655559, -0…
+## $ treasury_10y &lt;dbl&gt; 1.80, 1.81, 1.83, 1.87, 1.85, 1.83, 1.85, 1.82, 1.79, 1.8…
+## $ cpi          &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+## $ fedfunds     &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…</code></pre>
+<pre class="r"><code>head(unified_db)</code></pre>
+<pre><code>## # A tibble: 6 × 14
+##   date       spy_price spy_return amd_price amd_return phi_price phi_return
+##   &lt;date&gt;         &lt;dbl&gt;      &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;
+## 1 2020-01-03      294.   -0.00757      48.6   -0.0102       13.0    0.00405
+## 2 2020-01-06      295.    0.00382      48.4   -0.00432      12.9   -0.00555
+## 3 2020-01-07      294.   -0.00281      48.2   -0.00289      13.4    0.0330 
+## 4 2020-01-08      296.    0.00533      47.8   -0.00870      13.5    0.00786
+## 5 2020-01-09      298.    0.00678      49.0    0.0238       13.8    0.0219 
+## 6 2020-01-10      297.   -0.00288      48.2   -0.0163       13.8    0.00286
+## # ℹ 7 more variables: eth_price &lt;dbl&gt;, eth_return &lt;dbl&gt;, vix &lt;dbl&gt;,
+## #   vix_return &lt;dbl&gt;, treasury_10y &lt;dbl&gt;, cpi &lt;dbl&gt;, fedfunds &lt;dbl&gt;</code></pre>
+<pre class="r"><code>view(unified_db)</code></pre>
+<p><code>treasury_10y</code> and <code>fedfunds</code> are only reported
+on U.S. business days, while <code>cpi</code> is only reported once a
+month. Since our final database is anchored on SPY’s daily trading
+calendar (via <code>left_join()</code>), joining these lower-frequency
+series directly leaves <code>NA</code> on every date without a fresh
+reading. We resolve this with
+<code>tidyr::fill(..., .direction = &quot;down&quot;)</code>, which carries the
+most recent known value forward , e.g. a CPI print from early June
+applies to every trading day until the next print in early July. This is
+standard practice for macro series in daily financial datasets, since
+the “current” CPI or Fed Funds level doesnt change on the days between
+official releases.</p>
+</div>
+<div id="observation-tracking" class="section level2">
+<h2>6. Observation Tracking</h2>
+<p>Tracking row counts at each stage of the join chain shows exactly
+where (and why) the dataset shrinks or holds steady.</p>
+<pre class="r"><code>obs_track_spy    &lt;- spy_sql
+obs_track_amd    &lt;- obs_track_spy |&gt; left_join(amd_sql, by = &quot;date&quot;)
+obs_track_phi    &lt;- obs_track_amd |&gt; left_join(phi_sql, by = &quot;date&quot;)
+obs_track_eth    &lt;- obs_track_phi |&gt; left_join(eth_sql, by = &quot;date&quot;)
+obs_track_vix    &lt;- obs_track_eth |&gt; left_join(vix_sql, by = &quot;date&quot;)
+obs_track_treas  &lt;- obs_track_vix |&gt; left_join(treasury_clean, by = &quot;date&quot;)
+obs_track_cpi    &lt;- obs_track_treas |&gt; left_join(cpi_clean, by = &quot;date&quot;)
+obs_track_ff     &lt;- obs_track_cpi |&gt; left_join(fedfunds_clean, by = &quot;date&quot;)
+
+join_tracking &lt;- tibble(
+  Step = c(&quot;Original SPY (anchor)&quot;,
+           &quot;+ AMD&quot;,
+           &quot;+ PHI&quot;,
+           &quot;+ ETH&quot;,
+           &quot;+ VIX&quot;,
+           &quot;+ Treasury (DGS10)&quot;,
+           &quot;+ CPI&quot;,
+           &quot;+ Fed Funds Rate&quot;),
+  Rows_After_Join = c(
+    nrow(obs_track_spy),
+    nrow(obs_track_amd),
+    nrow(obs_track_phi),
+    nrow(obs_track_eth),
+    nrow(obs_track_vix),
+    nrow(obs_track_treas),
+    nrow(obs_track_cpi),
+    nrow(obs_track_ff)
+  )
+)
+
+join_tracking</code></pre>
+<pre><code>## # A tibble: 8 × 2
+##   Step                  Rows_After_Join
+##   &lt;chr&gt;                           &lt;int&gt;
+## 1 Original SPY (anchor)            1506
+## 2 + AMD                            1506
+## 3 + PHI                            1506
+## 4 + ETH                            1506
+## 5 + VIX                            1506
+## 6 + Treasury (DGS10)               1506
+## 7 + CPI                            1506
+## 8 + Fed Funds Rate                 1506</code></pre>
+<p>Because every join in the chain is a <code>left_join()</code>
+anchored on <code>spy_sql</code>, <strong>row count never shrinks past
+the original SPY row count</strong> , a <code>left_join()</code> can
+only add columns/matches or introduce <code>NA</code>, never drop rows
+from the left-hand side. This is exactly the guarantee we wanted from
+our join strategy: the equity benchmark’s trading calendar is preserved
+intact all the way through.</p>
+<p>Checking null rows after the join and fill step:</p>
+<pre class="r"><code>colSums(
+  is.na(
+    unified_db
+  )
+)</code></pre>
+<pre><code>##         date    spy_price   spy_return    amd_price   amd_return    phi_price 
+##            0            0            0            0            0            0 
+##   phi_return    eth_price   eth_return          vix   vix_return treasury_10y 
+##            0            0            0           57           57            0 
+##          cpi     fedfunds 
+##           61           61</code></pre>
+</div>
+<div id="dropping-null-rows" class="section level2">
+<h2>7. Dropping Null Rows</h2>
+<p>After <code>tidyr::fill()</code>, the macro columns
+(<code>treasury_10y</code>, <code>cpi</code>, <code>fedfunds</code>)
+should have no remaining <code>NA</code> past their first reported
+observation. Any <code>NA</code> still present at this point belongs to
+the <strong>asset price/return columns</strong> (<code>amd_price</code>,
+<code>amd_return</code>, <code>phi_price</code>,
+<code>phi_return</code>, <code>eth_price</code>,
+<code>eth_return</code>, <code>vix</code>, <code>vix_return</code>) ,
+these represent real gaps where a given asset simply didnt trade on a
+day SPY did (e.g. a PSE holiday that isnt a NYSE holiday), not something
+we can reasonably forward-fill without fabricating price movement that
+never happened.</p>
+<p>We drop these remaining rows, since imputing a stock/crypto price
+would distort the return and volatility statistics that our entire
+analysis depends on:</p>
+<pre class="r"><code>unified_clean &lt;- unified_db |&gt; 
+  tidyr::drop_na(amd_price, amd_return,
+                 phi_price, phi_return,
+                 eth_price, eth_return,
+                 vix, vix_return,
+                 spy_price, spy_return)
+
+cat(&quot;Rows before dropping asset-level NA: &quot;, nrow(unified_db), &quot;\n&quot;)</code></pre>
+<pre><code>## Rows before dropping asset-level NA:  1506</code></pre>
+<pre class="r"><code>cat(&quot;Rows after dropping asset-level NA: &quot;, nrow(unified_clean), &quot;\n&quot;)</code></pre>
+<pre><code>## Rows after dropping asset-level NA:  1449</code></pre>
+<pre class="r"><code>cat(&quot;Rows dropped: &quot;, nrow(unified_db) - nrow(unified_clean), &quot;\n&quot;)</code></pre>
+<pre><code>## Rows dropped:  57</code></pre>
+<pre class="r"><code>colSums(is.na(unified_clean))</code></pre>
+<pre><code>##         date    spy_price   spy_return    amd_price   amd_return    phi_price 
+##            0            0            0            0            0            0 
+##   phi_return    eth_price   eth_return          vix   vix_return treasury_10y 
+##            0            0            0            0            0            0 
+##          cpi     fedfunds 
+##           59           59</code></pre>
+<p><code>unified_clean</code> is our final analytical dataset, used for
+all descriptive statistics, SQL investigations, and visualizations going
+forward.</p>
 </div>
 </div>
 <div id="sql-investigation" class="section level1">
 <h1>SQL Investigation</h1>
 <p>“Investigate at least 10 meaningful financial questions using
 select(), filter(), mutate(), arrange(), group_by() and summarise().
-Each query must include Objective, Code, Output and Interpretation.” –
-from the specs</p>
-<p>After cleaning all the data, we collate the rows into 1 unified
-dataset ? idk if thats correct wording</p>
-<div id="renaming-variables" class="section level2">
-<h2>1. Renaming variables</h2>
-<div id="from-this-number-till-the-compare-joins-number-we-need-to-enumerate-why-we-used-a-certain-join-on-what-data-and-how-many" class="section level3">
-<h3>2. from this number till the “Compare joins” number we need to
-enumerate why we used a certain join on what data and how many</h3>
+Each query must include Objective, Code, Output and Interpretation.”</p>
+<div id="investigation-1-biggest-single-day-moves-per-asset" class="section level2">
+<h2>Investigation 1: Biggest single-day moves per asset</h2>
+<p><strong>Objective:</strong> Find the top 3 single-day returns for
+each of the four core assets to see which asset produces the largest
+short-term shocks.</p>
+<p><strong>Code:</strong></p>
+<pre class="r"><code>returns_long &lt;- unified_clean |&gt;
+  select(date, amd_return, eth_return, phi_return, spy_return) |&gt;
+  tidyr::pivot_longer(cols = -date, names_to = &quot;asset&quot;, values_to = &quot;return&quot;)
+
+top_gains &lt;- returns_long |&gt;
+  group_by(asset) |&gt;
+  arrange(desc(return), .by_group = TRUE) |&gt;
+  mutate(rank = row_number()) |&gt;
+  filter(rank &lt;= 3) |&gt;
+  select(asset, date, return, rank)
+
+top_gains</code></pre>
+<pre><code>## # A tibble: 12 × 4
+## # Groups:   asset [4]
+##    asset      date       return  rank
+##    &lt;chr&gt;      &lt;date&gt;      &lt;dbl&gt; &lt;int&gt;
+##  1 amd_return 2025-04-09 0.238      1
+##  2 amd_return 2025-10-06 0.237      2
+##  3 amd_return 2020-07-24 0.165      3
+##  4 eth_return 2021-05-24 0.253      1
+##  5 eth_return 2025-05-08 0.218      2
+##  6 eth_return 2024-05-20 0.193      3
+##  7 phi_return 2024-03-11 0.167      1
+##  8 phi_return 2020-03-19 0.0981     2
+##  9 phi_return 2022-12-21 0.0920     3
+## 10 spy_return 2025-04-09 0.105      1
+## 11 spy_return 2020-03-24 0.0906     2
+## 12 spy_return 2020-03-13 0.0855     3</code></pre>
+<p><strong>Output:</strong> <em>(run the chunk above and paste the
+printed table into your report)</em></p>
+<p><strong>Interpretation:</strong> <em>After running this, compare
+which asset’s top return is the largest in magnitude. ETH will almost
+certainly show the biggest single-day swings given crypto’s higher
+baseline volatility, while SPY should show the smallest. Note the actual
+dates too, since clustering around the same few dates suggests a shared
+market-wide shock rather than an asset-specific event.</em></p>
 </div>
-<div id="compare-joins" class="section level3">
-<h3><num0>. Compare joins</h3>
+<div id="investigation-2-monthly-average-returns" class="section level2">
+<h2>Investigation 2: Monthly average returns</h2>
+<p><strong>Objective:</strong> Compute the average daily return per
+calendar month for each asset to identify which months or periods were
+consistently strong or weak.</p>
+<p><strong>Code:</strong></p>
+<pre class="r"><code>monthly_avg_returns &lt;- unified_clean |&gt;
+  mutate(year_month = format(date, &quot;%Y-%m&quot;)) |&gt;
+  group_by(year_month) |&gt;
+  summarise(
+    avg_amd = mean(amd_return, na.rm = TRUE),
+    avg_eth = mean(eth_return, na.rm = TRUE),
+    avg_phi = mean(phi_return, na.rm = TRUE),
+    avg_spy = mean(spy_return, na.rm = TRUE)
+  )
+
+head(monthly_avg_returns, 10)</code></pre>
+<pre><code>## # A tibble: 10 × 5
+##    year_month   avg_amd    avg_eth     avg_phi   avg_spy
+##    &lt;chr&gt;          &lt;dbl&gt;      &lt;dbl&gt;       &lt;dbl&gt;     &lt;dbl&gt;
+##  1 2020-01    -0.00216   0.0164    -0.000392   -0.000379
+##  2 2020-02    -0.00265   0.00902   -0.00183    -0.00430 
+##  3 2020-03     0.00253   0.00351    0.00710    -0.00451 
+##  4 2020-04     0.00536   0.0227     0.00799     0.00677 
+##  5 2020-05     0.00374   0.00921    0.00000866  0.00190 
+##  6 2020-06    -0.000633 -0.0000952  0.000152    0.000959
+##  7 2020-07     0.0188    0.0118     0.00406     0.00203 
+##  8 2020-08     0.00825   0.00327    0.00644     0.00323 
+##  9 2020-09    -0.00256   0.00129   -0.00539    -0.000421
+## 10 2020-10    -0.00353   0.000139  -0.0000552  -0.00107</code></pre>
+<p><strong>Interpretation:</strong> <em>Look for months where all four
+columns are negative together, this points to broad market stress rather
+than an asset-specific dip. Months where only ETH or only PHI moves
+against the others suggest asset-specific news rather than macro
+conditions.</em></p>
 </div>
-<div id="building-the-unified-database" class="section level3">
-<h3><num1>. Building the Unified Database</h3>
+<div id="investigation-3-spy-selloff-days-and-cross-asset-behavior" class="section level2">
+<h2>Investigation 3: SPY selloff days and cross-asset behavior</h2>
+<p><strong>Objective:</strong> Identify SPY’s 10 worst trading days and
+check how AMD, PHI, and ETH performed on those same dates, to test
+whether any of them behave as a diversifier during U.S. market
+selloffs.</p>
+<p><strong>Code:</strong></p>
+<pre class="r"><code>spy_selloffs &lt;- unified_clean |&gt;
+  filter(spy_return &lt; 0) |&gt;
+  arrange(spy_return) |&gt;
+  select(date, spy_return, amd_return, phi_return, eth_return) |&gt;
+  head(10)
+
+spy_selloffs</code></pre>
+<pre><code>## # A tibble: 10 × 5
+##    date       spy_return amd_return phi_return eth_return
+##    &lt;date&gt;          &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;
+##  1 2020-03-16    -0.109    -0.118      0.0130   -0.117   
+##  2 2020-03-12    -0.0957   -0.146     -0.0780   -0.423   
+##  3 2020-03-09    -0.0781   -0.109     -0.0480    0.00646 
+##  4 2025-04-04    -0.0585   -0.0857    -0.0384   -0.000166
+##  5 2020-06-11    -0.0576   -0.0803    -0.0432   -0.0636  
+##  6 2020-03-18    -0.0506   -0.0659    -0.172     0.00789 
+##  7 2025-04-03    -0.0493   -0.0890     0.00683   0.0113  
+##  8 2020-03-11    -0.0487    0.00705   -0.00457  -0.0294  
+##  9 2020-04-01    -0.0450   -0.0400     0.00195   0.0153  
+## 10 2020-02-27    -0.0449   -0.0733    -0.0155    0.00476</code></pre>
+<p><strong>Interpretation:</strong> <em>If AMD and ETH are also deeply
+negative on SPY’s worst days, that is evidence they move with the U.S.
+market rather than against it, meaning they add little diversification
+value. If PHI holds up better on these dates, that supports including it
+as a partial hedge in the final allocation.</em></p>
 </div>
-<div id="observation-tracking" class="section level3">
-<h3><num2>. Observation Tracking</h3>
+<div id="investigation-4-high-vix-vs-low-vix-return-and-volatility-comparison" class="section level2">
+<h2>Investigation 4: High-VIX vs low-VIX return and volatility
+comparison</h2>
+<p><strong>Objective:</strong> Split trading days into High VIX and Low
+VIX regimes (relative to the median VIX level) and compare average
+return and volatility in each regime.</p>
+<p><strong>Code:</strong></p>
+<pre class="r"><code>vix_median &lt;- median(unified_clean$vix, na.rm = TRUE)
+
+vix_regime_stats &lt;- unified_clean |&gt;
+  mutate(vix_regime = if_else(vix &gt; vix_median, &quot;High VIX&quot;, &quot;Low VIX&quot;)) |&gt;
+  group_by(vix_regime) |&gt;
+  summarise(
+    avg_spy_return = mean(spy_return, na.rm = TRUE),
+    sd_spy_return = sd(spy_return, na.rm = TRUE),
+    avg_amd_return = mean(amd_return, na.rm = TRUE),
+    sd_amd_return = sd(amd_return, na.rm = TRUE),
+    n_days = n()
+  )
+
+vix_regime_stats</code></pre>
+<pre><code>## # A tibble: 2 × 6
+##   vix_regime avg_spy_return sd_spy_return avg_amd_return sd_amd_return n_days
+##   &lt;chr&gt;               &lt;dbl&gt;         &lt;dbl&gt;          &lt;dbl&gt;         &lt;dbl&gt;  &lt;int&gt;
+## 1 High VIX        -0.000452       0.0173       -0.000571        0.0381    723
+## 2 Low VIX          0.00192        0.00669       0.00368         0.0295    726</code></pre>
+<p><strong>Interpretation:</strong> <em>Expect the standard deviation
+columns to be visibly higher in the High VIX regime, confirming VIX is
+doing its job as a “fear gauge.” If average returns are also lower (or
+negative) in the High VIX regime, that supports treating elevated VIX as
+a signal to reduce exposure or hold more cash.</em></p>
 </div>
-<div id="dropping-null-rows" class="section level3">
-<h3><num3>. Dropping Null Rows</h3>
+<div id="investigation-5-returns-across-fed-funds-rate-regimes" class="section level2">
+<h2>Investigation 5: Returns across Fed Funds rate regimes</h2>
+<p><strong>Objective:</strong> Classify each trading day by whether the
+Fed Funds Rate was rising, falling, or holding steady, then compare
+average returns across the three regimes to gauge rate sensitivity.</p>
+<p><strong>Code:</strong></p>
+<pre class="r"><code>fedfunds_trend &lt;- unified_clean |&gt;
+  arrange(date) |&gt;
+  mutate(
+    fedfunds_change = fedfunds - lag(fedfunds),
+    rate_regime = case_when(
+      fedfunds_change &gt; 0 ~ &quot;Rate Hike&quot;,
+      fedfunds_change &lt; 0 ~ &quot;Rate Cut&quot;,
+      TRUE ~ &quot;Held Steady&quot;
+    )
+  ) |&gt;
+  filter(!is.na(rate_regime)) |&gt;
+  group_by(rate_regime) |&gt;
+  summarise(
+    avg_amd_return = mean(amd_return, na.rm = TRUE),
+    avg_eth_return = mean(eth_return, na.rm = TRUE),
+    avg_phi_return = mean(phi_return, na.rm = TRUE),
+    avg_spy_return = mean(spy_return, na.rm = TRUE),
+    n_days = n()
+  )
+
+fedfunds_trend</code></pre>
+<pre><code>## # A tibble: 3 × 6
+##   rate_regime avg_amd_return avg_eth_return avg_phi_return avg_spy_return n_days
+##   &lt;chr&gt;                &lt;dbl&gt;          &lt;dbl&gt;          &lt;dbl&gt;          &lt;dbl&gt;  &lt;int&gt;
+## 1 Held Steady        0.00156        0.00206       0.000434       0.000711   1424
+## 2 Rate Cut           0.00273        0.0291        0.00758        0.00479       8
+## 3 Rate Hike          0.00143        0.00472       0.00316        0.000926     17</code></pre>
+<p><strong>Interpretation:</strong> <em>Crypto (ETH) is typically the
+most rate-sensitive asset class since it has no yield of its own to
+compete with rising rates. If ETH’s average return is clearly weakest
+during Rate Hike days relative to the others, that is useful evidence
+for the investment recommendation section, especially if the current
+environment is a hiking or holding cycle.</em></p>
 </div>
+<div id="investigation-6-returns-across-inflation-regimes" class="section level2">
+<h2>Investigation 6: Returns across inflation regimes</h2>
+<p><strong>Objective:</strong> Classify each trading day by whether CPI
+was rising or falling/flat that month, then compare average returns
+across the two inflation regimes.</p>
+<p><strong>Code:</strong></p>
+<pre class="r"><code>cpi_trend &lt;- unified_clean |&gt;
+  arrange(date) |&gt;
+  mutate(
+    cpi_change = cpi - lag(cpi),
+    inflation_regime = if_else(cpi_change &gt; 0, &quot;CPI Rising&quot;, &quot;CPI Falling or Flat&quot;)
+  ) |&gt;
+  filter(!is.na(inflation_regime)) |&gt;
+  group_by(inflation_regime) |&gt;
+  summarise(
+    avg_amd_return = mean(amd_return, na.rm = TRUE),
+    avg_eth_return = mean(eth_return, na.rm = TRUE),
+    avg_phi_return = mean(phi_return, na.rm = TRUE),
+    avg_spy_return = mean(spy_return, na.rm = TRUE),
+    n_days = n()
+  )
+
+cpi_trend</code></pre>
+<pre><code>## # A tibble: 2 × 6
+##   inflation_regime   avg_amd_return avg_eth_return avg_phi_return avg_spy_return
+##   &lt;chr&gt;                       &lt;dbl&gt;          &lt;dbl&gt;          &lt;dbl&gt;          &lt;dbl&gt;
+## 1 CPI Falling or Fl…        0.00169        0.00170       0.000380       0.000891
+## 2 CPI Rising                0.00132        0.00894       0.00240        0.00224 
+## # ℹ 1 more variable: n_days &lt;int&gt;</code></pre>
+<p><strong>Interpretation:</strong> <em>If returns are noticeably weaker
+during CPI Rising periods across most assets, that supports the idea
+that inflation surprises pressure both equities and crypto. Since CPI
+only updates monthly and we forward-filled it, keep in mind this regime
+label applies to the whole month following a print, not just the release
+day itself.</em></p>
+</div>
+<div id="investigation-7-co-movement-across-all-four-assets" class="section level2">
+<h2>Investigation 7: Co-movement across all four assets</h2>
+<p><strong>Objective:</strong> Count how often all four assets move in
+the same direction on the same day (all up or all down), to measure how
+correlated the portfolio really is versus how often the assets
+diverge.</p>
+<p><strong>Code:</strong></p>
+<pre class="r"><code>co_movement &lt;- unified_clean |&gt;
+  mutate(
+    all_positive = amd_return &gt; 0 &amp; eth_return &gt; 0 &amp; phi_return &gt; 0 &amp; spy_return &gt; 0,
+    all_negative = amd_return &lt; 0 &amp; eth_return &lt; 0 &amp; phi_return &lt; 0 &amp; spy_return &lt; 0
+  ) |&gt;
+  summarise(
+    all_up_days = sum(all_positive, na.rm = TRUE),
+    all_down_days = sum(all_negative, na.rm = TRUE),
+    total_days = n(),
+    pct_co_moving = (sum(all_positive, na.rm = TRUE) + sum(all_negative, na.rm = TRUE)) / n() * 100
+  )
+
+co_movement</code></pre>
+<pre><code>## # A tibble: 1 × 4
+##   all_up_days all_down_days total_days pct_co_moving
+##         &lt;int&gt;         &lt;int&gt;      &lt;int&gt;         &lt;dbl&gt;
+## 1         212           173       1449          26.6</code></pre>
+<p><strong>Interpretation:</strong> <em>A high
+<code>pct_co_moving</code> value means the four assets rarely offset
+each other, which weakens the diversification case for holding all of
+them together. A lower value means there is meaningful room for one
+asset to cushion losses in another, which is a stronger argument for
+spreading the USD 1,000,000 allocation across all three risk assets
+instead of concentrating it.</em></p>
+</div>
+<div id="investigation-8-highest-volume-trading-days-for-amd-and-eth" class="section level2">
+<h2>Investigation 8: Highest-volume trading days for AMD and ETH</h2>
+<p><strong>Objective:</strong> Identify the 5 highest-volume trading
+days for AMD and ETH individually, since volume spikes often coincide
+with earnings releases, major news, or sharp price moves.</p>
+<p><strong>Code:</strong></p>
+<pre class="r"><code>amd_top_volume &lt;- amd_clean |&gt;
+  select(date, volume, return) |&gt;
+  arrange(desc(volume)) |&gt;
+  head(5)
+
+eth_top_volume &lt;- eth_clean |&gt;
+  select(date, volume, return) |&gt;
+  arrange(desc(volume)) |&gt;
+  head(5)
+
+amd_top_volume</code></pre>
+<pre><code>## # A tibble: 5 × 3
+##   date          volume return
+##   &lt;date&gt;         &lt;dbl&gt;  &lt;dbl&gt;
+## 1 2025-10-06 248859600 0.237 
+## 2 2022-05-04 225394100 0.0910
+## 3 2021-08-04 225368700 0.0552
+## 4 2020-07-24 205314500 0.165 
+## 5 2022-02-02 180065000 0.0512</code></pre>
+<pre class="r"><code>eth_top_volume</code></pre>
+<pre><code>## # A tibble: 5 × 3
+##   date            volume   return
+##   &lt;date&gt;           &lt;dbl&gt;    &lt;dbl&gt;
+## 1 2025-10-10 97736621123 -0.120  
+## 2 2025-02-03 92453553253  0.00553
+## 3 2021-05-19 84482912776 -0.272  
+## 4 2021-05-13 78398214539 -0.0187 
+## 5 2025-11-04 76827517773 -0.0860</code></pre>
+<p><strong>Interpretation:</strong> <em>Check whether the high-volume
+dates for each asset line up with large positive or negative returns. If
+a volume spike happens without a big price move, that could indicate a
+technical event (index rebalancing, options expiry) rather than fresh
+information entering the market.</em></p>
+</div>
+<div id="investigation-9-quarterly-average-price-levels" class="section level2">
+<h2>Investigation 9: Quarterly average price levels</h2>
+<p><strong>Objective:</strong> Compute the average closing price per
+asset by quarter to see the longer-term price trend without daily
+noise.</p>
+<p><strong>Code:</strong></p>
+<pre class="r"><code>quarterly_prices &lt;- unified_clean |&gt;
+  mutate(year_quarter = paste0(lubridate::year(date), &quot;-Q&quot;, lubridate::quarter(date))) |&gt;
+  group_by(year_quarter) |&gt;
+  summarise(
+    avg_spy_price = mean(spy_price, na.rm = TRUE),
+    avg_amd_price = mean(amd_price, na.rm = TRUE),
+    avg_phi_price = mean(phi_price, na.rm = TRUE),
+    avg_eth_price = mean(eth_price, na.rm = TRUE)
+  )
+
+quarterly_prices</code></pre>
+<pre><code>## # A tibble: 24 × 5
+##    year_quarter avg_spy_price avg_amd_price avg_phi_price avg_eth_price
+##    &lt;chr&gt;                &lt;dbl&gt;         &lt;dbl&gt;         &lt;dbl&gt;         &lt;dbl&gt;
+##  1 2020-Q1               277.          48.0          13.1          184.
+##  2 2020-Q2               269.          53.1          16.2          207.
+##  3 2020-Q3               306.          74.5          19.3          346.
+##  4 2020-Q4               328.          86.2          19.5          490.
+##  5 2021-Q1               359.          85.8          19.7         1567.
+##  6 2021-Q2               389.          80.8          19.2         2635.
+##  7 2021-Q3               412.         102.           20.0         2828.
+##  8 2021-Q4               430.         134.           25.2         4096.
+##  9 2022-Q1               419.         119.           26.8         2945.
+## 10 2022-Q2               387.          93.6          27.3         2219.
+## # ℹ 14 more rows</code></pre>
+<p><strong>Interpretation:</strong> <em>This table is the basis for your
+long-term price trend chart in the Visualization section. Look at which
+asset has the steadiest quarter-over-quarter climb versus which one
+swings the most, since that speaks directly to how much of the
+allocation should go to growth versus stability.</em></p>
+</div>
+<div id="investigation-10-risk-adjusted-return-comparison" class="section level2">
+<h2>Investigation 10: Risk-adjusted return comparison</h2>
+<p><strong>Objective:</strong> Compute a simple Sharpe-style ratio for
+each asset (average daily return minus a daily risk-free rate, divided
+by return standard deviation) using the 10-Year Treasury yield as the
+risk-free proxy, to compare returns on a risk-adjusted basis rather than
+raw returns alone.</p>
+<p><strong>Code:</strong></p>
+<pre class="r"><code>risk_free_daily &lt;- mean(unified_clean$treasury_10y, na.rm = TRUE) / 100 / 252
+
+risk_adjusted &lt;- unified_clean |&gt;
+  select(amd_return, eth_return, phi_return, spy_return) |&gt;
+  summarise(
+    amd_sharpe = (mean(amd_return, na.rm = TRUE) - risk_free_daily) / sd(amd_return, na.rm = TRUE),
+    eth_sharpe = (mean(eth_return, na.rm = TRUE) - risk_free_daily) / sd(eth_return, na.rm = TRUE),
+    phi_sharpe = (mean(phi_return, na.rm = TRUE) - risk_free_daily) / sd(phi_return, na.rm = TRUE),
+    spy_sharpe = (mean(spy_return, na.rm = TRUE) - risk_free_daily) / sd(spy_return, na.rm = TRUE)
+  )
+
+risk_adjusted</code></pre>
+<pre><code>## # A tibble: 1 × 4
+##   amd_sharpe eth_sharpe phi_sharpe spy_sharpe
+##        &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;
+## 1     0.0423     0.0456     0.0198     0.0471</code></pre>
+<p><strong>Interpretation:</strong> <em>This is the single most
+important table for the Investment Recommendation section. The asset
+with the highest Sharpe-style ratio delivered the best return per unit
+of risk taken, not just the highest raw return. A high-return asset with
+an even higher volatility can still end up with a worse ratio than a
+steadier asset, so use this table, not just the raw mean returns from
+Investigation 2, to justify how you split the USD 1,000,000
+allocation.</em></p>
 </div>
 </div>
 <div id="descriptive-statistics" class="section level1">
 <h1>Descriptive Statistics</h1>
 <p>“Compute mean, median, variance, standard deviation, minimum,
-maximum, range, skewness and kurtosis.” – from the specs</p>
+maximum, range, skewness and kurtosis.”</p>
 <p>From the previous section, a unified database named
-<code>&lt;db name&gt;</code> was created, we can first examine the
-variables</p>
+<code>unified_clean</code> was created , this is our final analytical
+dataset (post-join, post-fill, post-drop) that all statistics below are
+computed from.</p>
+<pre class="r"><code>glimpse(unified_clean)</code></pre>
+<pre><code>## Rows: 1,449
+## Columns: 14
+## $ date         &lt;date&gt; 2020-01-03, 2020-01-06, 2020-01-07, 2020-01-08, 2020-01-…
+## $ spy_price    &lt;dbl&gt; 293.8829, 295.0042, 294.1747, 295.7424, 297.7478, 296.891…
+## $ spy_return   &lt;dbl&gt; -0.0075721662, 0.0038151784, -0.0028118191, 0.0053293138,…
+## $ amd_price    &lt;dbl&gt; 48.60, 48.39, 48.25, 47.83, 48.97, 48.17, 48.75, 48.21, 4…
+## $ amd_return   &lt;dbl&gt; -0.010183300, -0.004320969, -0.002893147, -0.008704625, 0…
+## $ phi_price    &lt;dbl&gt; 13.00212, 12.92992, 13.35654, 13.46156, 13.75691, 13.7963…
+## $ phi_return   &lt;dbl&gt; 0.0040546732, -0.0055525605, 0.0329948175, 0.0078624943, …
+## $ eth_price    &lt;dbl&gt; 134.1717, 144.3042, 143.5440, 141.2581, 138.9792, 143.963…
+## $ eth_return   &lt;dbl&gt; 0.0530689782, 0.0589049310, -0.0052677788, -0.0159244433,…
+## $ vix          &lt;dbl&gt; 14.02, 13.85, 13.79, 13.45, 12.54, 12.56, 12.32, 12.39, 1…
+## $ vix_return   &lt;dbl&gt; 0.124298329, -0.012125540, -0.004332160, -0.024655559, -0…
+## $ treasury_10y &lt;dbl&gt; 1.80, 1.81, 1.83, 1.87, 1.85, 1.83, 1.85, 1.82, 1.79, 1.8…
+## $ cpi          &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+## $ fedfunds     &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…</code></pre>
+<pre class="r"><code>dim(unified_clean)</code></pre>
+<pre><code>## [1] 1449   14</code></pre>
 <div id="selecting-return-variables" class="section level3">
 <h3>1. Selecting return variables</h3>
-<p>ok im assuming since our end goal is an investment strategy, we are
-to analyze the returns + voilatility?? idk</p>
+<p>Since our end goal is an investment recommendation, we focus this
+analysis on the daily return series for each tradable asset (return =
+risk/reward), while VIX and macro variables are analyzed separately as
+context in the Exploratory Financial Analysis section.</p>
+<pre class="r"><code>returns_tbl &lt;- unified_clean  |&gt; 
+
+  select(date,
+         amd_return,
+         eth_return,
+         phi_return,
+         spy_return)
+
+head(returns_tbl)</code></pre>
+<pre><code>## # A tibble: 6 × 5
+##   date       amd_return eth_return phi_return spy_return
+##   &lt;date&gt;          &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;
+## 1 2020-01-03   -0.0102     0.0531     0.00405   -0.00757
+## 2 2020-01-06   -0.00432    0.0589    -0.00555    0.00382
+## 3 2020-01-07   -0.00289   -0.00527    0.0330    -0.00281
+## 4 2020-01-08   -0.00870   -0.0159     0.00786    0.00533
+## 5 2020-01-09    0.0238    -0.0161     0.0219     0.00678
+## 6 2020-01-10   -0.0163     0.0359     0.00286   -0.00288</code></pre>
+<pre class="r"><code>dim(returns_tbl)</code></pre>
+<pre><code>## [1] 1449    5</code></pre>
 </div>
 <div id="computing-median-and-mean" class="section level3">
 <h3>2. Computing median and mean</h3>
+<pre class="r"><code>#Mean Return
+cat(&quot;AMD Mean: &quot;)</code></pre>
+<pre><code>## AMD Mean:</code></pre>
+<pre class="r"><code>mean(returns_tbl$amd_return,
+     na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.001561132</code></pre>
+<pre class="r"><code>#Median Return
+cat(&quot;AMD Median: &quot;)</code></pre>
+<pre><code>## AMD Median:</code></pre>
+<pre class="r"><code>median(returns_tbl$amd_return,
+       na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0</code></pre>
+<pre class="r"><code>#Trimmed Mean
+cat(&quot;AMD Trimmed Mean: &quot;)</code></pre>
+<pre><code>## AMD Trimmed Mean:</code></pre>
+<pre class="r"><code>mean(returns_tbl$amd_return,
+     trim = 0.05,
+     na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.001170121</code></pre>
+<pre class="r"><code>cat(&quot;ETH Mean: &quot;)</code></pre>
+<pre><code>## ETH Mean:</code></pre>
+<pre class="r"><code>mean(returns_tbl$eth_return,
+     na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.002236409</code></pre>
+<pre class="r"><code>cat(&quot;ETH Median: &quot;)</code></pre>
+<pre><code>## ETH Median:</code></pre>
+<pre class="r"><code>median(returns_tbl$eth_return,
+       na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.0008404036</code></pre>
+<pre class="r"><code>cat(&quot;ETH Trimmed Mean: &quot;)</code></pre>
+<pre><code>## ETH Trimmed Mean:</code></pre>
+<pre class="r"><code>mean(returns_tbl$eth_return,
+     trim = 0.05,
+     na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.002116772</code></pre>
+<pre class="r"><code>cat(&quot;PHI Mean: &quot;)</code></pre>
+<pre><code>## PHI Mean:</code></pre>
+<pre class="r"><code>mean(returns_tbl$phi_return,
+     na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.0005053518</code></pre>
+<pre class="r"><code>cat(&quot;PHI Median: &quot;)</code></pre>
+<pre><code>## PHI Median:</code></pre>
+<pre class="r"><code>median(returns_tbl$phi_return,
+       na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0</code></pre>
+<pre class="r"><code>cat(&quot;PHI Trimmed Mean: &quot;)</code></pre>
+<pre><code>## PHI Trimmed Mean:</code></pre>
+<pre class="r"><code>mean(returns_tbl$phi_return,
+     trim = 0.05,
+     na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.000359059</code></pre>
+<pre class="r"><code>cat(&quot;SPY Mean: &quot;)</code></pre>
+<pre><code>## SPY Mean:</code></pre>
+<pre class="r"><code>mean(returns_tbl$spy_return,
+     na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.0007363586</code></pre>
+<pre class="r"><code>cat(&quot;SPY Median: &quot;)</code></pre>
+<pre><code>## SPY Median:</code></pre>
+<pre class="r"><code>median(returns_tbl$spy_return,
+       na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.001150585</code></pre>
+<pre class="r"><code>cat(&quot;SPY Trimmed Mean: &quot;)</code></pre>
+<pre><code>## SPY Trimmed Mean:</code></pre>
+<pre class="r"><code>mean(returns_tbl$spy_return,
+     trim = 0.05,
+     na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.0009601419</code></pre>
 </div>
 <div id="computing-dispersion-risk" class="section level3">
 <h3>3. Computing Dispersion (Risk)</h3>
 <p>variance, std dev, range, interquartile range, coefficient of
 variation</p>
+<pre class="r"><code>#Variance
+cat(&quot;AMD Variance: &quot;)</code></pre>
+<pre><code>## AMD Variance:</code></pre>
+<pre class="r"><code>var(returns_tbl$amd_return,
+    na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.001164882</code></pre>
+<pre class="r"><code>#Standard Deviation
+cat(&quot;AMD Standard Deviation: &quot;)</code></pre>
+<pre><code>## AMD Standard Deviation:</code></pre>
+<pre class="r"><code>sd(returns_tbl$amd_return,
+   na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.03413037</code></pre>
+<pre class="r"><code>#Range
+cat(&quot;AMD Range: &quot;)</code></pre>
+<pre><code>## AMD Range:</code></pre>
+<pre class="r"><code>range(returns_tbl$amd_return,
+      na.rm = TRUE)</code></pre>
+<pre><code>## [1] -0.1463895  0.2382048</code></pre>
+<pre class="r"><code>#Interquartile Range
+cat(&quot;AMD IQR: &quot;)</code></pre>
+<pre><code>## AMD IQR:</code></pre>
+<pre class="r"><code>IQR(returns_tbl$amd_return,
+    na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.03717376</code></pre>
+<pre class="r"><code>#Coefficient of Variation
+cat(&quot;AMD Coeff. of Variation: &quot;)</code></pre>
+<pre><code>## AMD Coeff. of Variation:</code></pre>
+<pre class="r"><code>sd(returns_tbl$amd_return,
+   na.rm = TRUE) /
+mean(returns_tbl$amd_return,
+     na.rm = TRUE)</code></pre>
+<pre><code>## [1] 21.86258</code></pre>
+<pre class="r"><code>cat(&quot;ETH Variance: &quot;)</code></pre>
+<pre><code>## ETH Variance:</code></pre>
+<pre class="r"><code>var(returns_tbl$eth_return,
+    na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.002160392</code></pre>
+<pre class="r"><code>cat(&quot;ETH Standard Deviation: &quot;)</code></pre>
+<pre><code>## ETH Standard Deviation:</code></pre>
+<pre class="r"><code>sd(returns_tbl$eth_return,
+   na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.04648001</code></pre>
+<pre class="r"><code>cat(&quot;ETH Range: &quot;)</code></pre>
+<pre><code>## ETH Range:</code></pre>
+<pre class="r"><code>range(returns_tbl$eth_return,
+      na.rm = TRUE)</code></pre>
+<pre><code>## [1] -0.4234722  0.2531363</code></pre>
+<pre class="r"><code>cat(&quot;ETH IQR: &quot;)</code></pre>
+<pre><code>## ETH IQR:</code></pre>
+<pre class="r"><code>IQR(returns_tbl$eth_return,
+    na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.04693694</code></pre>
+<pre class="r"><code>cat(&quot;ETH Coeff. of Variation: &quot;)</code></pre>
+<pre><code>## ETH Coeff. of Variation:</code></pre>
+<pre class="r"><code>sd(returns_tbl$eth_return,
+   na.rm = TRUE) /
+mean(returns_tbl$eth_return,
+     na.rm = TRUE)</code></pre>
+<pre><code>## [1] 20.78332</code></pre>
+<pre class="r"><code>cat(&quot;PHI Variance: &quot;)</code></pre>
+<pre><code>## PHI Variance:</code></pre>
+<pre class="r"><code>var(returns_tbl$phi_return,
+    na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.0003841128</code></pre>
+<pre class="r"><code>cat(&quot;PHI Standard Deviation: &quot;)</code></pre>
+<pre><code>## PHI Standard Deviation:</code></pre>
+<pre class="r"><code>sd(returns_tbl$phi_return,
+   na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.0195988</code></pre>
+<pre class="r"><code>cat(&quot;PHI Range: &quot;)</code></pre>
+<pre><code>## PHI Range:</code></pre>
+<pre class="r"><code>range(returns_tbl$phi_return,
+      na.rm = TRUE)</code></pre>
+<pre><code>## [1] -0.2368520  0.1673876</code></pre>
+<pre class="r"><code>cat(&quot;PHI IQR: &quot;)</code></pre>
+<pre><code>## PHI IQR:</code></pre>
+<pre class="r"><code>IQR(returns_tbl$phi_return,
+    na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.01968236</code></pre>
+<pre class="r"><code>cat(&quot;PHI Coeff. of Variation: &quot;)</code></pre>
+<pre><code>## PHI Coeff. of Variation:</code></pre>
+<pre class="r"><code>sd(returns_tbl$phi_return,
+   na.rm = TRUE) /
+mean(returns_tbl$phi_return,
+     na.rm = TRUE)</code></pre>
+<pre><code>## [1] 38.78248</code></pre>
+<pre class="r"><code>cat(&quot;SPY Variance: &quot;)</code></pre>
+<pre><code>## SPY Variance:</code></pre>
+<pre class="r"><code>var(returns_tbl$spy_return,
+    na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.0001732593</code></pre>
+<pre class="r"><code>cat(&quot;SPY Standard Deviation: &quot;)</code></pre>
+<pre><code>## SPY Standard Deviation:</code></pre>
+<pre class="r"><code>sd(returns_tbl$spy_return,
+   na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.0131628</code></pre>
+<pre class="r"><code>cat(&quot;SPY Range: &quot;)</code></pre>
+<pre><code>## SPY Range:</code></pre>
+<pre class="r"><code>range(returns_tbl$spy_return,
+      na.rm = TRUE)</code></pre>
+<pre><code>## [1] -0.1094238  0.1050193</code></pre>
+<pre class="r"><code>cat(&quot;SPY IQR: &quot;)</code></pre>
+<pre><code>## SPY IQR:</code></pre>
+<pre class="r"><code>IQR(returns_tbl$spy_return,
+    na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.01155069</code></pre>
+<pre class="r"><code>cat(&quot;SPY Coeff. of Variation: &quot;)</code></pre>
+<pre><code>## SPY Coeff. of Variation:</code></pre>
+<pre class="r"><code>sd(returns_tbl$spy_return,
+   na.rm = TRUE) /
+mean(returns_tbl$spy_return,
+     na.rm = TRUE)</code></pre>
+<pre><code>## [1] 17.87553</code></pre>
 </div>
 <div id="viewing-data-shape" class="section level3">
 <h3>4. Viewing data shape</h3>
 <p>skewness and kurtosis</p>
+<pre class="r"><code>library(moments)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;moments&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:PerformanceAnalytics&#39;:
+## 
+##     kurtosis, skewness</code></pre>
+<pre class="r"><code>#Skewness
+cat(&quot;AMD Skewness: &quot;)</code></pre>
+<pre><code>## AMD Skewness:</code></pre>
+<pre class="r"><code>skewness(returns_tbl$amd_return,
+         na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.5638199</code></pre>
+<pre class="r"><code>#Kurtosis
+cat(&quot;AMD Kurtosis: &quot;)</code></pre>
+<pre><code>## AMD Kurtosis:</code></pre>
+<pre class="r"><code>kurtosis(returns_tbl$amd_return,
+         na.rm = TRUE)</code></pre>
+<pre><code>## [1] 7.533461</code></pre>
+<pre class="r"><code>cat(&quot;ETH Skewness: &quot;)</code></pre>
+<pre><code>## ETH Skewness:</code></pre>
+<pre class="r"><code>skewness(returns_tbl$eth_return,
+         na.rm = TRUE)</code></pre>
+<pre><code>## [1] -0.3544653</code></pre>
+<pre class="r"><code>cat(&quot;ETH Kurtosis: &quot;)</code></pre>
+<pre><code>## ETH Kurtosis:</code></pre>
+<pre class="r"><code>kurtosis(returns_tbl$eth_return,
+         na.rm = TRUE)</code></pre>
+<pre><code>## [1] 10.73986</code></pre>
+<pre class="r"><code>cat(&quot;PHI Skewness: &quot;)</code></pre>
+<pre><code>## PHI Skewness:</code></pre>
+<pre class="r"><code>skewness(returns_tbl$phi_return,
+         na.rm = TRUE)</code></pre>
+<pre><code>## [1] -0.9949647</code></pre>
+<pre class="r"><code>cat(&quot;PHI Kurtosis: &quot;)</code></pre>
+<pre><code>## PHI Kurtosis:</code></pre>
+<pre class="r"><code>kurtosis(returns_tbl$phi_return,
+         na.rm = TRUE)</code></pre>
+<pre><code>## [1] 26.81357</code></pre>
+<pre class="r"><code>cat(&quot;SPY Skewness: &quot;)</code></pre>
+<pre><code>## SPY Skewness:</code></pre>
+<pre class="r"><code>skewness(returns_tbl$spy_return,
+         na.rm = TRUE)</code></pre>
+<pre><code>## [1] -0.2763003</code></pre>
+<pre class="r"><code>cat(&quot;SPY Kurtosis: &quot;)</code></pre>
+<pre><code>## SPY Kurtosis:</code></pre>
+<pre class="r"><code>kurtosis(returns_tbl$spy_return,
+         na.rm = TRUE)</code></pre>
+<pre><code>## [1] 16.12569</code></pre>
 </div>
 <div id="computing-data-position" class="section level3">
 <h3>5. Computing data position ?</h3>
 <p>min, max, quartiles, percentiles</p>
+<pre class="r"><code>#Minimum
+cat(&quot;AMD Minimum: &quot;)</code></pre>
+<pre><code>## AMD Minimum:</code></pre>
+<pre class="r"><code>min(returns_tbl$amd_return,
+    na.rm = TRUE)</code></pre>
+<pre><code>## [1] -0.1463895</code></pre>
+<pre class="r"><code>#Maximum
+cat(&quot;AMD Maximum: &quot;)</code></pre>
+<pre><code>## AMD Maximum:</code></pre>
+<pre class="r"><code>max(returns_tbl$amd_return,
+    na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.2382048</code></pre>
+<pre class="r"><code>#Quartiles
+cat(&quot;AMD Quartiles: &quot;)</code></pre>
+<pre><code>## AMD Quartiles:</code></pre>
+<pre class="r"><code>quantile(returns_tbl$amd_return,
+         probs = c(.25,.50,.75),
+         na.rm = TRUE)</code></pre>
+<pre><code>##         25%         50%         75% 
+## -0.01707981  0.00000000  0.02009395</code></pre>
+<pre class="r"><code>#Percentiles
+cat(&quot;AMD Percentiles: &quot;)</code></pre>
+<pre><code>## AMD Percentiles:</code></pre>
+<pre class="r"><code>quantile(returns_tbl$amd_return,
+         probs = c(.01,.05,.95,.99),
+         na.rm = TRUE)</code></pre>
+<pre><code>##          1%          5%         95%         99% 
+## -0.08348779 -0.05261243  0.05503910  0.09591002</code></pre>
+<pre class="r"><code>cat(&quot;ETH Minimum: &quot;)</code></pre>
+<pre><code>## ETH Minimum:</code></pre>
+<pre class="r"><code>min(returns_tbl$eth_return,
+    na.rm = TRUE)</code></pre>
+<pre><code>## [1] -0.4234722</code></pre>
+<pre class="r"><code>cat(&quot;ETH Maximum: &quot;)</code></pre>
+<pre><code>## ETH Maximum:</code></pre>
+<pre class="r"><code>max(returns_tbl$eth_return,
+    na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.2531363</code></pre>
+<pre class="r"><code>cat(&quot;ETH Quartiles: &quot;)</code></pre>
+<pre><code>## ETH Quartiles:</code></pre>
+<pre class="r"><code>quantile(returns_tbl$eth_return,
+         probs = c(.25,.50,.75),
+         na.rm = TRUE)</code></pre>
+<pre><code>##           25%           50%           75% 
+## -0.0211646623  0.0008404036  0.0257722786</code></pre>
+<pre class="r"><code>cat(&quot;ETH Percentiles: &quot;)</code></pre>
+<pre><code>## ETH Percentiles:</code></pre>
+<pre class="r"><code>quantile(returns_tbl$eth_return,
+         probs = c(.01,.05,.95,.99),
+         na.rm = TRUE)</code></pre>
+<pre><code>##          1%          5%         95%         99% 
+## -0.11966645 -0.06684474  0.07335607  0.12853719</code></pre>
+<pre class="r"><code>cat(&quot;PHI Minimum: &quot;)</code></pre>
+<pre><code>## PHI Minimum:</code></pre>
+<pre class="r"><code>min(returns_tbl$phi_return,
+    na.rm = TRUE)</code></pre>
+<pre><code>## [1] -0.236852</code></pre>
+<pre class="r"><code>cat(&quot;PHI Maximum: &quot;)</code></pre>
+<pre><code>## PHI Maximum:</code></pre>
+<pre class="r"><code>max(returns_tbl$phi_return,
+    na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.1673876</code></pre>
+<pre class="r"><code>cat(&quot;PHI Quartiles: &quot;)</code></pre>
+<pre><code>## PHI Quartiles:</code></pre>
+<pre class="r"><code>quantile(returns_tbl$phi_return,
+         probs = c(.25,.50,.75),
+         na.rm = TRUE)</code></pre>
+<pre><code>##          25%          50%          75% 
+## -0.009625512  0.000000000  0.010056851</code></pre>
+<pre class="r"><code>cat(&quot;PHI Percentiles: &quot;)</code></pre>
+<pre><code>## PHI Percentiles:</code></pre>
+<pre class="r"><code>quantile(returns_tbl$phi_return,
+         probs = c(.01,.05,.95,.99),
+         na.rm = TRUE)</code></pre>
+<pre><code>##          1%          5%         95%         99% 
+## -0.04164418 -0.02564023  0.02890179  0.05211236</code></pre>
+<pre class="r"><code>cat(&quot;SPY Minimum: &quot;)</code></pre>
+<pre><code>## SPY Minimum:</code></pre>
+<pre class="r"><code>min(returns_tbl$spy_return,
+    na.rm = TRUE)</code></pre>
+<pre><code>## [1] -0.1094238</code></pre>
+<pre class="r"><code>cat(&quot;SPY Maximum: &quot;)</code></pre>
+<pre><code>## SPY Maximum:</code></pre>
+<pre class="r"><code>max(returns_tbl$spy_return,
+    na.rm = TRUE)</code></pre>
+<pre><code>## [1] 0.1050193</code></pre>
+<pre class="r"><code>cat(&quot;SPY Quartiles: &quot;)</code></pre>
+<pre><code>## SPY Quartiles:</code></pre>
+<pre class="r"><code>quantile(returns_tbl$spy_return,
+         probs = c(.25,.50,.75),
+         na.rm = TRUE)</code></pre>
+<pre><code>##          25%          50%          75% 
+## -0.004598563  0.001150585  0.006952132</code></pre>
+<pre class="r"><code>cat(&quot;SPY Percentiles: &quot;)</code></pre>
+<pre><code>## SPY Percentiles:</code></pre>
+<pre class="r"><code>quantile(returns_tbl$spy_return,
+         probs = c(.01,.05,.95,.99),
+         na.rm = TRUE)</code></pre>
+<pre><code>##          1%          5%         95%         99% 
+## -0.03748221 -0.01787979  0.01774863  0.03125389</code></pre>
 </div>
 <div id="dealing-with-missing-values" class="section level3">
 <h3>6. Dealing with Missing Values</h3>
+<pre class="r"><code>colSums(is.na(returns_tbl))</code></pre>
+<pre><code>##       date amd_return eth_return phi_return spy_return 
+##          0          0          0          0          0</code></pre>
 </div>
 <div id="correlation-matrix" class="section level3">
 <h3>7. Correlation Matrix</h3>
+<pre class="r"><code>correlation_matrix &lt;- returns_tbl  |&gt; 
+  select(-date)  |&gt; 
+  cor(use = &quot;complete.obs&quot;)
+correlation_matrix</code></pre>
+<pre><code>##            amd_return eth_return phi_return spy_return
+## amd_return  1.0000000  0.3263942  0.1956489  0.6415053
+## eth_return  0.3263942  1.0000000  0.1551385  0.4010597
+## phi_return  0.1956489  0.1551385  1.0000000  0.3095121
+## spy_return  0.6415053  0.4010597  0.3095121  1.0000000</code></pre>
 </div>
 <div id="covariance-matrix" class="section level3">
 <h3>8. Covariance Matrix</h3>
+<pre class="r"><code>covariance_matrix &lt;- returns_tbl |&gt; 
+  select(-date)  |&gt; 
+  cov(use = &quot;complete.obs&quot;)
+covariance_matrix</code></pre>
+<pre><code>##              amd_return   eth_return   phi_return   spy_return
+## amd_return 0.0011648819 0.0005177851 1.308723e-04 2.881970e-04
+## eth_return 0.0005177851 0.0021603916 1.413238e-04 2.453712e-04
+## phi_return 0.0001308723 0.0001413238 3.841128e-04 7.984642e-05
+## spy_return 0.0002881970 0.0002453712 7.984642e-05 1.732593e-04</code></pre>
 </div>
 <div id="final-descriptive-statistics-table" class="section level3">
 <h3>9. Final Descriptive Statistics Table</h3>
@@ -997,22 +2134,153 @@ variation</p>
 <pre><code>## The following objects are masked from &#39;package:ggplot2&#39;:
 ## 
 ##     %+%, alpha</code></pre>
+<pre class="r"><code>desc_stats &lt;- psych::describe(
+  returns_tbl  |&gt; 
+    select(-date)
+)
+round(desc_stats,4)</code></pre>
+<pre><code>##            vars    n mean   sd median trimmed  mad   min  max range  skew
+## amd_return    1 1449    0 0.03      0       0 0.03 -0.15 0.24  0.38  0.56
+## eth_return    2 1449    0 0.05      0       0 0.03 -0.42 0.25  0.68 -0.35
+## phi_return    3 1449    0 0.02      0       0 0.01 -0.24 0.17  0.40 -0.99
+## spy_return    4 1449    0 0.01      0       0 0.01 -0.11 0.10  0.21 -0.28
+##            kurtosis se
+## amd_return     4.52  0
+## eth_return     7.72  0
+## phi_return    23.78  0
+## spy_return    13.10  0</code></pre>
+<pre class="r"><code>descriptive_table &lt;- tibble(
+
+  Statistic = c(
+    &quot;Mean&quot;,
+    &quot;Median&quot;,
+    &quot;Trimmed Mean&quot;,
+    &quot;Standard Deviation&quot;,
+    &quot;Variance&quot;,
+    &quot;Minimum&quot;,
+    &quot;Q1&quot;,
+    &quot;Q3&quot;,
+    &quot;Maximum&quot;,
+    &quot;Range&quot;,
+    &quot;Interquartile Range&quot;,
+    &quot;Coefficient of Variation&quot;,
+    &quot;Skewness&quot;,
+    &quot;Kurtosis&quot;,
+    &quot;Observations&quot;
+  ),
+
+  AMD = c(
+    mean(returns_tbl$amd_return, na.rm = TRUE),
+    median(returns_tbl$amd_return, na.rm = TRUE),
+    mean(returns_tbl$amd_return, trim = 0.05, na.rm = TRUE),
+    sd(returns_tbl$amd_return, na.rm = TRUE),
+    var(returns_tbl$amd_return, na.rm = TRUE),
+    min(returns_tbl$amd_return, na.rm = TRUE),
+    quantile(returns_tbl$amd_return, 0.25, na.rm = TRUE),
+    quantile(returns_tbl$amd_return, 0.75, na.rm = TRUE),
+    max(returns_tbl$amd_return, na.rm = TRUE),
+    diff(range(returns_tbl$amd_return, na.rm = TRUE)),
+    IQR(returns_tbl$amd_return, na.rm = TRUE),
+    sd(returns_tbl$amd_return, na.rm = TRUE) /
+      mean(returns_tbl$amd_return, na.rm = TRUE),
+    skewness(returns_tbl$amd_return, na.rm = TRUE),
+    kurtosis(returns_tbl$amd_return, na.rm = TRUE),
+    sum(!is.na(returns_tbl$amd_return))
+  ),
+  
+  ETH = c(
+    mean(returns_tbl$eth_return, na.rm = TRUE),
+    median(returns_tbl$eth_return, na.rm = TRUE),
+    mean(returns_tbl$eth_return, trim = 0.05, na.rm = TRUE),
+    sd(returns_tbl$eth_return, na.rm = TRUE),
+    var(returns_tbl$eth_return, na.rm = TRUE),
+    min(returns_tbl$eth_return, na.rm = TRUE),
+    quantile(returns_tbl$eth_return, 0.25, na.rm = TRUE),
+    quantile(returns_tbl$eth_return, 0.75, na.rm = TRUE),
+    max(returns_tbl$eth_return, na.rm = TRUE),
+    diff(range(returns_tbl$eth_return, na.rm = TRUE)),
+    IQR(returns_tbl$eth_return, na.rm = TRUE),
+    sd(returns_tbl$eth_return, na.rm = TRUE) /
+      mean(returns_tbl$eth_return, na.rm = TRUE),
+    skewness(returns_tbl$eth_return, na.rm = TRUE),
+    kurtosis(returns_tbl$eth_return, na.rm = TRUE),
+    sum(!is.na(returns_tbl$eth_return))
+  ),
+  
+  PHI = c(
+    mean(returns_tbl$phi_return, na.rm = TRUE),
+    median(returns_tbl$phi_return, na.rm = TRUE),
+    mean(returns_tbl$phi_return, trim = 0.05, na.rm = TRUE),
+    sd(returns_tbl$phi_return, na.rm = TRUE),
+    var(returns_tbl$phi_return, na.rm = TRUE),
+    min(returns_tbl$phi_return, na.rm = TRUE),
+    quantile(returns_tbl$phi_return, 0.25, na.rm = TRUE),
+    quantile(returns_tbl$phi_return, 0.75, na.rm = TRUE),
+    max(returns_tbl$phi_return, na.rm = TRUE),
+    diff(range(returns_tbl$phi_return, na.rm = TRUE)),
+    IQR(returns_tbl$phi_return, na.rm = TRUE),
+    sd(returns_tbl$phi_return, na.rm = TRUE) /
+      mean(returns_tbl$phi_return, na.rm = TRUE),
+    skewness(returns_tbl$phi_return, na.rm = TRUE),
+    kurtosis(returns_tbl$phi_return, na.rm = TRUE),
+    sum(!is.na(returns_tbl$phi_return))
+  ),
+  
+  SPY = c(
+    mean(returns_tbl$spy_return, na.rm = TRUE),
+    median(returns_tbl$spy_return, na.rm = TRUE),
+    mean(returns_tbl$spy_return, trim = 0.05, na.rm = TRUE),
+    sd(returns_tbl$spy_return, na.rm = TRUE),
+    var(returns_tbl$spy_return, na.rm = TRUE),
+    min(returns_tbl$spy_return, na.rm = TRUE),
+    quantile(returns_tbl$spy_return, 0.25, na.rm = TRUE),
+    quantile(returns_tbl$spy_return, 0.75, na.rm = TRUE),
+    max(returns_tbl$spy_return, na.rm = TRUE),
+    diff(range(returns_tbl$spy_return, na.rm = TRUE)),
+    IQR(returns_tbl$spy_return, na.rm = TRUE),
+    sd(returns_tbl$spy_return, na.rm = TRUE) /
+      mean(returns_tbl$spy_return, na.rm = TRUE),
+    skewness(returns_tbl$spy_return, na.rm = TRUE),
+    kurtosis(returns_tbl$spy_return, na.rm = TRUE),
+    sum(!is.na(returns_tbl$spy_return))
+  )
+)
+
+descriptive_table</code></pre>
+<pre><code>## # A tibble: 15 × 5
+##    Statistic                       AMD         ETH         PHI         SPY
+##    &lt;chr&gt;                         &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;
+##  1 Mean                        0.00156    0.00224     0.000505    0.000736
+##  2 Median                      0          0.000840    0           0.00115 
+##  3 Trimmed Mean                0.00117    0.00212     0.000359    0.000960
+##  4 Standard Deviation          0.0341     0.0465      0.0196      0.0132  
+##  5 Variance                    0.00116    0.00216     0.000384    0.000173
+##  6 Minimum                    -0.146     -0.423      -0.237      -0.109   
+##  7 Q1                         -0.0171    -0.0212     -0.00963    -0.00460 
+##  8 Q3                          0.0201     0.0258      0.0101      0.00695 
+##  9 Maximum                     0.238      0.253       0.167       0.105   
+## 10 Range                       0.385      0.677       0.404       0.214   
+## 11 Interquartile Range         0.0372     0.0469      0.0197      0.0116  
+## 12 Coefficient of Variation   21.9       20.8        38.8        17.9     
+## 13 Skewness                    0.564     -0.354      -0.995      -0.276   
+## 14 Kurtosis                    7.53      10.7        26.8        16.1     
+## 15 Observations             1449       1449        1449        1449</code></pre>
 </div>
 </div>
 <div id="visualization" class="section level1">
 <h1>Visualization</h1>
-<p>“Produce at least eight professional figures with interpretations.” –
-from the specs</p>
+<p>“Produce at least eight professional figures with
+interpretations.”</p>
 <p>(for these sections below im not sure if this should be in the paper
 or in the RMD file itself, or we place it here then elaborate further in
 the paper) # Exploratory Financial Analysis “Compare returns,
 volatility, inflationary periods, high-VIX periods and interest-rate
-environments.” – from the specs</p>
+environments.”</p>
 </div>
 <div id="investment-recommendation" class="section level1">
 <h1>Investment Recommendation</h1>
 <p>“Recommend allocation of USD 1,000,000 among the selected U.S. asset,
-Philippine asset, cryptocurrency and cash.” – from the specs</p>
+Philippine asset, cryptocurrency and cash.”</p>
 </div>
 <div id="references" class="section level1">
 <h1>References</h1>
