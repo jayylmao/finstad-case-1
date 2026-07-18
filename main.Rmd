@@ -20,7 +20,7 @@ This is an integrated database containing various explorations and visualization
 Initialize packages.
 
 ```{r}
-pacman::p_load(dplyr, ggplot2, quantmod, tidyverse, tidyquant, lubridate, timetk)
+pacman::p_load(dplyr, ggplot2, quantmod, tidyverse, tidyquant, lubridate, timetk, zoo)
 
 library(dplyr)
 library(ggplot2)
@@ -29,6 +29,7 @@ library(tidyverse)
 library(tidyquant)
 library(lubridate)
 library(timetk)
+library(zoo)
 ```
 
 ### Comparing the different datasets
@@ -46,7 +47,7 @@ We first get symbols from the following sources:
 DATE_FROM <- "2020-01-01"
 DATE_TO <- "2025-12-31"
 
-# macroeconomic data is sourced from the Federal Reserve Bank of St. Louis FRED dataset.
+# macroeconomic data is sourced from the Federal Reserve Bank of St. Louis' FRED dataset.
 quantmod::getSymbols("DGS10",
                      src = "FRED",
                      from = DATE_FROM,
@@ -352,7 +353,7 @@ fedfunds_clean <- fedfunds_tbl
 ```
 
 # Database Integration
-"Explain the SQL join strategy used... Justify the selected join strategy and explain any reduction in observations." 
+"Explain the SQL join strategy used... Justify the selected join strategy and explain any reduction in observations." -- from the specs
 
 After cleaning all the data, we collate the rows into 1 unified dataset.
 
@@ -397,11 +398,11 @@ head(vix_sql)
 Our four core assets do not trade on the same schedule:
 
 - **SPY** and **AMD** follow the NYSE/NASDAQ calendar (U.S. weekdays, minus U.S. market holidays).
-- **PHI** (PLDT ADR) also trades on a U.S. exchange (NYSE), so it largely follows the same calendar as SPY/AMD, but can still diverge on days one market is closed and the other isnt (e.g. differing holiday schedules).
+- **PHI** (PLDT ADR) also trades on a U.S. exchange (NYSE), so it largely follows the same calendar as SPY/AMD, but can still diverge on days one market is closed and the other isn't (e.g. differing holiday schedules).
 - **ETH** trades every single calendar day, including weekends and all holidays, since crypto markets never close.
 - **VIX** follows the CBOE/NYSE calendar, similar to SPY.
 
-This means a naive join on `date` will not line up perfectly, ETH alone contributes roughly 30% more calendar dates per year than the equity assets. This mismatch is exactly why the join strategy matters, and why we need to demonstrate multiple join types before picking one.
+This means a naive join on `date` will not line up perfectly — ETH alone contributes roughly 30% more calendar dates per year than the equity assets. This mismatch is exactly why the join strategy matters, and why we need to demonstrate multiple join types before picking one.
 
 ## 3. Demonstrating Join Types
 
@@ -412,7 +413,7 @@ cat("SPY rows: ", nrow(spy_sql), "\n")
 cat("ETH rows: ", nrow(eth_sql), "\n")
 ```
 
-**`inner_join()`** , keeps only dates present in *both* datasets. This throws away every weekend/holiday ETH observation that SPY doesnt have.
+**`inner_join()`** — keeps only dates present in *both* datasets. This throws away every weekend/holiday ETH observation that SPY doesn't have.
 ```{r}
 demo_inner <- spy_sql |> 
   inner_join(eth_sql, by = "date")
@@ -420,7 +421,7 @@ demo_inner <- spy_sql |>
 cat("inner_join rows: ", nrow(demo_inner), "\n")
 ```
 
-**`full_join()`** , keeps every date present in *either* dataset, filling the missing side with `NA`. This preserves ETHs weekend rows but introduces `NA` for SPY/AMD/PHI on those same days, since equities simply didnt trade.
+**`full_join()`** — keeps every date present in *either* dataset, filling the missing side with `NA`. This preserves ETH's weekend rows but introduces `NA` for SPY/AMD/PHI on those same days, since equities simply didn't trade.
 ```{r}
 demo_full <- spy_sql |> 
   full_join(eth_sql, by = "date")
@@ -430,7 +431,7 @@ cat("Rows where SPY is NA (i.e. weekend/holiday-only ETH dates): ",
     sum(is.na(demo_full$spy_price)), "\n")
 ```
 
-**`anti_join()`** , shows *only* the rows that dont have a match, which is useful for auditing exactly which dates get dropped or orphaned by a join. Here, it shows every date ETH traded that SPY didnt:
+**`anti_join()`** — shows *only* the rows that don't have a match, which is useful for auditing exactly which dates get dropped or orphaned by a join. Here, it shows every date ETH traded that SPY didn't:
 ```{r}
 demo_anti <- eth_sql |> 
   anti_join(spy_sql, by = "date")
@@ -439,7 +440,7 @@ cat("Dates ETH traded but SPY did not: ", nrow(demo_anti), "\n")
 head(demo_anti)
 ```
 
-**`left_join()`** , anchors on the left-hand tables dates and pulls in matches from the right, discarding right-only rows. Anchoring on `spy_sql` keeps every SPY trading day and attaches ETH's price on that date where available:
+**`left_join()`** — anchors on the left-hand table's dates and pulls in matches from the right, discarding right-only rows. Anchoring on `spy_sql` keeps every SPY trading day and attaches ETH's price on that date where available:
 ```{r}
 demo_left <- spy_sql |> 
   left_join(eth_sql, by = "date")
@@ -450,12 +451,12 @@ cat("Rows where ETH is NA: ", sum(is.na(demo_left$eth_price)), "\n")
 
 ## 4. Choosing the Final Join Strategy
 
-Our final database is meant to answer an **equity/benchmark-driven investment question** , comparing AMD, PHI, and ETH against SPY as the reference benchmark, alongside macro conditions. Given that framing:
+Our final database is meant to answer an **equity/benchmark-driven investment question** — comparing AMD, PHI, and ETH against SPY as the reference benchmark, alongside macro conditions. Given that framing:
 
-- `inner_join()` is too aggressive , it would silently drop every day where even one asset didnt trade, shrinking the dataset unnecessarily and losing information about days SPY *did* move.
-- `full_join()` keeps the most data, but introduces weekend/holiday rows where SPY, AMD, PHI, and VIX are all structurally `NA` (they simply have no observation those days) , this isnt "missing" data to be filled, its a non-event, so those extra rows have no analytical value for an equity-anchored study.
-- `anti_join()` is a diagnostic tool, not a database-building join , we use it above to confirm exactly how many ETH-only dates exist, but it doesnt belong in the final chain.
-- **`left_join()` anchored on `spy_sql`** is our final choice: it preserves every SPY trading day (our benchmark and reference calendar), attaches whichever other series have data on that date, and cleanly produces `NA` only where a genuine data gap exists (e.g. ETH trading on a day AMD didnt, or a macro series not yet updated) rather than manufacturing rows that dont correspond to any equity trading activity.
+- `inner_join()` is too aggressive — it would silently drop every day where even one asset didn't trade, shrinking the dataset unnecessarily and losing information about days SPY *did* move.
+- `full_join()` keeps the most data, but introduces weekend/holiday rows where SPY, AMD, PHI, and VIX are all structurally `NA` (they simply have no observation those days) — this isn't "missing" data to be filled, it's a non-event, so those extra rows have no analytical value for an equity-anchored study.
+- `anti_join()` is a diagnostic tool, not a database-building join — we use it above to confirm exactly how many ETH-only dates exist, but it doesn't belong in the final chain.
+- **`left_join()` anchored on `spy_sql`** is our final choice: it preserves every SPY trading day (our benchmark and reference calendar), attaches whichever other series have data on that date, and cleanly produces `NA` only where a genuine data gap exists (e.g. ETH trading on a day AMD didn't, or a macro series not yet updated) rather than manufacturing rows that don't correspond to any equity trading activity.
 
 ## 5. Building the Unified Database
 ```{r}
@@ -478,14 +479,14 @@ unified_db <- spy_sql |>
   tidyr::fill(treasury_10y,
               cpi,
               fedfunds,
-              .direction = "down")
+              .direction = "downup")
 
 glimpse(unified_db)
 head(unified_db)
 view(unified_db)
 ```
 
-`treasury_10y` and `fedfunds` are only reported on U.S. business days, while `cpi` is only reported once a month. Since our final database is anchored on SPY's daily trading calendar (via `left_join()`), joining these lower-frequency series directly leaves `NA` on every date without a fresh reading. We resolve this with `tidyr::fill(..., .direction = "down")`, which carries the most recent known value forward , e.g. a CPI print from early June applies to every trading day until the next print in early July. This is standard practice for macro series in daily financial datasets, since the "current" CPI or Fed Funds level doesnt change on the days between official releases.
+`treasury_10y` and `fedfunds` are only reported on U.S. business days, while `cpi` is only reported once a month. Since our final database is anchored on SPY's daily trading calendar (via `left_join()`), joining these lower-frequency series directly leaves `NA` on every date without a fresh reading. We resolve this with `tidyr::fill(..., .direction = "downup")`, which carries the most recent known value forward through time (e.g. a CPI print from early June applies to every trading day until the next print in early July), and also backfills any leading rows at the very start of the sample that come before the first available reading. Using only `"down"` would leave those first few weeks of 2020 as `NA`, since there is nothing earlier to carry forward from. This is standard practice for macro series in daily financial datasets, since the "current" CPI or Fed Funds level doesn't change on the days between official releases, and a short leading gap is filled with the nearest known value rather than left blank.
 
 ## 6. Observation Tracking
 
@@ -524,7 +525,7 @@ join_tracking <- tibble(
 join_tracking
 ```
 
-Because every join in the chain is a `left_join()` anchored on `spy_sql`, **row count never shrinks past the original SPY row count** , a `left_join()` can only add columns/matches or introduce `NA`, never drop rows from the left-hand side. This is exactly the guarantee we wanted from our join strategy: the equity benchmark's trading calendar is preserved intact all the way through.
+Because every join in the chain is a `left_join()` anchored on `spy_sql`, **row count never shrinks past the original SPY row count** — a `left_join()` can only add columns/matches or introduce `NA`, never drop rows from the left-hand side. This is exactly the guarantee we wanted from our join strategy: the equity benchmark's trading calendar is preserved intact all the way through.
 
 Checking null rows after the join and fill step:
 ```{r}
@@ -537,7 +538,7 @@ colSums(
 
 ## 7. Dropping Null Rows
 
-After `tidyr::fill()`, the macro columns (`treasury_10y`, `cpi`, `fedfunds`) should have no remaining `NA` past their first reported observation. Any `NA` still present at this point belongs to the **asset price/return columns** (`amd_price`, `amd_return`, `phi_price`, `phi_return`, `eth_price`, `eth_return`, `vix`, `vix_return`) , these represent real gaps where a given asset simply didnt trade on a day SPY did (e.g. a PSE holiday that isnt a NYSE holiday), not something we can reasonably forward-fill without fabricating price movement that never happened.
+After `tidyr::fill(..., .direction = "downup")`, the macro columns (`treasury_10y`, `cpi`, `fedfunds`) should have zero remaining `NA`, including at the very start of the sample. Any `NA` still present at this point belongs to the **asset price/return columns** (`amd_price`, `amd_return`, `phi_price`, `phi_return`, `eth_price`, `eth_return`, `vix`, `vix_return`) — these represent real gaps where a given asset simply didn't trade on a day SPY did (e.g. a PSE holiday that isn't a NYSE holiday), not something we can reasonably forward-fill without fabricating price movement that never happened.
 
 We drop these remaining rows, since imputing a stock/crypto price would distort the return and volatility statistics that our entire analysis depends on:
 ```{r}
@@ -558,7 +559,7 @@ colSums(is.na(unified_clean))
 `unified_clean` is our final analytical dataset, used for all descriptive statistics, SQL investigations, and visualizations going forward.
 
 # SQL Investigation
-"Investigate at least 10 meaningful financial questions using select(), filter(), mutate(), arrange(), group_by() and summarise(). Each query must include Objective, Code, Output and Interpretation." 
+"Investigate at least 10 meaningful financial questions using select(), filter(), mutate(), arrange(), group_by() and summarise(). Each query must include Objective, Code, Output and Interpretation." -- from the specs
 
 ## Investigation 1: Biggest single-day moves per asset
 
@@ -603,7 +604,7 @@ monthly_avg_returns <- unified_clean |>
 head(monthly_avg_returns, 10)
 ```
 
-
+**Output:** *(run the chunk above)*
 
 **Interpretation:** *Look for months where all four columns are negative together, this points to broad market stress rather than an asset-specific dip. Months where only ETH or only PHI moves against the others suggest asset-specific news rather than macro conditions.*
 
@@ -622,7 +623,7 @@ spy_selloffs <- unified_clean |>
 spy_selloffs
 ```
 
-
+**Output:** *(run the chunk above)*
 
 **Interpretation:** *If AMD and ETH are also deeply negative on SPY's worst days, that is evidence they move with the U.S. market rather than against it, meaning they add little diversification value. If PHI holds up better on these dates, that supports including it as a partial hedge in the final allocation.*
 
@@ -648,7 +649,7 @@ vix_regime_stats <- unified_clean |>
 vix_regime_stats
 ```
 
-
+**Output:** *(run the chunk above)*
 
 **Interpretation:** *Expect the standard deviation columns to be visibly higher in the High VIX regime, confirming VIX is doing its job as a "fear gauge." If average returns are also lower (or negative) in the High VIX regime, that supports treating elevated VIX as a signal to reduce exposure or hold more cash.*
 
@@ -681,7 +682,7 @@ fedfunds_trend <- unified_clean |>
 fedfunds_trend
 ```
 
-
+**Output:** *(run the chunk above)*
 
 **Interpretation:** *Crypto (ETH) is typically the most rate-sensitive asset class since it has no yield of its own to compete with rising rates. If ETH's average return is clearly weakest during Rate Hike days relative to the others, that is useful evidence for the investment recommendation section, especially if the current environment is a hiking or holding cycle.*
 
@@ -710,7 +711,7 @@ cpi_trend <- unified_clean |>
 cpi_trend
 ```
 
-
+**Output:** *(run the chunk above)*
 
 **Interpretation:** *If returns are noticeably weaker during CPI Rising periods across most assets, that supports the idea that inflation surprises pressure both equities and crypto. Since CPI only updates monthly and we forward-filled it, keep in mind this regime label applies to the whole month following a print, not just the release day itself.*
 
@@ -735,7 +736,7 @@ co_movement <- unified_clean |>
 co_movement
 ```
 
-
+**Output:** *(run the chunk above)*
 
 **Interpretation:** *A high `pct_co_moving` value means the four assets rarely offset each other, which weakens the diversification case for holding all of them together. A lower value means there is meaningful room for one asset to cushion losses in another, which is a stronger argument for spreading the USD 1,000,000 allocation across all three risk assets instead of concentrating it.*
 
@@ -759,7 +760,7 @@ amd_top_volume
 eth_top_volume
 ```
 
-
+**Output:** *(run the chunk above)*
 
 **Interpretation:** *Check whether the high-volume dates for each asset line up with large positive or negative returns. If a volume spike happens without a big price move, that could indicate a technical event (index rebalancing, options expiry) rather than fresh information entering the market.*
 
@@ -782,7 +783,7 @@ quarterly_prices <- unified_clean |>
 quarterly_prices
 ```
 
-
+**Output:** *(run the chunk above)*
 
 **Interpretation:** *This table is the basis for your long-term price trend chart in the Visualization section. Look at which asset has the steadiest quarter-over-quarter climb versus which one swings the most, since that speaks directly to how much of the allocation should go to growth versus stability.*
 
@@ -806,14 +807,14 @@ risk_adjusted <- unified_clean |>
 risk_adjusted
 ```
 
-
+**Output:** *(run the chunk above)*
 
 **Interpretation:** *This is the single most important table for the Investment Recommendation section. The asset with the highest Sharpe-style ratio delivered the best return per unit of risk taken, not just the highest raw return. A high-return asset with an even higher volatility can still end up with a worse ratio than a steadier asset, so use this table, not just the raw mean returns from Investigation 2, to justify how you split the USD 1,000,000 allocation.*
 
 # Descriptive Statistics
-"Compute mean, median, variance, standard deviation, minimum, maximum, range, skewness and kurtosis." 
+"Compute mean, median, variance, standard deviation, minimum, maximum, range, skewness and kurtosis." -- from the specs
 
-From the previous section, a unified database named `unified_clean` was created , this is our final analytical dataset (post-join, post-fill, post-drop) that all statistics below are computed from.
+From the previous section, a unified database named `unified_clean` was created — this is our final analytical dataset (post-join, post-fill, post-drop) that all statistics below are computed from.
 ```{r}
 glimpse(unified_clean)
 dim(unified_clean)
@@ -1243,19 +1244,230 @@ descriptive_table <- tibble(
 descriptive_table
 ```
 # Visualization
-"Produce at least eight professional figures with interpretations." 
+"Produce at least eight professional figures with interpretations." -- from the specs
 
+All figures below are built from `unified_clean`, our final analytical dataset, so they stay consistent with every statistic and SQL investigation computed earlier.
+
+## Figure 1: Indexed Price Trend (Base = 100)
+
+Raw prices aren't directly comparable since SPY, AMD, PHI, and ETH trade on completely different price scales. Rebasing each series to start at 100 lets us compare growth trajectories side by side.
 ```{r}
+indexed_prices <- unified_clean |>
+  select(date, spy_price, amd_price, phi_price, eth_price) |>
+  mutate(across(-date, ~ .x / first(.x) * 100)) |>
+  tidyr::pivot_longer(-date, names_to = "asset", values_to = "indexed_price")
+
+ggplot(indexed_prices, aes(x = date, y = indexed_price, color = asset)) +
+  geom_line(linewidth = 0.7, na.rm = TRUE) +
+  labs(
+    title = "Figure 1: Indexed Price Trend (Base = 100, Jan 2020)",
+    x = "Date",
+    y = "Indexed Price"
+  ) +
+  theme_minimal()
 ```
 
-(for these sections below im not sure if this should be in the paper or in the RMD file itself, or we place it here then elaborate further in the paper)
+**Interpretation:** This chart is your fastest way to see which asset had the strongest overall run across the full sample period and which one was the most volatile along the way, since a shaky line with a high endpoint (likely ETH) tells a very different investment story than a steady line with the same endpoint.
+
+## Figure 2: Distribution of Daily Returns by Asset
+
+```{r}
+returns_long_viz <- unified_clean |>
+  select(date, amd_return, eth_return, phi_return, spy_return) |>
+  tidyr::pivot_longer(-date, names_to = "asset", values_to = "return")
+
+ggplot(returns_long_viz, aes(x = return, fill = asset)) +
+  geom_histogram(bins = 60) +
+  facet_wrap(~asset, scales = "free") +
+  labs(
+    title = "Figure 2: Distribution of Daily Returns by Asset",
+    x = "Daily Return",
+    y = "Frequency"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+**Interpretation:** This is the direct Anscombe's Quartet check for our return data. Two assets can have nearly identical mean and standard deviation on paper while looking completely different here, one might be a tight, roughly normal bell curve while another has fat tails or a lopsided shape. A wider spread or heavier tails visually confirms higher risk in a way the summary statistics table alone doesn't make obvious.
+
+## Figure 3: 30-Day Rolling Volatility by Asset
+
+```{r}
+rolling_vol <- unified_clean |>
+  arrange(date) |>
+  mutate(
+    amd_vol_30d = zoo::rollapply(amd_return, width = 30, FUN = sd, fill = NA, align = "right"),
+    eth_vol_30d = zoo::rollapply(eth_return, width = 30, FUN = sd, fill = NA, align = "right"),
+    phi_vol_30d = zoo::rollapply(phi_return, width = 30, FUN = sd, fill = NA, align = "right"),
+    spy_vol_30d = zoo::rollapply(spy_return, width = 30, FUN = sd, fill = NA, align = "right")
+  ) |>
+  select(date, amd_vol_30d, eth_vol_30d, phi_vol_30d, spy_vol_30d) |>
+  tidyr::pivot_longer(-date, names_to = "asset", values_to = "rolling_vol")
+
+ggplot(rolling_vol, aes(x = date, y = rolling_vol, color = asset)) +
+  geom_line(linewidth = 0.6, na.rm = TRUE) +
+  labs(
+    title = "Figure 3: 30-Day Rolling Volatility by Asset",
+    x = "Date",
+    y = "30-Day Rolling Std. Dev. of Return"
+  ) +
+  theme_minimal()
+```
+
+**Interpretation:** A static standard deviation number treats risk as constant across the whole 2020-2025 window, which it clearly wasn't. Watch for spikes that line up across all four lines at once, that points to a market-wide event (like a rate decision or macro shock) rather than something specific to one asset. This also sets up the High VIX vs Low VIX comparison from the SQL Investigation section by showing exactly when volatility regimes shifted.
+
+## Figure 4: SPY Daily Return vs VIX Level
+
+```{r}
+ggplot(unified_clean, aes(x = vix, y = spy_return)) +
+  geom_point(alpha = 0.35, color = "steelblue") +
+  geom_smooth(method = "lm", se = TRUE, color = "firebrick") +
+  labs(
+    title = "Figure 4: SPY Daily Return vs VIX Level",
+    x = "VIX Level",
+    y = "SPY Daily Return"
+  ) +
+  theme_minimal()
+```
+
+**Interpretation:** If the fitted line slopes downward, higher fear/uncertainty (elevated VIX) coincides with weaker SPY returns, confirming VIX's role as a risk signal rather than just background noise. The spread of points around the line also matters: a wide scatter at high VIX levels shows returns get less predictable exactly when the market is most stressed.
+
+## Figure 5: Correlation Heatmap of Daily Returns
+
+```{r}
+corr_df <- as.data.frame(correlation_matrix) |>
+  tibble::rownames_to_column("asset1") |>
+  tidyr::pivot_longer(-asset1, names_to = "asset2", values_to = "correlation")
+
+ggplot(corr_df, aes(x = asset1, y = asset2, fill = correlation)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = round(correlation, 2)), size = 3.5) +
+  scale_fill_gradient2(low = "steelblue", mid = "white", high = "firebrick", midpoint = 0) +
+  labs(
+    title = "Figure 5: Correlation Heatmap of Daily Returns",
+    x = NULL,
+    y = NULL
+  ) +
+  theme_minimal()
+```
+
+**Interpretation:** This is the diversification test for the final allocation. Values near 0 between two assets mean they largely move independently, which is exactly what you want across a portfolio. Values close to 1 mean the assets are effectively duplicating each other's risk, so holding both doesn't reduce overall exposure the way holding two lowly correlated assets would.
+
+## Figure 6: Cumulative Growth of $1 Invested
+
+```{r}
+cumulative_growth <- unified_clean |>
+  arrange(date) |>
+  mutate(
+    amd_cum = cumprod(1 + coalesce(amd_return, 0)),
+    eth_cum = cumprod(1 + coalesce(eth_return, 0)),
+    phi_cum = cumprod(1 + coalesce(phi_return, 0)),
+    spy_cum = cumprod(1 + coalesce(spy_return, 0))
+  ) |>
+  select(date, amd_cum, eth_cum, phi_cum, spy_cum) |>
+  tidyr::pivot_longer(-date, names_to = "asset", values_to = "growth_of_1")
+
+ggplot(cumulative_growth, aes(x = date, y = growth_of_1, color = asset)) +
+  geom_line(linewidth = 0.8, na.rm = TRUE) +
+  labs(
+    title = "Figure 6: Cumulative Growth of $1 Invested (2020-2025)",
+    x = "Date",
+    y = "Value of $1 Invested"
+  ) +
+  theme_minimal()
+```
+
+**Interpretation:** This is a compounding view rather than a daily-return view, small consistent gains stack up very differently than occasional large spikes. An asset that looked flashy in Figure 2's histogram might still end up behind a steadier asset here once compounding and drawdowns are accounted for. This chart is a good direct visual to pair with the risk-adjusted return numbers from SQL Investigation 10.
+
+## Figure 7: Daily Return Distribution by Asset (Boxplot)
+
+```{r}
+ggplot(returns_long_viz, aes(x = asset, y = return, fill = asset)) +
+  geom_boxplot(outlier.alpha = 0.3) +
+  labs(
+    title = "Figure 7: Daily Return Distribution by Asset",
+    x = "Asset",
+    y = "Daily Return"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+**Interpretation:** Boxplots make the risk comparison from the descriptive statistics table visual, box height reflects the interquartile range (typical-day risk) while the whiskers and outlier points show how extreme the worst days actually got. An asset with a tight box but long outlier whiskers has low everyday risk but real tail risk, which is a distinction the standard deviation number alone can't show.
+
+## Figure 8: SPY Price vs CPI and Fed Funds Rate Over Time
+
+```{r}
+macro_long <- unified_clean |>
+  select(date, spy_price, cpi, fedfunds) |>
+  tidyr::pivot_longer(-date, names_to = "series", values_to = "value")
+
+ggplot(macro_long, aes(x = date, y = value)) +
+  geom_line(color = "darkslategray", na.rm = TRUE) +
+  facet_wrap(~series, ncol = 1, scales = "free_y") +
+  labs(
+    title = "Figure 8: SPY Price vs CPI and Fed Funds Rate Over Time",
+    x = "Date",
+    y = NULL
+  ) +
+  theme_minimal()
+```
+
+**Interpretation:** Stacking these on a shared date axis but separate scales lets us visually line up SPY's price trend against the broader macro backdrop. Look for whether SPY's biggest run-ups or drawdowns line up with periods of aggressive Fed Funds hikes or accelerating CPI, that visual alignment (or lack of it) is what the Exploratory Financial Analysis section will need to argue with actual evidence instead of assumption.
+
 # Exploratory Financial Analysis
-"Compare returns, volatility, inflationary periods, high-VIX periods and interest-rate environments." 
+"Compare returns, volatility, inflationary periods, high-VIX periods and interest-rate environments." -- from the specs
+
+This section does not recompute new statistics from scratch. It pulls together what was already built in the SQL Investigation and Visualization sections and interprets them together, since the spec asks us to compare across five specific angles: returns, volatility, inflationary periods, high-VIX periods, and interest-rate environments.
+
+## 1. Comparing Returns and Volatility Across Assets
+
 ```{r}
+return_vol_summary <- returns_long_viz |>
+  group_by(asset) |>
+  summarise(
+    avg_daily_return = mean(return, na.rm = TRUE),
+    annualized_return = mean(return, na.rm = TRUE) * 252,
+    daily_volatility = sd(return, na.rm = TRUE),
+    annualized_volatility = sd(return, na.rm = TRUE) * sqrt(252)
+  ) |>
+  arrange(desc(annualized_return))
+
+return_vol_summary
 ```
+
+**Interpretation:** Annualizing the daily figures (return times 252 trading days, volatility times the square root of 252) puts all four assets on a comparable yearly basis instead of the tiny daily numbers that are hard to reason about directly. Pair this table with Figure 1 (indexed price trend) and Figure 6 (cumulative growth of $1), since an asset can have a strong annualized return on paper while Figure 6 shows the path there was rough with deep drawdowns along the way. Figure 7's boxplot is the fastest way to see this same return-vs-volatility tradeoff visually, a tall box means more day-to-day risk for whatever return the asset ultimately delivered.
+
+## 2. Inflationary Periods
+
+```{r}
+cpi_trend
+```
+
+**Interpretation:** This reuses the CPI-rising vs CPI-flat/falling split from SQL Investigation 6. Since CPI only updates monthly and we forward-filled it across each trading day, "CPI Rising" here means the whole month following a higher print, not a single release-day reaction. Cross-reference this with Figure 8, where the CPI panel shows the actual inflation path over 2020-2025, to see whether the rising-CPI periods in the table line up with the sharpest sections of that line. If equity and crypto returns are consistently weaker during CPI Rising months, that is direct evidence inflation surprises pressure risk assets in this dataset, not just a theoretical assumption.
+
+## 3. High-VIX Periods
+
+```{r}
+vix_regime_stats
+```
+
+**Interpretation:** This reuses the High VIX vs Low VIX split from SQL Investigation 4, built around the median VIX level in our sample. Figure 3 (30-day rolling volatility) and Figure 4 (SPY return vs VIX scatter) are the visual backbone for this comparison, Figure 3 shows exactly when the market moved into a High VIX regime, and Figure 4 shows whether higher VIX levels actually coincided with weaker or more unpredictable SPY returns on a day-by-day basis rather than just in aggregate. If both the standard deviation and the average return move in the expected direction (higher volatility, lower average return) during High VIX days, that is a strong basis for treating VIX as an early warning signal in the investment recommendation, not just a descriptive curiosity.
+
+## 4. Interest-Rate Environments
+
+```{r}
+fedfunds_trend
+```
+
+**Interpretation:** This reuses the Rate Hike vs Rate Cut vs Held Steady split from SQL Investigation 5. Crypto is generally the most sensitive of the four assets to rate changes, since it carries no yield of its own to compete with a higher risk-free rate, so ETH's average return during Rate Hike days is worth checking closely against AMD, PHI, and SPY. Figure 8's Fed Funds panel shows the actual rate path across the sample, use it to see whether the current environment (as of the end of the sample period) sits in a hiking, cutting, or holding phase, since that context should carry directly into how much crypto exposure the investment recommendation allocates going forward.
+
+## 5. Bringing the Comparisons Together
+
+**Interpretation:** Across all four lenses, average and annualized returns (Section 1), inflationary periods (Section 2), high-VIX periods (Section 3), and interest-rate environments (Section 4), the goal is to identify which asset holds up best under stress (High VIX, CPI Rising, Rate Hike) rather than only which asset has the best raw average return in calm conditions. An asset that leads on annualized return but falls apart hardest under all three stress conditions is a very different allocation decision than one that trails slightly on raw return but stays comparatively stable. This is the evidence base the Investment Recommendation section should draw from directly, rather than restating the descriptive statistics table in isolation.
 
 # Investment Recommendation
-"Recommend allocation of USD 1,000,000 among the selected U.S. asset, Philippine asset, cryptocurrency and cash." 
+"Recommend allocation of USD 1,000,000 among the selected U.S. asset, Philippine asset, cryptocurrency and cash." -- from the specs
 ```{r}
 ```
 
