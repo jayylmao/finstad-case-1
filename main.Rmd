@@ -33,7 +33,6 @@ library(zoo)
 ```
 
 ### Comparing the different datasets
-note: we probably need to explicitly write down and explain each set smt like that
 
 We first get symbols from the following sources:
 - FRED
@@ -205,7 +204,6 @@ vix_tbl <- vix_tbl |>
 ```
 
 ### 3. Computing daily returns
-idk if we should compute basic returns here or log returns
 
 Daily returns are computed using the basic return formula
 ```{r}
@@ -236,7 +234,7 @@ vix_tbl <- vix_tbl |>
 ```
 
 ### 4. Removing missing rows
-idk if we should impute or just remove null rows 
+Null rows are dropped to preserve data integrity
 ```{r}
 amd_tbl <- amd_tbl  |> 
   filter(!is.na(return))
@@ -352,9 +350,8 @@ fedfunds_clean <- fedfunds_tbl
 ```
 
 # Database Integration
-"Explain the SQL join strategy used... Justify the selected join strategy and explain any reduction in observations." -- from the specs
 
-After cleaning all the data, we collate the rows into 1 unified dataset.
+After cleaning all the data, we collate the rows into 1 unified dataset through the usage of SQL joins. We first need to prepare the necessary tables for unifying the datasets.
 
 ## 1. Renaming variables
 ```{r}
@@ -448,14 +445,14 @@ cat("left_join rows: ", nrow(demo_left), "\n")
 cat("Rows where ETH is NA: ", sum(is.na(demo_left$eth_price)), "\n")
 ```
 
-## 4. Choosing the Final Join Strategy
+## 4. Final Join Strategy
 
 Our final database is meant to answer an **equity/benchmark-driven investment question** — comparing AMD, PHI, and ETH against SPY as the reference benchmark, alongside macro conditions. Given that framing:
 
 - `inner_join()` is too aggressive — it would silently drop every day where even one asset didn't trade, shrinking the dataset unnecessarily and losing information about days SPY *did* move.
 - `full_join()` keeps the most data, but introduces weekend/holiday rows where SPY, AMD, PHI, and VIX are all structurally `NA` (they simply have no observation those days) — this isn't "missing" data to be filled, it's a non-event, so those extra rows have no analytical value for an equity-anchored study.
 - `anti_join()` is a diagnostic tool, not a database-building join — we use it above to confirm exactly how many ETH-only dates exist, but it doesn't belong in the final chain.
-- **`left_join()` anchored on `spy_sql`** is our final choice: it preserves every SPY trading day (our benchmark and reference calendar), attaches whichever other series have data on that date, and cleanly produces `NA` only where a genuine data gap exists (e.g. ETH trading on a day AMD didn't, or a macro series not yet updated) rather than manufacturing rows that don't correspond to any equity trading activity.
+- **`left_join()` anchored on `spy_sql`** is the best choice, it preserves every SPY trading day (our benchmark and reference calendar), attaches whichever other series have data on that date, and cleanly produces `NA` only where a genuine data gap exists (e.g. ETH trading on a day AMD didn't, or a macro series not yet updated) rather than manufacturing rows that don't correspond to any equity trading activity.
 
 ## 5. Building the Unified Database
 ```{r}
@@ -485,7 +482,7 @@ head(unified_db)
 view(unified_db)
 ```
 
-`treasury_10y` and `fedfunds` are only reported on U.S. business days, while `cpi` is only reported once a month. Since our final database is anchored on SPY's daily trading calendar (via `left_join()`), joining these lower-frequency series directly leaves `NA` on every date without a fresh reading. We resolve this with `tidyr::fill(..., .direction = "downup")`, which carries the most recent known value forward through time (e.g. a CPI print from early June applies to every trading day until the next print in early July), and also backfills any leading rows at the very start of the sample that come before the first available reading. Using only `"down"` would leave those first few weeks of 2020 as `NA`, since there is nothing earlier to carry forward from. This is standard practice for macro series in daily financial datasets, since the "current" CPI or Fed Funds level doesn't change on the days between official releases, and a short leading gap is filled with the nearest known value rather than left blank.
+`treasury_10y` and `fedfunds` are only reported on U.S. business days, while `cpi` is only reported once a month. Since our final database is anchored on SPY's daily trading calendar, joining these lower-frequency series directly leaves `NA` on every date. We resolve this with `tidyr::fill(..., .direction = "downup")`, which carries the most recent known value forward through time (e.g. a CPI print from early June applies to every trading day until the next print in early July), and also back fills any leading rows at the very start of the sample that come before the first available reading. Using only `"down"` would leave those first few weeks of 2020 as `NA`, since there is nothing earlier to carry forward from. This is standard practice for macro series in daily financial datasets, since the "current" CPI or Fed Funds level doesn't change on the days between official releases, and a short leading gap is filled with the nearest known value rather than left blank.
 
 ## 6. Observation Tracking
 
@@ -558,13 +555,12 @@ colSums(is.na(unified_clean))
 `unified_clean` is our final analytical dataset, used for all descriptive statistics, SQL investigations, and visualizations going forward.
 
 # SQL Investigation
-"Investigate at least 10 meaningful financial questions using select(), filter(), mutate(), arrange(), group_by() and summarise(). Each query must include Objective, Code, Output and Interpretation." -- from the specs
+
+Using the SQL-based query functions select(), filter(), mutate(), arrange(), group_by() and summarise(), we investigate 10 financial questions to broaden understanding of observed relationships within the dataset.
 
 ## Investigation 1: Biggest single-day moves per asset
 
-**Objective:** Find the top 3 single-day returns for each of the four core assets to see which asset produces the largest short-term shocks.
-
-**Code:**
+**Objective:** Find the top 3 single-day returns for each of the four core assets to see which asset produces the largest short-term stocks.
 ```{r}
 returns_long <- unified_clean |>
   select(date, amd_return, eth_return, phi_return, spy_return) |>
@@ -580,15 +576,13 @@ top_gains <- returns_long |>
 top_gains
 ```
 
-**Output:** *(run the chunk above and paste the printed table into your report)*
+Using the new unified dataset, we want to see which 3 days within the time period provided the highest returns per asset. By first using select(), only the necessary columns are selected (date, amd_return, eth_return, phi_return, spy_return) where it is then grouped by asset name and arranged/sorted by highest returns. The mutate() function then assigns a new ranking column and each asset is filtered to only the top 3.
 
-**Interpretation:** *After running this, compare which asset's top return is the largest in magnitude. ETH will almost certainly show the biggest single-day swings given crypto's higher baseline volatility, while SPY should show the smallest. Note the actual dates too, since clustering around the same few dates suggests a shared market-wide shock rather than an asset-specific event.*
+As seen in the resulting table, AMD and ETH-USD are the 2 assets with the highest returns, averaging almost double the PHI asset. The returns are relatively similar, indicating a regular historical period with no outliers during this specific time period.
 
 ## Investigation 2: Monthly average returns
 
 **Objective:** Compute the average daily return per calendar month for each asset to identify which months or periods were consistently strong or weak.
-
-**Code:**
 ```{r}
 monthly_avg_returns <- unified_clean |>
   mutate(year_month = format(date, "%Y-%m")) |>
@@ -603,15 +597,13 @@ monthly_avg_returns <- unified_clean |>
 head(monthly_avg_returns, 10)
 ```
 
-**Output:** *(run the chunk above)*
+Using the new unified dataset, we compute an average of the daily return to see which months are strong or weakpoints for each asset in our database. Using the mutate() function, the dates are formatted from YYYY-MM-DD to YYYY-MM to prepare for the grouping of data by months and subsequent averaging of daily returns. 
 
-**Interpretation:** *Look for months where all four columns are negative together, this points to broad market stress rather than an asset-specific dip. Months where only ETH or only PHI moves against the others suggest asset-specific news rather than macro conditions.*
+Among the 3 assets, AMD is the most relatively stable staying within a smaller bounded range. Towards the later months of September and October 2020, we see a consistent low point for all assets and SPY, with both AMD and PHI reaching their lowest average returns within the time period. It is hard to tell if this implies broad market stress based on the average of daily returns, but previous months show almost little to no correlation with SPY and one another, implying asset-specific movements over macroeconomic conditions.
 
 ## Investigation 3: SPY selloff days and cross-asset behavior
 
 **Objective:** Identify SPY's 10 worst trading days and check how AMD, PHI, and ETH performed on those same dates, to test whether any of them behave as a diversifier during U.S. market selloffs.
-
-**Code:**
 ```{r}
 spy_selloffs <- unified_clean |>
   filter(spy_return < 0) |>
@@ -622,15 +614,14 @@ spy_selloffs <- unified_clean |>
 spy_selloffs
 ```
 
-**Output:** *(run the chunk above)*
+Taking a closer look at specific dates over daily averages over the period of a month could provide more insight towards the correlation of asset movement and SPY movement. Using the unified database, SPY returns are filtered to negative dates and arranged/sorted by lowest returns. Asset return columns are added for easier comparison of correlation between SPY's worst days and asset performance on that day. 
 
-**Interpretation:** *If AMD and ETH are also deeply negative on SPY's worst days, that is evidence they move with the U.S. market rather than against it, meaning they add little diversification value. If PHI holds up better on these dates, that supports including it as a partial hedge in the final allocation.*
+Taking a look at the returns on SPY's worst days, there seems to be a correlation with negative returns in most asset dates, but it does not seem to be _highly_ correlated, as each assets' worst return within the calendar snapshot does not necessarily align with SPY's ranked worst days. Relative to the other returns, AMD seems to be the most correlated with SPY which makes sense because it is part of the S&P 500. Low to moderate correlation is good, as it means the asset portfolio is quite diversified.
 
 ## Investigation 4: High-VIX vs low-VIX return and volatility comparison
 
 **Objective:** Split trading days into High VIX and Low VIX regimes (relative to the median VIX level) and compare average return and volatility in each regime.
 
-**Code:**
 ```{r}
 vix_median <- median(unified_clean$vix, na.rm = TRUE)
 
