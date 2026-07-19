@@ -104,7 +104,6 @@ Philippine Asset - PLDT, Inc.(PHI)
 Cryptocurrency - Etherium (ETH or ETH-USD)
 Required - State Street SPDR S&P 500 ETF Trust (SPY)
 
-*note: do we explain why we chose these companies lol??
 ```{r}
 ETH <- `ETH-USD`
 
@@ -651,7 +650,7 @@ vix_regime_stats
 
 **Output:** *(run the chunk above)*
 
-**Interpretation:** *Expect the standard deviation columns to be visibly higher in the High VIX regime, confirming VIX is doing its job as a "fear gauge." If average returns are also lower (or negative) in the High VIX regime, that supports treating elevated VIX as a signal to reduce exposure or hold more cash.*
+**Interpretation:** *The standard deviation of for SPY and AMD during high VIX are higher than the standard deviation during low VIX, confirming VIX is doing its job as a "fear gauge." Average returns are also negative in the High VIX regime, which supports treating elevated VIX as a signal to reduce exposure or hold more cash.*
 
 ## Investigation 5: Returns across Fed Funds rate regimes
 
@@ -812,7 +811,6 @@ risk_adjusted
 **Interpretation:** *This is the single most important table for the Investment Recommendation section. The asset with the highest Sharpe-style ratio delivered the best return per unit of risk taken, not just the highest raw return. A high-return asset with an even higher volatility can still end up with a worse ratio than a steadier asset, so use this table, not just the raw mean returns from Investigation 2, to justify how you split the USD 1,000,000 allocation.*
 
 # Descriptive Statistics
-"Compute mean, median, variance, standard deviation, minimum, maximum, range, skewness and kurtosis." -- from the specs
 
 From the previous section, a unified database named `unified_clean` was created — this is our final analytical dataset (post-join, post-fill, post-drop) that all statistics below are computed from.
 ```{r}
@@ -894,6 +892,7 @@ mean(returns_tbl$spy_return,
      na.rm = TRUE)
 
 ```
+**Implication: *
 
 ### 3. Computing Dispersion (Risk)
 variance, std dev, range, interquartile range, coefficient of variation
@@ -992,6 +991,7 @@ mean(returns_tbl$spy_return,
      na.rm = TRUE)
 
 ```
+**Interpretation:** 
 
 ### 4. Viewing data shape
 skewness and kurtosis
@@ -1242,6 +1242,8 @@ descriptive_table <- tibble(
 )
 
 descriptive_table
+
+
 ```
 # Visualization
 "Produce at least eight professional figures with interpretations." -- from the specs
@@ -1267,7 +1269,7 @@ ggplot(indexed_prices, aes(x = date, y = indexed_price, color = asset)) +
   theme_minimal()
 ```
 
-**Interpretation:** This chart is your fastest way to see which asset had the strongest overall run across the full sample period and which one was the most volatile along the way, since a shaky line with a high endpoint (likely ETH) tells a very different investment story than a steady line with the same endpoint.
+**Interpretation:** This chart is your fastest way to see which asset had the strongest overall run across the full sample period and which one was the most volatile along the way, since a shaky line with a high endpoint (ETH) tells a very different investment story than a steady line with the same endpoint.
 
 ## Figure 2: Distribution of Daily Returns by Asset
 
@@ -1288,7 +1290,7 @@ ggplot(returns_long_viz, aes(x = return, fill = asset)) +
   theme(legend.position = "none")
 ```
 
-**Interpretation:** This is the direct Anscombe's Quartet check for our return data. Two assets can have nearly identical mean and standard deviation on paper while looking completely different here, one might be a tight, roughly normal bell curve while another has fat tails or a lopsided shape. A wider spread or heavier tails visually confirms higher risk in a way the summary statistics table alone doesn't make obvious.
+**Interpretation:** This is the direct Anscombe's Quartet check for our return data. Two assets can have nearly identical mean and standard deviation on paper while looking completely different here, one might be a tight, roughly normal bell curve while another has fat tails or a lopsided shape. As seen across all assets, they more or less follow a binomial distribution.
 
 ## Figure 3: 30-Day Rolling Volatility by Asset
 
@@ -1314,7 +1316,7 @@ ggplot(rolling_vol, aes(x = date, y = rolling_vol, color = asset)) +
   theme_minimal()
 ```
 
-**Interpretation:** A static standard deviation number treats risk as constant across the whole 2020-2025 window, which it clearly wasn't. Watch for spikes that line up across all four lines at once, that points to a market-wide event (like a rate decision or macro shock) rather than something specific to one asset. This also sets up the High VIX vs Low VIX comparison from the SQL Investigation section by showing exactly when volatility regimes shifted.
+**Interpretation:** A static standard deviation number treats risk as constant across the whole 2020-2025 window, which it clearly wasn't. Certain spikes line up across all four lines at once, that points to a market-wide event (like a rate decision or macro shock). This also relates to the High VIX vs Low VIX comparison from the SQL Investigation section by showing exactly when volatility regimes shifted.
 
 ## Figure 4: SPY Daily Return vs VIX Level
 
@@ -1330,7 +1332,7 @@ ggplot(unified_clean, aes(x = vix, y = spy_return)) +
   theme_minimal()
 ```
 
-**Interpretation:** If the fitted line slopes downward, higher fear/uncertainty (elevated VIX) coincides with weaker SPY returns, confirming VIX's role as a risk signal rather than just background noise. The spread of points around the line also matters: a wide scatter at high VIX levels shows returns get less predictable exactly when the market is most stressed.
+**Interpretation:** Since the fitted line slopes downward, higher fear/uncertainty (elevated VIX) coincides with weaker SPY returns, confirming VIX's role as a risk signal rather than just background noise. The spread of points around the line also matters: a wide scatter at high VIX levels shows returns get less predictable exactly when the market is most stressed.
 
 ## Figure 5: Correlation Heatmap of Daily Returns
 
@@ -1470,3 +1472,6 @@ fedfunds_trend
 "Recommend allocation of USD 1,000,000 among the selected U.S. asset, Philippine asset, cryptocurrency and cash." -- from the specs
 ```{r}
 ```
+
+# References
+- booyah
