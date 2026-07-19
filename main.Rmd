@@ -827,7 +827,7 @@ dim(unified_clean)
 ```
 
 ### 1. Selecting return variables
-Since our end goal is an investment recommendation, we focus this analysis on the daily return series for each tradable asset (return = risk/reward), while VIX and macro variables are analyzed separately as context in the Exploratory Financial Analysis section.
+Since our end goal is an investment recommendation, we focus this analysis on the daily return series for each tradeable asset (return = risk/reward), while VIX and macro variables are analyzed separately as context in the Exploratory Financial Analysis section.
 ```{r}
 returns_tbl <- unified_clean  |> 
 
@@ -843,6 +843,7 @@ dim(returns_tbl)
 ```
 
 ### 2. Computing median and mean
+The general median and mean of returns don't give a good picture of how a "typical" return usually is due to outliers. It is just a simple average of the dataset. 
 ```{r}
 #Mean Return
 cat("AMD Mean: ")
@@ -900,10 +901,9 @@ mean(returns_tbl$spy_return,
      na.rm = TRUE)
 
 ```
-**Implication: *
 
 ### 3. Computing Dispersion (Risk)
-variance, std dev, range, interquartile range, coefficient of variation
+Calculating the variance, std dev, range, interquartile range, and coefficient of variation of returns shows a small view of each asset's general risk to return ratio.
 ```{r}
 #Variance
 cat("AMD Variance: ")
@@ -999,10 +999,9 @@ mean(returns_tbl$spy_return,
      na.rm = TRUE)
 
 ```
-**Interpretation:** 
 
 ### 4. Viewing data shape
-skewness and kurtosis
+The skewness and kurtosis show the general shape of asset returns, where it is how often and how severely an asset's returns deviate from an averaged bell curve. Skewness measures the symmetry of returns, while kurtosis measures the frequency of extreme events.
 ```{r}
 library(moments)
 #Skewness
@@ -1039,8 +1038,8 @@ kurtosis(returns_tbl$spy_return,
          na.rm = TRUE)
 ```
 
-### 5. Computing data position ?
-min, max, quartiles, percentiles
+### 5. Computing relative data position
+We calculate the minimum and maximum of each asset's return shows the biggest drop and the largest jump in value over a set time. While quartiles and percentiles of asset returns divide an asset's past returns into parts to show how often it performs well or poorly. These help in seeing an investment's risk and reward at a glance.
 ```{r}
 #Minimum
 cat("AMD Minimum: ")
@@ -1120,11 +1119,14 @@ quantile(returns_tbl$spy_return,
 ```
 
 ### 6. Dealing with Missing Values
+Usually datasets have null rows that can affect the general distribuition of statistical analysis, thus null rows are to be dropped or imputed depending on the information held.
 ```{r}
 colSums(is.na(returns_tbl))
 ```
+Considering no null rows exist in our dataset we proceed without having to drop or impute.
 
 ### 7. Correlation Matrix
+A correlation matrix of asset returns measures how investments move together and is a standardized form of the covariance that normalizes into a score between \(-1\) and \(1\).
 ```{r}
 correlation_matrix <- returns_tbl  |> 
   select(-date)  |> 
@@ -1133,6 +1135,7 @@ correlation_matrix
 ```
 
 ### 8. Covariance Matrix 
+A covariance matrix of asset returns also measures how investments move together,it shows the direction of the relationship between pairs of assets 
 ```{r}
 covariance_matrix <- returns_tbl |> 
   select(-date)  |> 
@@ -1254,7 +1257,6 @@ descriptive_table
 
 ```
 # Visualization
-"Produce at least eight professional figures with interpretations." -- from the specs
 
 All figures below are built from `unified_clean`, our final analytical dataset, so they stay consistent with every statistic and SQL investigation computed earlier.
 
