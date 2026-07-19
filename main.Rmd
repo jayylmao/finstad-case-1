@@ -1470,6 +1470,3 @@ fedfunds_trend
 "Recommend allocation of USD 1,000,000 among the selected U.S. asset, Philippine asset, cryptocurrency and cash." -- from the specs
 ```{r}
 ```
-
-# References
-- booyah
