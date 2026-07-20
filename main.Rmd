@@ -578,7 +578,7 @@ top_gains
 
 Using the new unified dataset, we want to see which 3 days within the time period provided the highest returns per asset. By first using select(), only the necessary columns are selected (date, amd_return, eth_return, phi_return, spy_return) where it is then grouped by asset name and arranged/sorted by highest returns. The mutate() function then assigns a new ranking column and each asset is filtered to only the top 3.
 
-As seen in the resulting table, AMD and ETH-USD are the 2 assets with the highest returns, averaging almost double the PHI asset. The returns are relatively similar, indicating a regular historical period with no outliers during this specific time period.
+The table reveals that AMD, ETH, and PHI all produced extraordinarily large single-day returns during their top-3 ranked days. AMD and ETH both exceeded +20% in a single trading session, with ETH's best day reaching +25.3% (2021-05-24) and AMD's reaching +23.8% (2025-04-09). SPY shows a much more modest top-3 range of roughly 8.5% to 10.5%, which is expected.
 
 ## Investigation 2: Monthly average returns
 
