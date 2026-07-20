@@ -301,6 +301,15 @@ head(fedfunds_tbl)
 ### 7. Create an Observation Summary Table and saving it
 We first count the observations
 ```{r}
+treasury_tbl <- treasury_tbl  |> 
+  filter(!is.na(treasury_10y))
+
+cpi_tbl <- cpi_tbl  |> 
+  filter(!is.na(cpi))
+
+fedfunds_tbl <- fedfunds_tbl  |> 
+  filter(!is.na(fedfunds))
+
 nrow(amd_tbl)
 nrow(eth_tbl)
 nrow(phi_tbl)
