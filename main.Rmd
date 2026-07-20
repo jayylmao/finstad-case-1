@@ -1489,9 +1489,36 @@ fedfunds_trend
 **Interpretation:** Across all four lenses, average and annualized returns (Section 1), inflationary periods (Section 2), high-VIX periods (Section 3), and interest-rate environments (Section 4), the goal is to identify which asset holds up best under stress (High VIX, CPI Rising, Rate Hike) rather than only which asset has the best raw average return in calm conditions. An asset that leads on annualized return but falls apart hardest under all three stress conditions is a very different allocation decision than one that trails slightly on raw return but stays comparatively stable. This is the evidence base the Investment Recommendation section should draw from directly, rather than restating the descriptive statistics table in isolation.
 
 # Investment Recommendation
-"Recommend allocation of USD 1,000,000 among the selected U.S. asset, Philippine asset, cryptocurrency and cash." -- from the specs
-```{r}
-```
+
+We suggest a 60/30/10 split of SPY, AMD, and ETH-USD respectively with a total investment fund of USD 1,000,000. A moderate risk appetite would act as the basis for this recommendation, where the aim is to split the allocated funds in a practical way, backed by analytical evidence of investigated data.  Considering each asset,
+
+### S&P 500 (SPY) - Allocation: USD 600,000 (60%)
+SPY acts as the foundation for this portfolio, as it already contains structural diversification with consistent risk-adjusted performance. Across the sample period, SPY posted the highest Sharpe ratio of all four assets (0.0471), meaning it delivered the best return per unit of risk taken even with ETH’s larger raw price appreciation. SPY's volatility was also consistently the lowest across regimes when compared against other assets through analysis of VIX regimes and standard deviation. Given this combination of the strongest risk-adjusted return and the lowest volatility profile in the dataset, SPY is allocated the majority of the portfolio to establish a stable baseline.
+
+### Advanced Micro Devices, Inc. (AMD) - Allocation: USD 300,000 (30%)
+AMD was allocated the second largest share of the portfolio because it offers higher return potential than SPY, while still exhibiting return patterns broadly aligned with the broader market. AMD's Sharpe ratio (0.0423) was close to SPY's, indicating it has historically rewarded its additional volatility reasonably well rather than adding risk without compensated returns, but AMD’s higher beta was evident throughout the analysis. Because it is relatively more correlated to SPY, when SPY experiences movement or downturns AMD has more dramatic swings due to its higher volatility. However, AMD also experiences sector-specific upturns, especially with the boom of AI and its needed hardware specifications, making AMD a suitable secondary holding with meaningful and expected growth potential.
+
+### Ethereum (ETH-USD) - Allocation: USD 100,000 (10%)
+ETH was given the smallest allocation due to its more extreme risk profile out of all the assets in the database. ETH’s Sharpe ratio (0.0456) is close to both SPY and AMD, indicating it has still historically compensated reasonably for its risk under the 5 year period. Despite the relatively “stable” Sharpe ratio, looking at ETH’s price history, it is clearly highly volatile, with massive growths and massive crashes creating a high risk profile. An allocation of 10% is intended to capture ETH’s upside and low correlation with SPY and AMD on most days, it is kept small enough so extreme crashes will not severely affect the health of the overall portfolio.
+
+### PLDT Inc. ADR (PHI) - Allocation: USD 0 (0%)
+PHI was excluded from the final allocation due to its comparatively weak risk-adjusted return, it posted the lowest Sharpe ratio (0.0198) among all four assets, with quarterly price data showing long stretches of stagnated movement. Although PHI does consistently show independence from U.S. market stress, going off a moderate risk appetite, we prioritized assets with demonstrated strength in their risk-adjusted over pure diversification benefits.
+
+### Cash - Allocation: USD 0 (0%)
+No portion of the portfolio was held in cash, as the objective of our analysis paired with our risk appetite, was to fully deploy the available USD 1,000,000 into assets with positive expected returns rather than hold idle capital. While cash offers stability and eliminates market-related volatility, it also guarantees a loss of real purchasing power over time due to inflation or other macroeconomic factors.
+
+This 60/30/10 split concentrates capital in the highest risk-adjusted performer (SPY), we use AMD to add market-correlated growth exposure, but with amplified risk. ETH is added to create exposure to benefit from its high upside and low correlation on most days while containing its tail risk. This results in a portfolio designed to outperform a passive single asset portfolio by balancing needed diversification and risk.
+
 
 # References
-- booyah
+- Board of Governors of the Federal Reserve System (US). Market Yield on U.S. Treasury Securities at 10-Year Constant Maturity, Quoted on an Investment Basis [DGS10]. Federal Reserve Bank of St. Louis. (2026).  https://fred.stlouisfed.org/series/DGS10
+- Chen, J. (2026). Price Discovery Explained: Process, Factors, and Comparison with Valuation. https://www.investopedia.com/terms/p/pricediscovery.asp
+- Hanck, C., Arnold, M., Gerber, A., Schmelzer, M. (2026). Volatility Clustering and Autoregressive Conditional Heteroskedasticity | Introduction to Econometrics in R. Introduction to Econometrics in R. https://www.econometrics-with-r.org/16.4-volatility-clustering-and-autoregressive-conditional-heteroskedasticity.html
+- Hayes, A. (2025). Financial Markets: Role in the Economy, Importance, Types, and Examples. https://www.investopedia.com/terms/f/financial-market.asp
+- Semiconductor Industry Association. (2026). Industry Impact - Semiconductor Industry Association. https://www.semiconductors.org/industry-impact/
+- U.S. Bureau of Labor Statistics. (2026). Consumer Price Index for All Urban Consumers: All Items in U.S. City Average [CPIAUCSL]. Federal Reserve - - Bank of St. Louis. https://fred.stlouisfed.org/series/CPIAUCSL
+- Yahoo Finance. (2026). PLDT Inc. (PHI) Stock Price, News, Quote & History - Yahoo Finance. https://finance.yahoo.com/quote/PHI/
+- Hayes, A. (2026, January 23). Understanding Liquidity and How to Measure It. Investopedia. https://www.investopedia.com/terms/l/liquidity.asp
+- Gopalakrishnan, J. (2025, December 10). Stock investment risk: Understanding systematic and idiosyncratic risks. Encyclopedia Britannica. https://www.britannica.com/money/types-of-investment-risks
+- Gratton, P. (2026, April 27). What Is the Stock Market and How Does It Work? Investopedia. https://www.investopedia.com/terms/s/stockmarket.asp#toc-what-is-a-stock-exchange
+- O’Trakoun, J. (2025, December 15). Phantom figures: missing data in October. Richmond Fed. https://www.richmondfed.org/research/national_economy/macro_minute/2025/phantom_figures_missing_data_in_october
