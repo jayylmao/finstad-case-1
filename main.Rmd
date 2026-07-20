@@ -833,7 +833,7 @@ The Sharpe ratio measures an investment's return for each unit of risk taken, it
 
 # Descriptive Statistics
 
-From the previous section, a unified database named `unified_clean` was created — this is our final analytical dataset (post-join, post-fill, post-drop) that all statistics below are computed from.
+From the previous section, a unified database named `unified_clean` was created — this is our final analytical dataset (post-join, post-fill, post-drop) that all statistics below are computed from.This section details the computation of multiple descriptive statistics pertaining to the daily returns of each asset, along with the financial implication of each. 
 ```{r}
 glimpse(unified_clean)
 dim(unified_clean)
@@ -914,6 +914,9 @@ mean(returns_tbl$spy_return,
      na.rm = TRUE)
 
 ```
+ETH had the highest average daily return, while SPY had the lowest. This suggests the large potential of ETH for returns and the stability offered by SPY. ETH and SPY have positive median returns, meaning it is more likely to have a positive return compared to no return or a negative return. On the other hand, PHI and AMD have a median return of 0.
+
+By trimming the outliers from the computation of the mean, it is seen that ETH maintains the highest average return. This confirms that its high mean returns are by the nature of the asset rather than being due to anomalies in the market.
 
 ### 3. Computing Dispersion (Risk)
 Calculating the variance, std dev, range, interquartile range, and coefficient of variation of returns shows a small view of each asset's general risk to return ratio.
@@ -1012,6 +1015,9 @@ mean(returns_tbl$spy_return,
      na.rm = TRUE)
 
 ```
+Similar to the case of the mean returns, ETH displays the highest standard deviation, demonstrating its high volatility. In contrast, SPY still remains the most stable option, with PHI as a close second in stability.
+
+Lastly, PHI displays an unexpectedly high coefficient of variation, indicating that it is fairly volatile and returns the worst reward compared to the risk. SPY also maintains its stability by having the lowest coefficient of variation,
 
 ### 4. Viewing data shape
 The skewness and kurtosis show the general shape of asset returns, where it is how often and how severely an asset's returns deviate from an averaged bell curve. Skewness measures the symmetry of returns, while kurtosis measures the frequency of extreme events.
@@ -1050,6 +1056,9 @@ cat("SPY Kurtosis: ")
 kurtosis(returns_tbl$spy_return,
          na.rm = TRUE)
 ```
+AMD is the only asset with a positive skew, while the others have a negative. This implies the capability of AMD to have large returns as seen in its mean returns, and that the other assets are more likely to experience crashes after multiple bursts of positive returns.
+
+All  of the assets demonstrate a positive, high level of kurtosis, which measures the likelihood for a distribution to have extreme outliers. This is especially high in the case of PHI, which supports earlier implications made from its high coefficient of variation.
 
 ### 5. Computing relative data position
 We calculate the minimum and maximum of each asset's return shows the biggest drop and the largest jump in value over a set time. While quartiles and percentiles of asset returns divide an asset's past returns into parts to show how often it performs well or poorly. These help in seeing an investment's risk and reward at a glance.
@@ -1130,9 +1139,10 @@ quantile(returns_tbl$spy_return,
          probs = c(.01,.05,.95,.99),
          na.rm = TRUE)
 ```
+ETH experienced both the highest and lowest returns, highlighting its volatility compared to the other assets through its large range. SPY also retains its status as the most stable asset among the 4, with the highest minimum and lowest maximum.
 
 ### 6. Dealing with Missing Values
-Usually datasets have null rows that can affect the general distribuition of statistical analysis, thus null rows are to be dropped or imputed depending on the information held.
+Usually datasets have null rows that can affect the general distribution of statistical analysis, thus null rows are to be dropped or imputed depending on the information held.
 ```{r}
 colSums(is.na(returns_tbl))
 ```
@@ -1146,6 +1156,7 @@ correlation_matrix <- returns_tbl  |>
   cor(use = "complete.obs")
 correlation_matrix
 ```
+AMD and SPY have a correlation of 0.64, the highest between any pair in the matrix, indicating a moderately strong relationship between the two. This makes sense as AMD is part of the S&P 500, and therefore follows the general trend of the market. Conversely, PHI is a comparatively isolated asset, with its highest correlation score being 0.31 with SPY. This may be due to being a local Philippine stock, which is naturally going to align less with U.S. market trends, which makes it a solid option for portfolio diversification.
 
 ### 8. Covariance Matrix 
 A covariance matrix of asset returns also measures how investments move together,it shows the direction of the relationship between pairs of assets 
@@ -1155,6 +1166,7 @@ covariance_matrix <- returns_tbl |>
   cov(use = "complete.obs")
 covariance_matrix
 ```
+AMD and ETH share the highest covariance in this matrix, with a score of 0.000517. While this may imply that they share similar growth patterns, taking a look at the correlation between the two only shows a fairly moderate relationship at 0.32. Their comparatively high covariance is most likely a result of their high volatility, as seen in the descriptive statistics table. When accounting for their individually high variance scores as well, this implies that these two assets can add the most volatility to a portfolio.
 
 ### 9. Final Descriptive Statistics Table
 ```{r}
@@ -1269,6 +1281,10 @@ descriptive_table
 
 
 ```
+One of the primary takeaways from the use of descriptive statistics is that ETH is easily the most high risk, high reward asset among the four. This can be seen in its high score for mean, standard deviation, and range. On the other hand, SPY offers the most stable option for investment due to low volatility, coefficient of variation, and kurtosis. Additionally, PHI is a generally risky investment without the reward to back it up similar to ETH, while AMD remains a viable middle-ground option between ETH and SPY with the additional benefit of skewing differently and a high correlation with SPY.
+
+While the use of descriptive statistical analysis offers relevant insights into the behavior of the 4 assets, further analysis through the use of data visualization and exploratory financial analysis is required as numbers do not necessarily paint the whole picture.
+
 # Visualization
 
 All figures below are built from `unified_clean`, our final analytical dataset, so they stay consistent with every statistic and SQL investigation computed earlier.While numerical summaries are important in financial analysis, these are sometimes unable to capture all of the nuances of the data, particularly patterns and outliers. Visualizations thus become crucial to reveal these nuances.
