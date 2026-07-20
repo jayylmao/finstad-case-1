@@ -1273,7 +1273,7 @@ descriptive_table
 
 All figures below are built from `unified_clean`, our final analytical dataset, so they stay consistent with every statistic and SQL investigation computed earlier.While numerical summaries are important in financial analysis, these are sometimes unable to capture all of the nuances of the data, particularly patterns and outliers. Visualizations thus become crucial to reveal these nuances.
 
-## Figure 1: Indexed Price Trend (Base = 100)
+### Figure 1: Indexed Price Trend (Base = 100)
 
 Raw prices aren't directly comparable since SPY, AMD, PHI, and ETH trade on completely different price scales. Rebasing each series to start at 100 lets us compare growth trajectories side by side.
 ```{r}
@@ -1294,7 +1294,7 @@ ggplot(indexed_prices, aes(x = date, y = indexed_price, color = asset)) +
 
 Figure 1 normalizes the assets to a base value of 100 to compare the trajectories of each asset relative to one another, across vastly different price scales. The performance is dominated by ETH, which experienced two massive macro cycles, peaking at over a 3000% return in late 2021 and again in early 2025, with a severe drawdown in 2022-2023. ETH’s extreme growth scale visually compresses the relative volatility of the traditional assets, however AMD still exhibited notable growth, peaking at a near 400% gain by late 2025. SPY and PHI both exhibited the steady, low-volatility trajectories characteristic of mature market indices and traditional equities over this six-year window.
 
-## Figure 2: Distribution of Daily Returns by Asset
+### Figure 2: Distribution of Daily Returns by Asset
 
 ```{r}
 returns_long_viz <- unified_clean |>
@@ -1315,7 +1315,7 @@ ggplot(returns_long_viz, aes(x = return, fill = asset)) +
 
 Figure 2 displays the distribution of daily returns for each asset using histograms. While all four assets have return distributions centered symmetrically around 0.0, their variances differ significantly, which visually confirms the volatility rankings from Figure 1. SPY has the narrowest range at roughly ±5%, which indicates stable, predictable daily movements. AMD and PHI show moderate variance, with wider baselines that reflect higher risk. ETH, by contrast, shows an incredibly wide distribution at ±25%, which visually demonstrates the massive macro swings observed in Figure 1.
 
-## Figure 3: 30-Day Rolling Volatility by Asset
+### Figure 3: 30-Day Rolling Volatility by Asset
 
 ```{r}
 rolling_vol <- unified_clean |>
@@ -1341,7 +1341,7 @@ ggplot(rolling_vol, aes(x = date, y = rolling_vol, color = asset)) +
 
 Figure 3 gives a closer look at volatility/risk for each asset. While the previous two figures treated volatility as a constant figure, this figure shows that it is, in fact, dynamic and episodic. Previously, it was shown that ETH was consistently more volatile than the other assets. Figure 3, however, shows that its volatility instead spikes and then flatlines, becoming closer to the other assets by late 2023. This demonstrates the concept of volatility clustering, which is where volatility changes over time, and that it has a tendency to persist (Hanck et al., 2026). In other words, periods of high volatility are followed by high volatility, low volatility is followed by low volatility. This also dispels the idea that the cryptocurrency asset is always the riskiest asset in the bucket. During specific periods, like with market shifts or other corporate events, individual equities such as AMD can even become more volatile than ETH. Also of note is that all assets spiked in volatility in early 2020, likely owing to the early COVID-19 market crash. This reveals a degree of market risk that was difficult to spot in the previous figures.
 
-## Figure 4: SPY Daily Return vs VIX Level
+### Figure 4: SPY Daily Return vs VIX Level
 
 ```{r}
 ggplot(unified_clean, aes(x = vix, y = spy_return)) +
@@ -1357,7 +1357,7 @@ ggplot(unified_clean, aes(x = vix, y = spy_return)) +
 
 Figure 4 shifts focus from the assets to the environment around them. As mentioned earlier, SPY is a benchmark for market performance and VIX is the market “fear”. This reveals that at a low VIX level (< 20), daily returns are relatively consistent, rarely exceeding ±2%. However, as the VIX level rises, the vertical spread of the returns becomes a lot more volatile.
 
-## Figure 5: Correlation Heatmap of Daily Returns
+### Figure 5: Correlation Heatmap of Daily Returns
 
 ```{r}
 corr_df <- as.data.frame(correlation_matrix) |>
@@ -1378,7 +1378,7 @@ ggplot(corr_df, aes(x = asset1, y = asset2, fill = correlation)) +
 
 Figure 5 evaluates the co-movement of assets and potential for diversification. All pairwise correlations are positive, ranging from weak (r=0.16) to moderate-high (r=0.64). The strongest relationship is between AMD and SPY, which reflects high systematic risk exposure for AMD. PHI displays consistently low correlations with the other assets, which makes sense as it is Philippine-based. This exposes it to different risks when compared to the other assets.
 
-## Figure 6: Cumulative Growth of $1 Invested
+### Figure 6: Cumulative Growth of $1 Invested
 
 ```{r}
 cumulative_growth <- unified_clean |>
@@ -1404,7 +1404,7 @@ ggplot(cumulative_growth, aes(x = date, y = growth_of_1, color = asset)) +
 
 Figure 6 focuses on wealth outcomes from investments in a portfolio. ETH reaches large peaks in late 2021 at nearly $12, but settles at around $5 by the end of 2025. By contrast, AMD steadily grew to around that, without the massive drawdowns in between. This risk of drawdown highlights how difficult it is to capture that wealth without active risk management. Additionally, PHI notably lagged behind the SPY benchmark, which shows how an asset can underperform these broad market benchmarks over a long time horizon.
 
-## Figure 7: Daily Return Distribution by Asset (Boxplot)
+### Figure 7: Daily Return Distribution by Asset (Boxplot)
 
 ```{r}
 ggplot(returns_long_viz, aes(x = asset, y = return, fill = asset)) +
@@ -1420,7 +1420,7 @@ ggplot(returns_long_viz, aes(x = asset, y = return, fill = asset)) +
 
 Figure 7 displays all the return distributions on the same y-axis scale. AMD and ETH notably have taller central boxes, which represent the middle 50% of daily returns. Notably, this visualization helps to visualize the outliers to expose each asset’s value at risk (VaR). ETH shows an extreme outlier data point stretching down to just over a 40% loss. Additionally, this shows a hidden risk to the PHI asset, which up to now has displayed generally conservative, safe characteristics. When compared to SPY, PHI displays negative asymmetry, which indicates that extreme drawdown days impact PHI more than SPY.
 
-## Figure 8: SPY Price vs CPI and Fed Funds Rate Over Time
+### Figure 8: SPY Price vs CPI and Fed Funds Rate Over Time
 
 ```{r}
 macro_long <- unified_clean |>
@@ -1444,7 +1444,9 @@ Figure 8 once again focuses on the macroeconomic environment. This aligns SPY pe
 
 This section does not recompute new statistics from scratch. It pulls together what was already built in the SQL Investigation and Visualization sections and interprets them together, since the spec asks us to compare across five specific angles: returns, volatility, inflationary periods, high-VIX periods, and interest-rate environments.
 
-## 1. Comparing Returns and Volatility Across Assets
+### 1. Comparing Returns and Volatility Across Assets
+
+Annualizing the daily figures for 252 trading days puts all four assets on a comparable yearly basis instead of the tiny daily numbers that are hard to reason about directly. Pairing this table with Figure 1 (indexed price trend) and Figure 6 (cumulative growth of $1), an asset can have a strong annualized return on paper while Figure 6 shows the path there was rough with deep drawdowns along the way. Figure 7's boxplot is the fastest way to see this same return-vs-volatility trade off visually, a tall box means more day-to-day risk for whatever return the asset ultimately delivered.
 
 ```{r}
 return_vol_summary <- returns_long_viz |>
@@ -1460,37 +1462,63 @@ return_vol_summary <- returns_long_viz |>
 return_vol_summary
 ```
 
-Annualizing the daily figures for 252 trading days puts all four assets on a comparable yearly basis instead of the tiny daily numbers that are hard to reason about directly. Pairing this table with Figure 1 (indexed price trend) and Figure 6 (cumulative growth of $1), an asset can have a strong annualized return on paper while Figure 6 shows the path there was rough with deep drawdowns along the way. Figure 7's boxplot is the fastest way to see this same return-vs-volatility tradeoff visually, a tall box means more day-to-day risk for whatever return the asset ultimately delivered.
+The descriptive statistics in Section VII already established that ETH holds both the highest average daily return (0.224%) and the highest standard deviation (4.65%) of the four assets, more than three times the volatility of SPY (1.32%). AMD sits between the two, with a mean return of 0.156% and a standard deviation of 3.41%, while PHI, despite its low mean return of 0.051%, carries a standard deviation of 1.96%, nearly 1.5 times higher than SPY's, without a comparable return to justify it. This asymmetry is confirmed by PHI's coefficient of variation of 38.78, the highest of the four assets, meaning PHI delivers the least return per unit of risk on a purely raw basis.
+
+Figure 1's indexed price trend makes this asymmetry visually explicit: ETH experienced two multi-year cycles that carried it past 3000% of its indexed starting value, with a sharp drawdown between the two peaks, while SPY and PHI trace comparatively flat, low-volatility paths. AMD occupies the middle ground both visually and statistically, reaching a roughly 400% peak by late 2025 but without ETH's scale of swings. Figure 6's cumulative growth of $1 confirms the same ranking in compounded terms rather than average daily terms, which matters because an average alone can hide whether returns arrived steadily or in a small number of large jumps.
+	
+Raw and even compounded return figures, however, do not account for the risk taken to earn them. SQL Investigation 10's Sharpe-style ratio, computed against the 10-Year Treasury yield as a risk-free proxy, reorders this ranking: SPY delivers a slightly better risk-adjusted return than ETH, since ETH's substantially higher volatility offsets its return advantage once the two are compared on a like-for-like basis. AMD trails closely behind both, while PHI, despite its outwardly steady price path in Investigation 9, has the weakest risk-adjusted return of the four. Its low volatility is not compensated by a proportional return. This distinction, that the raw-return leader is not the risk-adjusted leader, is the single clearest finding to carry into the Investment Recommendation section.
 
 
-
-## 2. Inflationary Periods
+### 2. Inflationary Periods
+This reuses the CPI-rising vs CPI-flat/falling split from SQL Investigation 6. Since CPI only updates monthly and we forward-filled it across each trading day, "CPI Rising" here means the whole month following a higher print, not a single release-day reaction. Cross-reference this with Figure 8, where the CPI panel shows the actual inflation path over 2020-2025, to see whether the rising-CPI periods in the table line up with the sharpest sections of that line. If equity and crypto returns are consistently weaker during CPI Rising months, that is direct evidence inflation surprises pressure risk assets in this dataset, not just a theoretical assumption.
 
 ```{r}
 cpi_trend
 ```
 
-**Interpretation:** This reuses the CPI-rising vs CPI-flat/falling split from SQL Investigation 6. Since CPI only updates monthly and we forward-filled it across each trading day, "CPI Rising" here means the whole month following a higher print, not a single release-day reaction. Cross-reference this with Figure 8, where the CPI panel shows the actual inflation path over 2020-2025, to see whether the rising-CPI periods in the table line up with the sharpest sections of that line. If equity and crypto returns are consistently weaker during CPI Rising months, that is direct evidence inflation surprises pressure risk assets in this dataset, not just a theoretical assumption.
+SQL Investigation 6 split trading days into CPI Rising and CPI Falling-or-Flat regimes based on the month-over-month change in the forward-filled CPI series. The result shows SPY, ETH, and PHI all earning noticeably higher average returns during CPI Rising periods, while AMD is the lone asset with a slightly lower average return during the same regime.
 
-## 3. High-VIX Periods
+This finding should be read carefully rather than taken as direct evidence that inflation itself boosts returns. Because CPIAUCSL is a nominal price level rather than a year-over-year inflation rate, and Figure 8's CPI panel shows an almost uninterrupted upward staircase across the full 2020-2025 sample, the great majority of months in the dataset fall under “CPI Rising” by construction; deflationary or flat months are the rare exception, not the norm, in this window. The “CPI Rising” regime is therefore closer to “a typical month in a growing economy” than to “a month with an inflation shock.” Read this way, the result is less a statement about inflation sensitivity and more a reflection of the fact that most of the 2020-2025 sample was a period of overall market growth, with AMD's mild underperformance during these months a plausible sign of its higher sensitivity to real-rate and discount-rate dynamics as a growth-oriented equity relative to the other three assets.
+
+
+### 3. High-VIX Periods
+This reuses the High VIX vs Low VIX split from SQL Investigation 4, built around the median VIX level in our sample. Figure 3 (30-day rolling volatility) and Figure 4 (SPY return vs VIX scatter) are the visual backbone for this comparison, Figure 3 shows exactly when the market moved into a High VIX regime, and Figure 4 shows whether higher VIX levels actually coincided with weaker or more unpredictable SPY returns on a day-by-day basis rather than just in aggregate. If both the standard deviation and the average return move in the expected direction (higher volatility, lower average return) during High VIX days, that is a strong basis for treating VIX as an early warning signal in the investment recommendation, not just a descriptive curiosity.
 
 ```{r}
 vix_regime_stats
 ```
 
-**Interpretation:** This reuses the High VIX vs Low VIX split from SQL Investigation 4, built around the median VIX level in our sample. Figure 3 (30-day rolling volatility) and Figure 4 (SPY return vs VIX scatter) are the visual backbone for this comparison, Figure 3 shows exactly when the market moved into a High VIX regime, and Figure 4 shows whether higher VIX levels actually coincided with weaker or more unpredictable SPY returns on a day-by-day basis rather than just in aggregate. If both the standard deviation and the average return move in the expected direction (higher volatility, lower average return) during High VIX days, that is a strong basis for treating VIX as an early warning signal in the investment recommendation, not just a descriptive curiosity.
+The results confirm VIX's function as a fear gauge cleanly. SPY's average daily return flips from -0.045% during High VIX days to +0.192% during Low VIX days, while its return volatility (standard deviation) more than doubles, from 0.67% to 1.73%. AMD shows the same pattern, moving from -0.057% to +0.368% average return, with standard deviation rising from 2.95% to 3.81%. Figure 3's 30-day rolling volatility chart shows this is not a constant property of the assets but an episodic one. Volatility clusters into visible spikes (most severely in early 2020) rather than remaining steady across the sample, consistent with the concept of volatility clustering (Hanck et al., 2026). Figure 4's scatter plot of SPY return against VIX level reinforces the same conclusion from a different angle: the fitted regression line slopes downward, and the spread of points visibly widens at higher VIX levels, meaning returns become both weaker and less predictable exactly when the market is under the most stress.
 
-## 4. Interest-Rate Environments
+Because this comparison rests on a well-balanced sample and is corroborated by two independent visualizations, an elevated VIX reading is treated as a credible, evidence-backed signal for reducing risk exposure in the Investment Recommendation section, rather than a descriptive curiosity.
+
+
+### 4. Interest-Rate Environments
+This reuses the Rate Hike vs Rate Cut vs Held Steady split from SQL Investigation 5. Crypto is generally the most sensitive of the four assets to rate changes, since it carries no yield of its own to compete with a higher risk-free rate, so ETH's average return during Rate Hike days is worth checking closely against AMD, PHI, and SPY. Figure 8's Fed Funds panel shows the actual rate path across the sample, use it to see whether the current environment (as of the end of the sample period) sits in a hiking, cutting, or holding phase, since that context should carry directly into how much crypto exposure the investment recommendation allocates going forward.
 
 ```{r}
 fedfunds_trend
 ```
 
-**Interpretation:** This reuses the Rate Hike vs Rate Cut vs Held Steady split from SQL Investigation 5. Crypto is generally the most sensitive of the four assets to rate changes, since it carries no yield of its own to compete with a higher risk-free rate, so ETH's average return during Rate Hike days is worth checking closely against AMD, PHI, and SPY. Figure 8's Fed Funds panel shows the actual rate path across the sample, use it to see whether the current environment (as of the end of the sample period) sits in a hiking, cutting, or holding phase, since that context should carry directly into how much crypto exposure the investment recommendation allocates going forward.
+Within that caveat, a consistent pattern emerges: every asset earned its highest average return during the 8 Rate Cut days, led by ETH at an average daily return of 2.906%, dramatically above its 0.206% average during Held Steady days. AMD, PHI, and SPY show the same directional pattern at smaller magnitudes. Rate Hike days sit between the other two regimes for most assets. This is directionally consistent with financial theory: cryptocurrency carries no yield of its own, so it is the most exposed of the four assets to changes in the opportunity cost set by the risk-free rate. Figure 8's Fed Funds panel shows the timing of this cycle directly. This shows a hiking phase through 2022-2023, a hold through much of 2024, and the beginning of a cutting phase into 2025-2026.
 
-## 5. Bringing the Comparisons Together
+Given the extremely small sample sizes for the Rate Hike and Rate Cut regimes, these averages should be treated as directionally suggestive rather than statistically robust; a single extreme trading day among only eight or seventeen observations can move the average considerably. This is flagged as a limitation, not a rejection of the finding. The direction of the result matches theory and is corroborated by the CPI and VIX comparisons above, but the magnitude should not be treated as precise going into the Investment Recommendation section.
 
-**Interpretation:** Across all four lenses, average and annualized returns (Section 1), inflationary periods (Section 2), high-VIX periods (Section 3), and interest-rate environments (Section 4), the goal is to identify which asset holds up best under stress (High VIX, CPI Rising, Rate Hike) rather than only which asset has the best raw average return in calm conditions. An asset that leads on annualized return but falls apart hardest under all three stress conditions is a very different allocation decision than one that trails slightly on raw return but stays comparatively stable. This is the evidence base the Investment Recommendation section should draw from directly, rather than restating the descriptive statistics table in isolation.
+
+### 5. Bringing the Comparisons Together
+
+Across all four lenses, average and annualized returns (Section 1), inflationary periods (Section 2), high-VIX periods (Section 3), and interest-rate environments (Section 4), the goal is to identify which asset holds up best under stress (High VIX, CPI Rising, Rate Hike) rather than only which asset has the best raw average return in calm conditions. An asset that leads on annualized return but falls apart hardest under all three stress conditions is a very different allocation decision than one that trails slightly on raw return but stays comparatively stable. This is the evidence base the Investment Recommendation section should draw from directly, rather than restating the descriptive statistics table in isolation.
+
+SQL Investigation 7 found that all four assets moved in the same direction (all positive or all negative) on only 385 of 1,449 trading days, roughly 26.6% of the sample. In other words, on nearly three out of every four trading days, at least one asset moved independently of the other three – direct evidence that the four-asset combination retains meaningful diversification value across the sample period rather than behaving as a single correlated basket.
+
+The correlation matrix in Section VII supports the same conclusion at the pairwise level. AMD and SPY hold the highest correlation in the matrix at 0.64, unsurprising given AMD is itself a constituent of the S&P 500, while PHI is comparatively isolated. Its highest correlation with any other asset is only 0.31, with SPY. This makes PHI the strongest diversifier of the four on a purely statistical basis, even though Section 1 above showed it to have the weakest risk-adjusted return. This is a tension worth carrying directly into the allocation decision in Section X, since PHI's diversification value and its return profile pull the recommendation in opposite directions.
+
+Taken together across all four lenses, the following profile emerges for each asset:
+**ETH:** highest raw and compounded return, highest volatility, and the most sensitive of the four to interest-rate regime changes. Its risk-adjusted return trails SPY once volatility is priced in.
+**AMD:** a middle-ground asset with the highest correlation to SPY of the three risk assets, limiting its diversification value, but distinguished by a positive skew unlike the other three assets, indicating a higher tendency toward large positive surprises relative to large negative ones.
+**PHI:** the best diversifier by correlation, but the weakest risk-adjusted return and the highest kurtosis of the four assets, indicating disproportionate tail risk relative to its otherwise low day-to-day volatility.
+**SPY:** the most consistent performer across every regime split tested; VIX, CPI, and interest-rate environments and the anchor against which the other three assets are best understood.
+
 
 # Investment Recommendation
 
