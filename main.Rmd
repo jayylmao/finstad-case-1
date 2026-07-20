@@ -1279,7 +1279,7 @@ ggplot(indexed_prices, aes(x = date, y = indexed_price, color = asset)) +
   theme_minimal()
 ```
 
-**Interpretation:** This chart is your fastest way to see which asset had the strongest overall run across the full sample period and which one was the most volatile along the way, since a shaky line with a high endpoint (ETH) tells a very different investment story than a steady line with the same endpoint.
+**Interpretation:** This chart is shows which asset had the strongest overall run across the full sample period and which one was the most volatile along the way, since a shaky line with a high endpoint (ETH) tells a very different investment story than a steady line with the same endpoint.
 
 ## Figure 2: Distribution of Daily Returns by Asset
 
@@ -1300,7 +1300,7 @@ ggplot(returns_long_viz, aes(x = return, fill = asset)) +
   theme(legend.position = "none")
 ```
 
-**Interpretation:** This is the direct Anscombe's Quartet check for our return data. Two assets can have nearly identical mean and standard deviation on paper while looking completely different here, one might be a tight, roughly normal bell curve while another has fat tails or a lopsided shape. As seen across all assets, they more or less follow a binomial distribution.
+**Interpretation:** This is a direct Anscombe's Quartet check for return data. Ttwo assets can have nearly identical mean and standard deviation on paper while looking completely different in terms of visualization, one might be a tight, roughly normal bell curve while another has fat tails or a lopsided shape. But, as seen across all assets, they more or less follow a binomial distribution.
 
 ## Figure 3: 30-Day Rolling Volatility by Asset
 
@@ -1326,7 +1326,7 @@ ggplot(rolling_vol, aes(x = date, y = rolling_vol, color = asset)) +
   theme_minimal()
 ```
 
-**Interpretation:** A static standard deviation number treats risk as constant across the whole 2020-2025 window, which it clearly wasn't. Certain spikes line up across all four lines at once, that points to a market-wide event (like a rate decision or macro shock). This also relates to the High VIX vs Low VIX comparison from the SQL Investigation section by showing exactly when volatility regimes shifted.
+**Interpretation:** A static standard deviation number treats risk as constant across the whole 2020-2025 window. Certain spikes line up across all four lines at once, this can point to a market-wide event (like a rate decision or macro shock). This also relates to the High VIX vs Low VIX comparison from the SQL Investigation section by showing exactly when volatility regimes shifted.
 
 ## Figure 4: SPY Daily Return vs VIX Level
 
@@ -1342,7 +1342,7 @@ ggplot(unified_clean, aes(x = vix, y = spy_return)) +
   theme_minimal()
 ```
 
-**Interpretation:** Since the fitted line slopes downward, higher fear/uncertainty (elevated VIX) coincides with weaker SPY returns, confirming VIX's role as a risk signal rather than just background noise. The spread of points around the line also matters: a wide scatter at high VIX levels shows returns get less predictable exactly when the market is most stressed.
+**Interpretation:** Since the fitted line slopes downward, higher fear/uncertainty (elevated VIX) coincides with weaker SPY returns, confirming VIX's role as a risk signal or a "fear gauge". The spread of points around the line also matters: a wide scatter at high VIX levels shows returns get less predictable exactly when the market is most stressed.
 
 ## Figure 5: Correlation Heatmap of Daily Returns
 
@@ -1363,7 +1363,7 @@ ggplot(corr_df, aes(x = asset1, y = asset2, fill = correlation)) +
   theme_minimal()
 ```
 
-**Interpretation:** This is the diversification test for the final allocation. Values near 0 between two assets mean they largely move independently, which is exactly what you want across a portfolio. Values close to 1 mean the assets are effectively duplicating each other's risk, so holding both doesn't reduce overall exposure the way holding two lowly correlated assets would.
+**Interpretation:** This is tests the diversification of our assets for the final allocation. Values near 0 between two assets mean they largely move independently, while values close to 1 mean the assets are effectively matching each other's risk, so holding both doesn't reduce overall exposure the way holding two lowly correlated assets would.
 
 ## Figure 6: Cumulative Growth of $1 Invested
 
@@ -1405,7 +1405,7 @@ ggplot(returns_long_viz, aes(x = asset, y = return, fill = asset)) +
   theme(legend.position = "none")
 ```
 
-**Interpretation:** Boxplots make the risk comparison from the descriptive statistics table visual, box height reflects the interquartile range (typical-day risk) while the whiskers and outlier points show how extreme the worst days actually got. An asset with a tight box but long outlier whiskers has low everyday risk but real tail risk, which is a distinction the standard deviation number alone can't show.
+**Interpretation:** Boxplots make the risk comparison from the descriptive statistics table visual, box height reflects the interquartile range (typical-day risk) while the whiskers and outlier points show how extreme the worst days actually got. An asset with a tight box but long outlier whiskers has low everyday risk but real tail risk.
 
 ## Figure 8: SPY Price vs CPI and Fed Funds Rate Over Time
 
@@ -1425,10 +1425,9 @@ ggplot(macro_long, aes(x = date, y = value)) +
   theme_minimal()
 ```
 
-**Interpretation:** Stacking these on a shared date axis but separate scales lets us visually line up SPY's price trend against the broader macro backdrop. Look for whether SPY's biggest run-ups or drawdowns line up with periods of aggressive Fed Funds hikes or accelerating CPI, that visual alignment (or lack of it) is what the Exploratory Financial Analysis section will need to argue with actual evidence instead of assumption.
+**Interpretation:** Stacking these on a shared date axis but separate scales lets us visually line up SPY's price trend against the broader macroeconomic environment Look for whether SPY's biggest run-ups or drawdowns line up with periods of aggressive Fed Funds hikes or accelerating CPI.
 
 # Exploratory Financial Analysis
-"Compare returns, volatility, inflationary periods, high-VIX periods and interest-rate environments." -- from the specs
 
 This section does not recompute new statistics from scratch. It pulls together what was already built in the SQL Investigation and Visualization sections and interprets them together, since the spec asks us to compare across five specific angles: returns, volatility, inflationary periods, high-VIX periods, and interest-rate environments.
 
@@ -1448,7 +1447,9 @@ return_vol_summary <- returns_long_viz |>
 return_vol_summary
 ```
 
-**Interpretation:** Annualizing the daily figures (return times 252 trading days, volatility times the square root of 252) puts all four assets on a comparable yearly basis instead of the tiny daily numbers that are hard to reason about directly. Pair this table with Figure 1 (indexed price trend) and Figure 6 (cumulative growth of $1), since an asset can have a strong annualized return on paper while Figure 6 shows the path there was rough with deep drawdowns along the way. Figure 7's boxplot is the fastest way to see this same return-vs-volatility tradeoff visually, a tall box means more day-to-day risk for whatever return the asset ultimately delivered.
+Annualizing the daily figures for 252 trading days puts all four assets on a comparable yearly basis instead of the tiny daily numbers that are hard to reason about directly. Pairing this table with Figure 1 (indexed price trend) and Figure 6 (cumulative growth of $1), an asset can have a strong annualized return on paper while Figure 6 shows the path there was rough with deep drawdowns along the way. Figure 7's boxplot is the fastest way to see this same return-vs-volatility tradeoff visually, a tall box means more day-to-day risk for whatever return the asset ultimately delivered.
+
+
 
 ## 2. Inflationary Periods
 
