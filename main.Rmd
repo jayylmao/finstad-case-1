@@ -1271,7 +1271,7 @@ descriptive_table
 ```
 # Visualization
 
-All figures below are built from `unified_clean`, our final analytical dataset, so they stay consistent with every statistic and SQL investigation computed earlier.
+All figures below are built from `unified_clean`, our final analytical dataset, so they stay consistent with every statistic and SQL investigation computed earlier.While numerical summaries are important in financial analysis, these are sometimes unable to capture all of the nuances of the data, particularly patterns and outliers. Visualizations thus become crucial to reveal these nuances.
 
 ## Figure 1: Indexed Price Trend (Base = 100)
 
@@ -1292,7 +1292,7 @@ ggplot(indexed_prices, aes(x = date, y = indexed_price, color = asset)) +
   theme_minimal()
 ```
 
-**Interpretation:** This chart is shows which asset had the strongest overall run across the full sample period and which one was the most volatile along the way, since a shaky line with a high endpoint (ETH) tells a very different investment story than a steady line with the same endpoint.
+Figure 1 normalizes the assets to a base value of 100 to compare the trajectories of each asset relative to one another, across vastly different price scales. The performance is dominated by ETH, which experienced two massive macro cycles, peaking at over a 3000% return in late 2021 and again in early 2025, with a severe drawdown in 2022-2023. ETH’s extreme growth scale visually compresses the relative volatility of the traditional assets, however AMD still exhibited notable growth, peaking at a near 400% gain by late 2025. SPY and PHI both exhibited the steady, low-volatility trajectories characteristic of mature market indices and traditional equities over this six-year window.
 
 ## Figure 2: Distribution of Daily Returns by Asset
 
@@ -1313,7 +1313,7 @@ ggplot(returns_long_viz, aes(x = return, fill = asset)) +
   theme(legend.position = "none")
 ```
 
-**Interpretation:** This is a direct Anscombe's Quartet check for return data. Ttwo assets can have nearly identical mean and standard deviation on paper while looking completely different in terms of visualization, one might be a tight, roughly normal bell curve while another has fat tails or a lopsided shape. But, as seen across all assets, they more or less follow a binomial distribution.
+Figure 2 displays the distribution of daily returns for each asset using histograms. While all four assets have return distributions centered symmetrically around 0.0, their variances differ significantly, which visually confirms the volatility rankings from Figure 1. SPY has the narrowest range at roughly ±5%, which indicates stable, predictable daily movements. AMD and PHI show moderate variance, with wider baselines that reflect higher risk. ETH, by contrast, shows an incredibly wide distribution at ±25%, which visually demonstrates the massive macro swings observed in Figure 1.
 
 ## Figure 3: 30-Day Rolling Volatility by Asset
 
@@ -1339,7 +1339,7 @@ ggplot(rolling_vol, aes(x = date, y = rolling_vol, color = asset)) +
   theme_minimal()
 ```
 
-**Interpretation:** A static standard deviation number treats risk as constant across the whole 2020-2025 window. Certain spikes line up across all four lines at once, this can point to a market-wide event (like a rate decision or macro shock). This also relates to the High VIX vs Low VIX comparison from the SQL Investigation section by showing exactly when volatility regimes shifted.
+Figure 3 gives a closer look at volatility/risk for each asset. While the previous two figures treated volatility as a constant figure, this figure shows that it is, in fact, dynamic and episodic. Previously, it was shown that ETH was consistently more volatile than the other assets. Figure 3, however, shows that its volatility instead spikes and then flatlines, becoming closer to the other assets by late 2023. This demonstrates the concept of volatility clustering, which is where volatility changes over time, and that it has a tendency to persist (Hanck et al., 2026). In other words, periods of high volatility are followed by high volatility, low volatility is followed by low volatility. This also dispels the idea that the cryptocurrency asset is always the riskiest asset in the bucket. During specific periods, like with market shifts or other corporate events, individual equities such as AMD can even become more volatile than ETH. Also of note is that all assets spiked in volatility in early 2020, likely owing to the early COVID-19 market crash. This reveals a degree of market risk that was difficult to spot in the previous figures.
 
 ## Figure 4: SPY Daily Return vs VIX Level
 
@@ -1355,7 +1355,7 @@ ggplot(unified_clean, aes(x = vix, y = spy_return)) +
   theme_minimal()
 ```
 
-**Interpretation:** Since the fitted line slopes downward, higher fear/uncertainty (elevated VIX) coincides with weaker SPY returns, confirming VIX's role as a risk signal or a "fear gauge". The spread of points around the line also matters: a wide scatter at high VIX levels shows returns get less predictable exactly when the market is most stressed.
+Figure 4 shifts focus from the assets to the environment around them. As mentioned earlier, SPY is a benchmark for market performance and VIX is the market “fear”. This reveals that at a low VIX level (< 20), daily returns are relatively consistent, rarely exceeding ±2%. However, as the VIX level rises, the vertical spread of the returns becomes a lot more volatile.
 
 ## Figure 5: Correlation Heatmap of Daily Returns
 
@@ -1376,7 +1376,7 @@ ggplot(corr_df, aes(x = asset1, y = asset2, fill = correlation)) +
   theme_minimal()
 ```
 
-**Interpretation:** This is tests the diversification of our assets for the final allocation. Values near 0 between two assets mean they largely move independently, while values close to 1 mean the assets are effectively matching each other's risk, so holding both doesn't reduce overall exposure the way holding two lowly correlated assets would.
+Figure 5 evaluates the co-movement of assets and potential for diversification. All pairwise correlations are positive, ranging from weak (r=0.16) to moderate-high (r=0.64). The strongest relationship is between AMD and SPY, which reflects high systematic risk exposure for AMD. PHI displays consistently low correlations with the other assets, which makes sense as it is Philippine-based. This exposes it to different risks when compared to the other assets.
 
 ## Figure 6: Cumulative Growth of $1 Invested
 
@@ -1402,7 +1402,7 @@ ggplot(cumulative_growth, aes(x = date, y = growth_of_1, color = asset)) +
   theme_minimal()
 ```
 
-**Interpretation:** This is a compounding view rather than a daily-return view, small consistent gains stack up very differently than occasional large spikes. An asset that looked flashy in Figure 2's histogram might still end up behind a steadier asset here once compounding and drawdowns are accounted for. This chart is a good direct visual to pair with the risk-adjusted return numbers from SQL Investigation 10.
+Figure 6 focuses on wealth outcomes from investments in a portfolio. ETH reaches large peaks in late 2021 at nearly $12, but settles at around $5 by the end of 2025. By contrast, AMD steadily grew to around that, without the massive drawdowns in between. This risk of drawdown highlights how difficult it is to capture that wealth without active risk management. Additionally, PHI notably lagged behind the SPY benchmark, which shows how an asset can underperform these broad market benchmarks over a long time horizon.
 
 ## Figure 7: Daily Return Distribution by Asset (Boxplot)
 
@@ -1418,7 +1418,7 @@ ggplot(returns_long_viz, aes(x = asset, y = return, fill = asset)) +
   theme(legend.position = "none")
 ```
 
-**Interpretation:** Boxplots make the risk comparison from the descriptive statistics table visual, box height reflects the interquartile range (typical-day risk) while the whiskers and outlier points show how extreme the worst days actually got. An asset with a tight box but long outlier whiskers has low everyday risk but real tail risk.
+Figure 7 displays all the return distributions on the same y-axis scale. AMD and ETH notably have taller central boxes, which represent the middle 50% of daily returns. Notably, this visualization helps to visualize the outliers to expose each asset’s value at risk (VaR). ETH shows an extreme outlier data point stretching down to just over a 40% loss. Additionally, this shows a hidden risk to the PHI asset, which up to now has displayed generally conservative, safe characteristics. When compared to SPY, PHI displays negative asymmetry, which indicates that extreme drawdown days impact PHI more than SPY.
 
 ## Figure 8: SPY Price vs CPI and Fed Funds Rate Over Time
 
@@ -1438,7 +1438,7 @@ ggplot(macro_long, aes(x = date, y = value)) +
   theme_minimal()
 ```
 
-**Interpretation:** Stacking these on a shared date axis but separate scales lets us visually line up SPY's price trend against the broader macroeconomic environment Look for whether SPY's biggest run-ups or drawdowns line up with periods of aggressive Fed Funds hikes or accelerating CPI.
+Figure 8 once again focuses on the macroeconomic environment. This aligns SPY performance with inflation, measured by CPI, and monetary policy, measured by the Federal Funds rate. This chart captures the aggressive policy change in early 2022 where the short-term interest rates were raised to over 5% in response to the sharp rise in CPI post-2020.
 
 # Exploratory Financial Analysis
 
