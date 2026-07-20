@@ -585,9 +585,9 @@ top_gains <- returns_long |>
 top_gains
 ```
 
-Using the new unified dataset, we want to see which 3 days within the time period provided the highest returns per asset. By first using select(), only the necessary columns are selected (date, amd_return, eth_return, phi_return, spy_return) where it is then grouped by asset name and arranged/sorted by highest returns. The mutate() function then assigns a new ranking column and each asset is filtered to only the top 3.
+Using SQL queries, we start with selecting the date and each asset’s return through a `select()` call, `group_by()` is then used to group the data by asset type (AMD, ETH, PHI SPY). The data is then arranged by largest to smallest returns through `arrange()`, then  coupled with a given rank per asset and presents the top 3 ranks through `mutate()` and `filter()`. 
 
-The table reveals that AMD, ETH, and PHI all produced extraordinarily large single-day returns during their top-3 ranked days. AMD and ETH both exceeded +20% in a single trading session, with ETH's best day reaching +25.3% (2021-05-24) and AMD's reaching +23.8% (2025-04-09). SPY shows a much more modest top-3 range of roughly 8.5% to 10.5%, which is expected.
+The table reveals that AMD, ETH, and PHI all produced large single-day returns during their top-3 ranked days. AMD and ETH both exceeded +20% in a single trading session, with ETH's best day reaching +25.3% (2021-05-24) and AMD's reaching +23.8% (2025-04-09). SPY shows a much more modest top-3 range of roughly 8.5% to 10.5%, which is expected. These best days possibly represent the outlier days that drive a large share of an asset's total volatility. For AMD, the top days cluster around April–October 2025 (implies sector-specific successes like increased demand of chips), while for ETH, the top-3 dates span 2021 and 2024–2025, which are consistent with known periods of major crypto market rallies. The Philippine asset's top days are more spread out (2020, 2022, 2024) and its range is noticeably smaller than that of AMD's or ETH's suggesting it experiences less extreme single-day upturns.
 
 ## Investigation 2: Monthly average returns
 
@@ -606,7 +606,7 @@ monthly_avg_returns <- unified_clean |>
 monthly_avg_returns
 ```
 
-Using the new unified dataset, we compute an average of the daily return to see which months are strong or weakpoints for each asset in our database. Using the mutate() function, the dates are formatted from YYYY-MM-DD to YYYY-MM to prepare for the grouping of data by months and subsequent averaging of daily returns. Due to the amount of rows, we can simplify the viewing of the lowest and highest months per year per asset where we use group_by() per asset and return the best and worst performing months.
+Using the new unified dataset, we compute an average of the daily return to see which months are strong or weakpoints for each asset in our database. Using the `mutate(`) function, the dates are formatted from `YYYY-MM-DD` to `YYYY-MM` to prepare for the grouping of data by months and subsequent averaging of daily returns. Due to the amount of rows, we can simplify the viewing of the lowest and highest months per year per asset where we use `group_by()` per asset and return the best and worst performing months.
 
 ```{r}
 monthly_long <- monthly_avg_returns |>
@@ -632,8 +632,9 @@ best_worst_months <- best_months |>
 
 best_worst_months
 ```
+Then we find the best and worst months based on return value, where `group_by()` is used to group the values asset-wise and find the maximum or minimum return value in the column through finding the first value in a `slice_max()` and `slice_min()` call.
 
-Although the best and worst months of average returns within a time period is not the best indicator of general asset behavior, we can view it through a historical financial lense. The best months have little to no correlation with each other, but there is a clear pattern in the worst year and month of SPY, ETH, and AMD This shared bad performance could be due to the 2022 stock market decline (https://en.wikipedia.org/wiki/2022_stock_market_decline) that affected several stock market indices worldwide between January and October 2022. Many major world events occurred during this period, such as the Russian invasion of Ukraine and the effects of the Covid-19 pandemic on the economy. These caused inflation readings to rise with general fear of an oncomign recession. 
+This table identifies an asset's worst and best months in terms of its average returns across the sample period. The best month column shows no shared patterns or timing across the assets (AMD: 2025-10, ETH: 2020-04, PHI: 2021-08, SPY: 2020-04), but a clear pattern emerges between the worst months across all assets. AMD (2022-05), SPY (2022-06), and ETH (2022-04) all posted their worst average monthly returns within a narrow three-month window in mid-2022, with losses ranging from -1.48% (AMD) to -2.49% (ETH). This clustering of downturns suggests a macroeconomic event over sector-specific events that possibly affected the performance of these stocks. This low performance period coincides with the 2022 stock market decline, due to an aggressive rate-hiking cycle by the U.S. Federal Reserve  to combat post-pandemic inflation, coinciding with the Russian invasion of Ukraine. PHI on the other hand showed a divergent pattern in its worst month (2022-12), suggesting it is not tightly coupled with U.S. monetary policy changes. 
 
 ## Investigation 3: SPY selloff days and cross-asset behavior
 
@@ -648,9 +649,9 @@ spy_selloffs <- unified_clean |>
 spy_selloffs
 ```
 
-Taking a closer look at specific dates over daily averages over the period of a month could provide more insight towards the correlation of asset movement and SPY movement. Using the unified database, SPY returns are filtered to negative dates and arranged/sorted by lowest returns. Asset return columns are added for easier comparison of correlation between SPY's worst days and asset performance on that day. 
+A `filter()` call is first used to isolate only the days where `spy_return` was negative, restricting the dataset to actual down days rather than the full trading history. The remaining rows are then sorted from most severe to least severe using `arrange()` on `spy_return` in ascending order, so that SPY's largest single-day losses appear first. A `select()` call narrows the table down to the date and each asset's return (SPY, AMD, PHI, and ETH), allowing their behavior to be compared side by side on the same date. Finally, `head(10)` limits the output to SPY's ten worst trading days in the sample.
 
-Taking a look at the returns on SPY's worst days, there seems to be a correlation with negative returns in most asset dates, but it does not seem to be _highly_ correlated, as each assets' worst return within the calendar snapshot does not necessarily align with SPY's ranked worst days. Relative to the other returns, AMD seems to be the most correlated with SPY which makes sense because it is part of the S&P 500. Low to moderate correlation is good, as it means the asset portfolio is quite diversified.
+ The ten days in the sample represent SPY’s worst single-day returns, ranging from -4.5% to -10.9%. The worst dates cluster around historical market stress dates, like the crash during the pandemic in March of 2020 (7 of 10 observations) and tariffs from April of 2025 (3 of 10 observations). AMD shows the strongest correlation with SPY, as on every one of SPY’s worst dates, AMD has a negative return. This is consistent with AMD having a higher beta as a tech stock in the S&P 500.
 
 ## Investigation 4: High-VIX vs low-VIX return and volatility comparison
 
@@ -676,9 +677,9 @@ vix_regime_stats <- unified_clean |>
 
 vix_regime_stats
 ```
-Considering VIX calculates market volatility, we take the average and the standard deviation of returns for assets and SPY to assess average daily returns and the magnitude of swings. We first separate the data into high and low VIX periods using mutate(), the values in those periods are the aggregated asset data grouped by VIX regimes and summarized based on statistical computations.
+We classify each trading day into a volatility regime based on the VIX level and compare average returns and volatility across those regimes. The median VIX value across the full sample is first computed separately to serve as the split threshold. A `mutate()` call then creates a new `vix_regime` column, labeling each day as "High VIX" or "Low VIX" depending on whether that day's VIX reading falls above or below the sample median. `group_by()` is used to group the data by this newly created regime, and `summarise()` then computes the average return (`mean()`) and volatility (`sd()`) of both SPY and AMD returns within each group, along with a count of trading days (`n()`) falling into each regime. 
 
-As seen in the resulting table the high and low VIX instances are relatively equal, making this a fair assessment on how VIX is able to act as a "fear gauge". 'High VIX' consistently has a lower average of returns and low VIX being the opposite, with the assets standard deviation also following the same pattern, larger volatility/swing in high VIX and lower in low VIX periods. This shows how VIX is able to accurately gauge market volatility.
+We use VIX to calculate market risk, or periods of low returns with high volatility, and if VIX patterns correlate with the average returns of an asset. As seen in the resulting table the high and low VIX instances are relatively equal, making this a fair assessment on how VIX is able to act as a "fear gauge". 'High VIX' consistently has a lower average of returns and low VIX being the opposite, with the asset's standard deviation also following the same pattern, larger volatility/swing in high VIX and lower in low VIX periods. This shows how VIX is able to accurately gauge market volatility.
 
 ## Investigation 5: Returns across Fed Funds rate regimes
 
@@ -708,7 +709,7 @@ fedfunds_trend <- unified_clean |>
 fedfunds_trend
 ```
 
-To see the relationship between our assets and FEDFUNDS, we compare average returns to the status of FEDFUNDS based on their change column. Using the unified database, the change column is assigned a "rate class" to create groups for data to be aggregated by, the average returns are computed using summarize() then grouped by the rate class produced earlier. 
+The data is first sorted chronologically using `arrange()` to ensure changes are calculated in proper date order. A `mutate()` call then computes `fedfunds_change` as the difference between each day's rate and the prior day's rate using `lag()`, and a `case_when()` statement classifies each day into a class "Rate Hike," "Rate Cut," or "Held Steady" based on the sign of that change. A `filter()` call removes the first row of the dataset, which has no prior value to compare against and would otherwise return a missing regime classification. `group_by()` is then used to group the data by rate regime, and `summarise()` computes the average return of AMD, ETH, PHI, and SPY within each group, along with a count of trading days (`n()`) in each regime.
 
 In the resulting table, there is a clear imbalance between the number of days per rate class but this is expected as FEDFUNDS is a policy rate, not a continuously trading price, hence majority of days will naturally fall under the "Held Steady" class because rate changes are rare, discrete events.This also makes average returns sensitive to rate cuts and hikes, despite the small sample sizes for Rate Hike and Rate Cut days, a consistent pattern shows where every asset earns its highest average return during Rate Cut periods, and its lowest/near-lowest average during "Held Steady" periods. However, this pattern must be interpreted cautiously, as with only 8 Rate Cut days and 17 Rate Hike days in the entire sample, these averages are highly sensitive to one or two extreme trading days rather than reflecting a strong statistical relation.
 
@@ -736,9 +737,9 @@ cpi_trend <- unified_clean |>
 cpi_trend
 ```
 
-Now looking at the relationship between our assets and CPIAUCSL, we can check whether inflation directly affects the returns of stocks. Using the unified database, CPI changes are grouped based on change column values and sorted into classes.Using the group_by() function, we aggregate the return data of our assets through summarise() into the mentioned classes.
+The data is first sorted chronologically using arrange() so that changes are computed in the correct date sequence. A `mutate()` call then calculates `cpi_change` as the difference between each day's CPI value and the prior day's value using `lag()`, and an `if_else()` statement classifies each day as "CPI Rising" or "CPI Falling or Flat" depending on whether that change is positive. A `filter()` call removes the first row, which lacks a prior CPI value to compare against. `group_by()` groups the data by inflation regime, and `summarise()` computes the average return of AMD, ETH, PHI, and SPY within each group, along with the number of trading days (`n()`) falling into each classification. 
 
-Looking at the resulting table, the number of days per class remains imbalanced, but this is expected as CPI is a monthly economic indicato and forward-filled onto the SPY trading calendar. Despite the small sample for "CPI Rising" a consistent pattern emerges with SPY, ETH, and PHI, where they all show noticeably higher average returns during CPI Rising periods compared to CPI Falling or Flat. AMD on the other hand shows a slightly lower average return during CPI Rising periods. This singular divergence may reflect higher sensitivity to sector-specific news.
+Looking at the resulting table, the number of days per class remains imbalanced, but this is expected as CPI is a monthly economic indicator and forward-filled onto the SPY trading calendar. Despite the small sample for "CPI Rising" a consistent pattern emerges with SPY, ETH, and PHI, where they all show noticeably higher average returns during CPI Rising periods compared to CPI Falling or Flat. AMD on the other hand shows a slightly lower average return during CPI Rising periods. This singular divergence may reflect higher sensitivity to sector-specific news.
 
 ## Investigation 7: Co-movement across all four assets
 
@@ -760,7 +761,7 @@ co_movement <- unified_clean |>
 co_movement
 ```
 
-Using the mutate() function, added columns to the unified database determine days where all assets are positive and negative, then summarised to only include those values and the percentage of movement. 
+A `mutate()` call creates two classes `all_positive` and `all_negative`, checking whether AMD, ETH, PHI, and SPY returns are simultaneously positive or simultaneously negative on a given day. `summarise()` is then used to aggregate these flags across the full dataset, a `sum()` call counts the number of all-up days and all-down days, `n()` returns the total number of trading days in the sample, and a combined calculation divides the sum of co-moving days by the total number of days to produce the overall percentage of days on which all four assets moved in the same direction.
 
 Out of 1,449 total trading days, all four assets moved in the same direction on only 385 days (212 all-up + 173 all-down), or roughly 26.6% of the time. This means that on the vast majority of trading days (~73%), the four assets did not move in unison, at least one asset diverged from the others.This implies high diversification of assets within our database.
 
@@ -782,6 +783,8 @@ eth_top_volume <- eth_clean |>
 amd_top_volume
 eth_top_volume
 ```
+For each asset, a `select()` call narrows the dataset down to date, volume, and return, and `arrange()` sorts the data in descending order of volume so that the largest-volume days appear first. `head(5)` then limits each result to the top five highest-volume trading days. This process is applied separately to `amd_clean` and `eth_clean`, producing two independent tables that can be compared side by side to examine whether volume spikes for each asset tend to coincide with sharp gains or sharp losses. 
+
 Often times, volume spikes are associated with panic selling and liquidation of stocks, but all five of AMD's highest-volume days are strongly positive, with returns ranging from +5% to a striking +23.7% on 2025-10-06. This is likely consistent with AMD's earnings-release dates or announcements/news of AI/data-center chips, thus coinciding with the boom of AI and large language models. On the other hand, ETH's highest volume days present the opposite, four out of the five returns are negative, including a severe -27.2% crash on 2021-05-19 (this aligns with the May 2021 crypto market crash) and a more recent -12.0% drop on 2025-10-10. This supports the pattern where extreme trading volume in crypto markets tends to accompany sharp sell-offs and liquidation events.
 
 ## Investigation 9: Quarterly average price levels
@@ -802,7 +805,7 @@ quarterly_prices <- unified_clean |>
 quarterly_prices
 ```
 
-To assess an asset's long-term trend, closing prices are used as a representational basis for stock behavior, showing the pattern of risk and steadiness of the assets. Using the unified database, it is mutated to show the average closing stock prices of each asset per quartile of a year, and grouped by the yearly quartiles to determine a quarterly average.
+A `mutate()` call creates a new `year_quarter` column by combining the year and quarter extracted from each date using `lubridate::year()` and `lubridate::quarter()`. `group_by()` then groups the data by this year-quarter label, and `summarise()` computes the average price of SPY, AMD, PHI, and ETH within each quarter using `mean()`, producing a single row per quarter that summarizes each asset's typical price level over that period. 
 
 Across 2020-Q1 through 2024-Q4, all four assets show a clear long-term upward trend, though at different magnitudes and different volatility patterns. SPY grows steadily and relatively smoothly, from ~\$277 (2020-Q1) to ~\$577 (2024-Q4), roughly a  2.1x growth. While AMD shows much sharper swings, climbing from ~\$48 to a peak of ~\$175 (2024-Q2), but with visible mid-cycle lows, such as falling from \$133 in 2021-Q4 to \$65 by 2022-Q4. PHI has the flattest growth, moving from ~\$13 to a modest ~\$22 by 2024-Q. Lastly, ETH proves to be the most volatile, from ~\$184 (2020-Q1) to a massive peak of ~\$4,096 (2021-Q4), then crashing to ~\$1,306 by 2022-Q4, before climbing again to ~\$3,055 by 2024-Q4, roughly a 22x increase from the start of the sample.
 
@@ -824,6 +827,7 @@ risk_adjusted <- unified_clean |>
 
 risk_adjusted
 ```
+A daily risk-free rate is first calculated outside the main query by taking the average 10-Year Treasury yield across the sample, converting it from an annual percentage to a daily decimal rate by dividing by 100 and by 252 trading days. A `select()` call then narrows the dataset down to the return columns for AMD, ETH, PHI, and SPY, and `summarise()` computes each asset's Sharpe ratio by subtracting the daily risk-free rate from its average return (`mean()`) and dividing the result by its standard deviation (`sd()`), producing a single risk-adjusted performance measure for each asset that can be compared directly regardless of differences in raw volatility. 
 
 The Sharpe ratio measures an investment's return for each unit of risk taken, it helps in seeing if a higher return is due to smart investing or froim taking on too much risk. Even though ETH had the largest raw price appreciation over the period (see Investigation 9), SPY delivers a slightly better risk-adjusted return than ETH due to ETH's much higher volatility. AMD sits close behind both. The PHI asset, despite its steady price path in Investigation 9, actually has the weakest risk-adjusted return, its low volatility not proportional to any meaningful returns.
 
